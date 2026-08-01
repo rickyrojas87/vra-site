@@ -2,7 +2,7 @@
 /** Contact — spec section 6. */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
-import Placeholder from '../components/Placeholder.astro';
+import QuoteCalculator from '../components/QuoteCalculator.astro';
 import { site, professionalLinks } from '../data/site';
 import { genreOptions, dealTypes } from '../data/taxonomy';
 
@@ -23,16 +23,12 @@ const FORM_NAME = 'quote-request';
   <section class="section surface-deep" data-reveal>
     <div class="container stack">
       <p class="label">Estimate</p>
-      <Placeholder
-        label="Quote calculator embed"
-        note="Phase 3. Blocked on the rate decision: publish a PFH range, or quote on request."
-        height="360px"
-      />
+      <QuoteCalculator formTarget="intake" />
     </div>
   </section>
 
   {/* 3 — Intake form. Fields 5, 6 and 8 are the qualifying ones — never cut them. */}
-  <section class="section surface-base" data-reveal>
+  <section class="section surface-base" id="intake" data-reveal>
     <div class="container stack">
       <p class="label">Project details</p>
 

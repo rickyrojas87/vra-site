@@ -1,0 +1,416 @@
+---
+/**
+ * Quote calculator — spec section 6, row 2 (spec section 8, phase 3).
+ *
+ * Plain JS, no dependencies, inlined like the waveform player. Every rate and
+ * every line of service copy comes from src/data/pricing.ts.
+ *
+ * The output area stays hidden until a valid word count exists, so the panel
+ * never shows a zero, a NaN or a placeholder dash.
+ */
+import { services, defaultServiceId, WORDS_PER_FINISHED_HOUR, ESTIMATE_DISCLAIMER } from '../data/pricing';
+
+interface Props {
+  /** id of the section holding the intake form, for the handoff scroll. */
+  formTarget?: string;
+}
+
+const { formTarget = 'intake' } = Astro.props;
+
+const config = {
+  services,
+  wordsPerHour: WORDS_PER_FINISHED_HOUR,
+  formTarget,
+};
+---
+
+<div class="calc" data-calc>
+  <div class="calc__controls">
+    <div class="calc__field">
+      <h3 class="label calc__legend" id="calc-service">Service</h3>
+      <div class="seg" role="group" aria-labelledby="calc-service" data-seg>
+        {
+          services.map((service) => (
+            <button
+              class="seg__btn"
+              type="button"
+              data-service={service.id}
+              aria-pressed={service.id === defaultServiceId ? 'true' : 'false'}
+            >
+              <span class="seg__name">{service.name}</span>
+              <span class="seg__meta">
+                {service.qualifier} &middot; ${service.rate} per finished hour
+              </span>
+            </button>
+          ))
+        }
+      </div>
+      <p class="calc__desc" data-desc>
+        {services.find((s) => s.id === defaultServiceId)?.description}
+      </p>
+    </div>
+
+    <div class="calc__field">
+      <label class="label calc__legend" for="calc-words">Manuscript word count</label>
+      <input
+        class="calc__input"
+        id="calc-words"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="90,000"
+        aria-describedby="calc-note"
+        data-words
+      />
+    </div>
+  </div>
+
+  {/* Hidden until there is something real to show. */}
+  <div class="calc__out" data-out hidden>
+    <dl class="calc__figures">
+      <div class="calc__figure">
+        <dt class="calc__key">Estimated finished hours</dt>
+        <dd class="calc__val" data-hours></dd>
+      </div>
+      <div class="calc__figure">
+        <dt class="calc__key">Rate</dt>
+        <dd class="calc__val" data-rate></dd>
+      </div>
+      <div class="calc__figure calc__figure--total">
+        <dt class="calc__key">Estimated total</dt>
+        <dd class="calc__total" data-total aria-live="polite"></dd>
+      </div>
+    </dl>
+
+    <p class="calc__note" id="calc-note">{ESTIMATE_DISCLAIMER}</p>
+
+    <button class="btn btn--primary" type="button" data-handoff>Send this to Victoria</button>
+  </div>
+</div>
+
+<script type="application/json" data-calc-config set:html={JSON.stringify(config)} />
+
+<style>
+  .calc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--c-panel);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 10px 24px rgb(0 0 0 / 45%),
+      0 2px 4px rgb(0 0 0 / 30%),
+      0 0 0 1px var(--c-rule);
+  }
+
+  .calc__controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .calc__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .calc__legend {
+    margin: 0;
+    font-family: var(--font-body);
+  }
+
+  /* Segmented control, not a dropdown. */
+  .seg {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 3px;
+    background: rgb(0 0 0 / 22%);
+    border: 1px solid var(--c-rule);
+    border-radius: 4px;
+  }
+
+  .seg__btn {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+    background: transparent;
+    border: 0;
+    border-radius: 2px;
+    color: var(--c-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-align: left;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+
+  .seg__btn:hover {
+    color: var(--c-text);
+  }
+
+  .seg__btn[aria-pressed='true'] {
+    background: var(--c-accent);
+    color: var(--c-bg);
+  }
+
+  .seg__name {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .seg__meta {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+
+  .calc__desc {
+    max-width: 68ch;
+    color: var(--c-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .calc__input {
+    width: 100%;
+    max-width: 320px;
+    min-height: 48px;
+    padding: 12px 14px;
+    background: var(--c-bg);
+    border: 1px solid var(--c-rule);
+    border-radius: 2px;
+    color: var(--c-text);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc__input:focus-visible {
+    border-color: var(--c-accent);
+  }
+
+  .calc__out {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--c-rule);
+  }
+
+  .calc__out[hidden] {
+    display: none;
+  }
+
+  .calc__figures {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+
+  .calc__figure {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .calc__key {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .calc__val {
+    margin: 0;
+    color: var(--c-muted);
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc__total {
+    margin: 0;
+    color: var(--c-accent);
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 300;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc__note {
+    max-width: 68ch;
+    /* Same quiet grey the removed legend used — supporting, not body copy. */
+    color: #8d8e96;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .calc [data-handoff] {
+    align-self: flex-start;
+  }
+
+  @media (min-width: 700px) {
+    .seg {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .calc__figure--total {
+      margin-left: auto;
+      align-items: flex-end;
+    }
+  }
+</style>
+
+<script>
+  interface ServiceOption {
+    id: string;
+    name: string;
+    qualifier: string;
+    rate: number;
+    description: string;
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-calc]');
+  const configEl = document.querySelector<HTMLScriptElement>('[data-calc-config]');
+
+  if (root && configEl) {
+    const config: { services: ServiceOption[]; wordsPerHour: number; formTarget: string } =
+      JSON.parse(configEl.textContent || '{}');
+
+    const input = root.querySelector<HTMLInputElement>('[data-words]')!;
+    const out = root.querySelector<HTMLElement>('[data-out]')!;
+    const descEl = root.querySelector<HTMLElement>('[data-desc]')!;
+    const hoursEl = root.querySelector<HTMLElement>('[data-hours]')!;
+    const rateEl = root.querySelector<HTMLElement>('[data-rate]')!;
+    const totalEl = root.querySelector<HTMLElement>('[data-total]')!;
+    const handoff = root.querySelector<HTMLButtonElement>('[data-handoff]')!;
+    const segButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-service]')];
+
+    const group = new Intl.NumberFormat('en-US');
+    const usd = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    });
+
+    let service = config.services[0];
+    let words = 0;
+
+    /** Reformat with thousands separators while holding the caret in place. */
+    function formatInput() {
+      const raw = input.value;
+      const caret = input.selectionStart ?? raw.length;
+      const digitsBeforeCaret = raw.slice(0, caret).replace(/\D/g, '').length;
+
+      // Strips commas from a paste as readily as it ignores stray characters.
+      const digits = raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 9);
+      const formatted = digits ? group.format(Number(digits)) : '';
+      input.value = formatted;
+
+      let pos = 0;
+      let seen = 0;
+      while (pos < formatted.length && seen < digitsBeforeCaret) {
+        if (formatted.charCodeAt(pos) >= 48 && formatted.charCodeAt(pos) <= 57) seen++;
+        pos++;
+      }
+      input.setSelectionRange(pos, pos);
+
+      return digits ? Number(digits) : 0;
+    }
+
+    function render() {
+      if (!words || words <= 0) {
+        out.hidden = true;
+        return;
+      }
+
+      // Round once, then bill from the rounded figure, so the arithmetic on
+      // screen actually checks out: hours x rate really does equal the total.
+      const hours = Math.round((words / config.wordsPerHour) * 10) / 10;
+      const total = Math.round(hours * service.rate);
+
+      hoursEl.textContent = hours.toFixed(1);
+      rateEl.textContent = `${usd.format(service.rate)} / finished hour`;
+      totalEl.textContent = usd.format(total);
+      out.hidden = false;
+    }
+
+    function selectService(next: ServiceOption) {
+      service = next;
+      for (const b of segButtons) {
+        b.setAttribute('aria-pressed', String(b.dataset.service === next.id));
+      }
+      descEl.textContent = next.description;
+      render();
+    }
+
+    input.addEventListener('input', () => {
+      words = formatInput();
+      render();
+    });
+
+    for (const button of segButtons) {
+      button.addEventListener('click', () => {
+        const next = config.services.find((s) => s.id === button.dataset.service);
+        if (next) selectService(next);
+      });
+    }
+
+    // Arrow keys move between segments and select as they go.
+    root.querySelector<HTMLElement>('[data-seg]')!.addEventListener('keydown', (e) => {
+      const key = (e as KeyboardEvent).key;
+      if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'ArrowUp' && key !== 'ArrowDown') return;
+      e.preventDefault();
+      const i = segButtons.indexOf(document.activeElement as HTMLButtonElement);
+      if (i < 0) return;
+      const step = key === 'ArrowRight' || key === 'ArrowDown' ? 1 : -1;
+      const next = segButtons[(i + step + segButtons.length) % segButtons.length];
+      next.focus();
+      next.click();
+    });
+
+    const MARKER = 'Quote estimate:';
+
+    handoff.addEventListener('click', () => {
+      const section = document.getElementById(config.formTarget);
+      const wordField = document.querySelector<HTMLInputElement>('#wordCount');
+      const notes = document.querySelector<HTMLTextAreaElement>('#notes');
+
+      if (wordField) wordField.value = String(words);
+
+      if (notes) {
+        const hours = Math.round((words / config.wordsPerHour) * 10) / 10;
+        const total = Math.round(hours * service.rate);
+        const line =
+          `${MARKER} ${service.name} (${service.qualifier}) — ${group.format(words)} words, ` +
+          `about ${hours.toFixed(1)} finished hours at ${usd.format(service.rate)}/hr, ` +
+          `roughly ${usd.format(total)}.`;
+
+        // Replace a previous estimate rather than stacking them up; anything
+        // the visitor typed themselves is left untouched.
+        const kept = notes.value
+          .split('\n')
+          .filter((l) => !l.startsWith(MARKER))
+          .join('\n')
+          .trim();
+        notes.value = kept ? `${kept}\n\n${line}` : line;
+      }
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      section?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      // preventScroll so focusing doesn't fight the smooth scroll.
+      wordField?.focus({ preventScroll: true });
+    });
+
+    selectService(service);
+  }
+</script>
