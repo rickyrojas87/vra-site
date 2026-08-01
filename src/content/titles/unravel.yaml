@@ -1,17 +1,15 @@
 title: Unravel
+subtitle: ''
+author: Daya Winters
+genre: Thriller
+runtimeHours: null
+releaseYear: null
 status: in-production
-sortOrder: 7
 coverImage: ./covers/unravel.jpg
 sampleAudio: /audio/demo-unravel.mp3
-# Cleared by Vikki for public use, so the demo plays even though the title
-# is unreleased. The dimmed "In production" card on Works is unaffected.
 samplePublic: true
-
-# All other metadata intentionally empty while in production. Fill on release.
-# subtitle:
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# audibleUrl:
-# publisher: independent ACX production — leave unset.
+audibleUrl: ''
+audibleRating: null
+ratingCount: null
+publisher: ''
+sortOrder: 7
