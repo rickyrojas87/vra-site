@@ -1,11 +1,14 @@
 ---
 /** About — spec section 4. Two images maximum on this page: portrait and booth. */
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Placeholder from '../components/Placeholder.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { genres, accents } from '../data/taxonomy';
+import portrait from '../assets/portrait.jpg';
+import booth from '../assets/booth.jpg';
 
 /**
  * Verbatim source copy. Do not reword, condense, or "fix" anything here — this
@@ -32,10 +35,12 @@ const bio = [
   <section class="section">
     <div class="container bio">
       <div class="bio__portrait">
-        <Placeholder
-          label="Portrait"
-          note="Full resolution, 4:5. One of the two images allowed on this page."
-          ratio="4 / 5"
+        {/* Source is 3:4; the spec's 4:5 slot trims ~6% off the vertical. */}
+        <Image
+          src={portrait}
+          alt="Victoria Rojas seated in her studio beside a pair of over-ear headphones, acoustic panelling behind her"
+          width={900}
+          height={1125}
         />
       </div>
 
@@ -82,11 +87,14 @@ const bio = [
     <div class="container stack">
       <p class="label">Studio and delivery</p>
       <DeliverySpec />
-      <Placeholder
-        label="Booth photo"
-        note="The second and final image on this page."
-        ratio="3 / 2"
-      />
+      {/* Rendered at the source's own 3:4 rather than cropped to a landscape slot. */}
+      <figure class="studio-photo">
+        <Image
+          src={booth}
+          alt="Victoria Rojas recording in her booth, wearing headphones at a condenser microphone behind a pop filter, reading from a tablet"
+          width={1120}
+        />
+      </figure>
     </div>
   </section>
 
@@ -106,6 +114,23 @@ const bio = [
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-3);
+  }
+
+  .bio__portrait :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  /* 5 — Booth photo. Constrained so a portrait-orientation shot doesn't run the
+     full 1140px content width and tower over the delivery panel. */
+  .studio-photo {
+    max-width: 480px;
+    margin: 0;
+  }
+
+  .studio-photo :global(img) {
+    width: 100%;
+    height: auto;
   }
 
   .bio__copy {

@@ -21,15 +21,22 @@ and `npx astro dev logs`.
 ## Layout
 
 ```
+public/
+  audio/         Demo MP3s, served as-is (not optimized)
 src/
-  components/    Header, Footer, TitleCard, DeliverySpec, CtaBand, Placeholder
+  assets/        portrait.jpg, booth.jpg — optimized by sharp at build
+  components/    Header, Footer, PageHeader, TitleCard, DeliverySpec, CtaBand, Placeholder
   content/
-    titles/      Titles collection — one YAML file per book (see its README)
-  data/site.ts   Wordmark, email, external links (null = still needed)
+    titles/      Titles collection — one YAML per book, covers/ alongside
+  data/          site.ts (wordmark, links) and taxonomy.ts (genres, accents)
   layouts/       BaseLayout — head, fonts, header/footer chrome
-  pages/         index.astro (spec section 3)
+  pages/         index, about, works, contact (spec sections 3–6)
   styles/        global.css — color, type, spacing tokens
 ```
+
+Images belong in `src/`, not `public/`. Only `src/` assets go through sharp;
+anything in `public/` ships at full size in its original format. Audio lives in
+`public/audio` because it isn't processed either way.
 
 ## Built / not built
 
