@@ -22,7 +22,7 @@ const titles = defineCollection({
       releaseYear: z.number().int(),
       /** Cover art, 1:1. Path relative to this file, e.g. ./covers/foo.jpg */
       coverImage: image().optional(),
-      audibleUrl: z.string().url().optional(),
+      audibleUrl: z.url().optional(),
       status: z.enum(['published', 'in-production']),
       /** Path under /public, e.g. /audio/foo.mp3 */
       sampleAudio: z.string().optional(),
