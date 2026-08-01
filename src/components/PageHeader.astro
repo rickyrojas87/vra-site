@@ -4,12 +4,14 @@ interface Props {
   eyebrow?: string;
   title: string;
   subhead?: string;
+  surface?: 'base' | 'deep' | 'panel';
 }
 
-const { eyebrow, title, subhead } = Astro.props;
+const { eyebrow, title, subhead, surface = 'base' } = Astro.props;
 ---
 
-<section class="section page-header">
+{/* Not revealed: this is each page's LCP element. */}
+<section class:list={['section', 'page-header', `surface-${surface}`]}>
   <div class="container page-header__inner">
     {eyebrow && <p class="label">{eyebrow}</p>}
     <h1>{title}</h1>

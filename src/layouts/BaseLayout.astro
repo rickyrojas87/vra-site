@@ -33,6 +33,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Raleway:wght@400;500&display=swap"
     />
+
+    {/* Runs before first paint so revealed sections never flash in at full
+        opacity first. Gated on motion preference and on JS existing at all.
+        Placed after the font hints so it can't delay their discovery. */}
+    <script is:inline>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('has-reveal');
+      }
+    </script>
   </head>
 
   <body>
@@ -42,5 +51,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
       <slot />
     </main>
     <Footer />
+
+    <script>
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+      if (document.documentElement.classList.contains('has-reveal') && targets.length) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-revealed');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
+        );
+
+        for (const target of targets) observer.observe(target);
+      } else {
+        // No observer support, or motion is reduced: show everything outright.
+        document.documentElement.classList.remove('has-reveal');
+      }
+    </script>
   </body>
 </html>

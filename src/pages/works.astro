@@ -34,7 +34,7 @@ const demos = all.filter((e) => e.data.sampleAudio).sort(byOrder);
   <PageHeader title="Works" />
 
   {/* 2 — Demos */}
-  <section class="section">
+  <section class="section surface-deep" data-reveal>
     <div class="container stack">
       <p class="label">Demos</p>
       {
@@ -66,7 +66,7 @@ const demos = all.filter((e) => e.data.sampleAudio).sort(byOrder);
   </section>
 
   {/* 3 — Published titles */}
-  <section class="section">
+  <section class="section surface-base" data-reveal>
     <div class="container stack">
       <p class="label">Published titles</p>
       {
@@ -86,7 +86,7 @@ const demos = all.filter((e) => e.data.sampleAudio).sort(byOrder);
   {/* 4 — In production */}
   {
     inProduction.length > 0 && (
-      <section class="section">
+      <section class="section surface-panel" data-reveal>
         <div class="container stack">
           <p class="label">In production</p>
           <div class="titles-grid">

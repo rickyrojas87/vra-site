@@ -32,7 +32,7 @@ const bio = [
   <PageHeader eyebrow="Narrator, Central Texas" title="About" />
 
   {/* 2 — Bio, 5/7 split */}
-  <section class="section">
+  <section class="section surface-deep" data-reveal>
     <div class="container bio">
       <div class="bio__portrait">
         {/* Source is 3:4; the spec's 4:5 slot trims ~6% off the vertical. */}
@@ -51,7 +51,7 @@ const bio = [
   </section>
 
   {/* 3 — Range */}
-  <section class="section">
+  <section class="section surface-base" data-reveal>
     <div class="container stack">
       <p class="label">Range</p>
       {
@@ -73,7 +73,7 @@ const bio = [
   </section>
 
   {/* 4 — Genres */}
-  <section class="section">
+  <section class="section surface-panel" data-reveal>
     <div class="container stack">
       <p class="label">Genres</p>
       <ul class="genre-row">
@@ -83,7 +83,7 @@ const bio = [
   </section>
 
   {/* 5 — Studio. Same panel as Home section 5, reused not rewritten. */}
-  <section class="section">
+  <section class="section surface-deep" data-reveal>
     <div class="container stack">
       <p class="label">Studio and delivery</p>
       <DeliverySpec />

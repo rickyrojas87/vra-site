@@ -4,16 +4,19 @@ interface Props {
   heading?: string;
   cta?: string;
   href?: string;
+  /** Must differ from the section above it and from the footer below. */
+  surface?: 'base' | 'deep' | 'panel';
 }
 
 const {
   heading = "Let's talk about your book.",
   cta = 'Request a quote',
   href = '/contact',
+  surface = 'base',
 } = Astro.props;
 ---
 
-<section class="band">
+<section class:list={['band', `surface-${surface}`]} data-reveal>
   <div class="container band__inner">
     <h2 class="band__heading">{heading}</h2>
     <a class="btn btn--primary" href={href}>{cta}</a>

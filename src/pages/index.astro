@@ -2,6 +2,7 @@
 /** Home — spec section 3. */
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
 import Placeholder from '../components/Placeholder.astro';
 import TitleCard from '../components/TitleCard.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
@@ -16,29 +17,11 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
   title="Victoria Rojas, Audiobook Narrator, Central Texas"
   description="Audiobook narration from a treated, ACX-compliant studio in Central Texas. Hear demos and request a quote."
 >
-  {/* 1 — Hero */}
-  <section class="hero">
-    <div class="hero__bg" aria-hidden="true">
-      <Placeholder
-        label="Animated hero custom element"
-        note="Phase 1 build. Full bleed, sits behind this copy."
-        height="100%"
-      />
-    </div>
-
-    <div class="container hero__inner">
-      <p class="label">Audiobook Narrator</p>
-      <h1 class="hero__title">Victoria Rojas</h1>
-      <p class="hero__line">Voice. Story. Experience.</p>
-      <div class="hero__actions">
-        <a class="btn btn--primary" href="#demos">Hear demos</a>
-        <a class="btn btn--outline" href="/contact">Request a quote</a>
-      </div>
-    </div>
-  </section>
+  {/* 1 — Hero. Not revealed: it holds the LCP element. */}
+  <Hero />
 
   {/* 2 — Demo player */}
-  <section class="section" id="demos">
+  <section class="section surface-deep" id="demos" data-reveal>
     <div class="container stack">
       <p class="label">Demos</p>
       <Placeholder
@@ -50,7 +33,7 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
   </section>
 
   {/* 3 — Selected titles */}
-  <section class="section">
+  <section class="section surface-base" data-reveal>
     <div class="container stack">
       <p class="label">Selected titles</p>
       <div class="titles-grid">
@@ -60,7 +43,7 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
   </section>
 
   {/* 4 — Proof */}
-  <section class="section">
+  <section class="section surface-panel" data-reveal>
     <div class="container proof">
       <Placeholder
         label="Author testimonial"
@@ -70,63 +53,20 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
     </div>
   </section>
 
-  {/* 5 — Delivery spec */}
-  <section class="section">
+  {/* 5 — Delivery spec. Deep, so the #2C2D33 panel reads against it. */}
+  <section class="section surface-deep" data-reveal>
     <div class="container stack">
       <p class="label">Studio and delivery</p>
       <DeliverySpec />
     </div>
   </section>
 
-  {/* 6 — CTA band */}
-  <CtaBand />
+  {/* 6 — CTA band. Base, so it differs from both the panel above and the footer. */}
+  <CtaBand surface="base" />
 </BaseLayout>
 
 <style>
-  /* 1 — Hero */
-  .hero {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-height: calc(100vh - var(--header-h));
-    overflow: hidden;
-  }
-
-  .hero__bg {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    opacity: 0.5;
-  }
-
-  .hero__inner {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-    padding-block: var(--space-4);
-  }
-
-  .hero__title {
-    text-transform: uppercase;
-  }
-
-  .hero__line {
-    font-family: var(--font-display);
-    font-size: var(--fs-h3);
-    font-weight: var(--fw-h3);
-    letter-spacing: var(--ls-h3);
-    line-height: var(--lh-heading);
-    color: var(--c-muted);
-  }
-
-  .hero__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-    margin-top: var(--space-2);
-  }
+  /* Hero styles live in Hero.astro. */
 
   /* Shared section rhythm */
   .stack {

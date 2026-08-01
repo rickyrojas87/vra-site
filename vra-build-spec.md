@@ -65,7 +65,7 @@ Remove the Instagram icon from the header. It moves to the footer.
 |---|---|---|---|
 | 1 | Hero | 100vh minus header | Animated hero custom element. `VICTORIA ROJAS` H1, `AUDIOBOOK NARRATOR` label, `Voice. Story. Experience.` H3 in `#C8B8A2`. Two buttons: `Hear demos` (gold filled, anchors to section 2), `Request a quote` (outline, to /contact). |
 | 2 | Demo player | auto | Waveform demo player embed. Genre pills across top, one player below. This is the single most important element on the site. |
-| 3 | Selected titles | auto | 3 or 4 cover cards in a row. Cover art, title, author, genre, run time, Audible link. Champagne `#C8B8A2` 1px frame, no shadow. |
+| 3 | Selected titles | auto | 3 or 4 cover cards in a row. Cover art, title, author, genre, run time, Audible link. Champagne `#C8B8A2` 1px frame. |
 | 4 | Proof | auto | One author testimonial. Cormorant Garamond 28px italic, `#F5EDD6`, attribution in `#C8B8A2` 13px. Centered, max width 720px. |
 | 5 | Delivery spec | auto | Panel on `#2C2D33`, 12px radius. Two columns: Studio (mic, interface, DAW, treated booth) and Delivery (ACX compliant, RMS -23 to -18 dB, peak -3 dB, noise floor under -60 dB, 192 kbps MP3 44.1 kHz mono, room tone headers and footers, punch and roll). |
 | 6 | CTA band | 240px | H2 `Let's talk about your book.` One gold button to /contact. |

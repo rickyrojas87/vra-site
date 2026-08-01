@@ -66,9 +66,26 @@ const meta = [
   .card {
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--c-muted);
+    border: 1px solid var(--c-card-border);
     background: transparent;
-    box-shadow: none;
+    box-shadow:
+      0 10px 24px rgb(0 0 0 / 45%),
+      0 2px 4px rgb(0 0 0 / 30%);
+    transition:
+      transform 250ms ease,
+      box-shadow 250ms ease,
+      border-color 250ms ease;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    /* Third layer is the gold ring — an inset shadow rather than a border, so
+       the lift doesn't shift the card's box by a pixel. */
+    box-shadow:
+      0 18px 38px rgb(0 0 0 / 55%),
+      0 4px 8px rgb(0 0 0 / 38%),
+      inset 0 0 0 1px var(--c-accent);
+    border-color: var(--c-accent);
   }
 
   .card--dim {
@@ -77,7 +94,7 @@ const meta = [
 
   .card__cover {
     aspect-ratio: 1 / 1;
-    border-bottom: 1px solid var(--c-muted);
+    border-bottom: 1px solid var(--c-card-border);
     overflow: hidden;
   }
 

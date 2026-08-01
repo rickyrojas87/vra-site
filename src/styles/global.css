@@ -8,17 +8,22 @@
   /* --- Color -------------------------------------------------------------
      Rule: gold (--c-accent) is for ONE action per screen. Side-by-side
      buttons = primary filled gold, secondary transparent w/ 1px --c-accent-2. */
+  /* Four surfaces, darkest to lightest. Sections alternate between them so no
+     two consecutive bands share a background. */
+  --c-deep: #1b1c20;
   --c-bg: #222328;
   --c-panel: #2c2d33;
+
   --c-accent: #d4af37;
   --c-accent-2: #b8925a;
   --c-text: #f5edd6;
   --c-muted: #c8b8a2;
 
   /* Derived surfaces used by the header/footer specs */
-  --c-footer-bg: #1b1c20;
+  --c-footer-bg: var(--c-deep);
   --c-header-bg: rgb(34 35 40 / 92%); /* --c-bg @ 92% */
   --c-rule: rgb(184 146 90 / 30%); /* --c-accent-2 @ 30% */
+  --c-card-border: rgb(184 146 90 / 35%); /* --c-accent-2 @ 35% */
 
   /* --- Type families ---------------------------------------------------- */
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
@@ -211,9 +216,24 @@ p {
   padding-block: var(--section-pad);
 }
 
-/* Adjacent sections would otherwise stack to 240px of dead space. */
-.section + .section {
-  padding-top: 0;
+/* --------------------------------------------------------------------------
+   Surfaces
+
+   Each section declares one. Consecutive sections must never repeat a value —
+   the colour boundary is what separates them, which is also why every section
+   keeps its own symmetric padding rather than collapsing the shared edge.
+   -------------------------------------------------------------------------- */
+
+.surface-base {
+  background: var(--c-bg);
+}
+
+.surface-deep {
+  background: var(--c-deep);
+}
+
+.surface-panel {
+  background: var(--c-panel);
 }
 
 /* --------------------------------------------------------------------------
@@ -318,4 +338,28 @@ p {
 
 .skip-link:focus {
   top: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Scroll reveals
+
+   The hidden state is gated on `.has-reveal`, which the inline head script adds
+   only when JS runs and motion is allowed. Without JS, or with reduced motion,
+   content renders at full opacity and never depends on the observer firing.
+
+   The hero is deliberately excluded: it holds the LCP element, and starting it
+   at opacity 0 would defer the largest paint until the observer callback.
+   -------------------------------------------------------------------------- */
+
+.has-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 400ms ease-out,
+    transform 400ms ease-out;
+}
+
+.has-reveal [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
 }
