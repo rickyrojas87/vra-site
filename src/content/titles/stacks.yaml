@@ -13,5 +13,7 @@ releaseYear: 2026
 coverImage: ./covers/stacks.jpg
 sampleAudio: /audio/demo-stacks.mp3
 audibleUrl: https://www.audible.com/pd/Stacks-Money-Blood-Part-1-Homecoming-Audiobook/B0GS6XJP7S
+audibleRating: 4.5
+ratingCount: 2
 
 # publisher: intentionally unset — independent ACX production, no publishing house.

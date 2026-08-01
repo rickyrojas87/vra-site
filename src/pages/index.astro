@@ -3,8 +3,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import Placeholder from '../components/Placeholder.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
+import Proof from '../components/Proof.astro';
 import TitleCard from '../components/TitleCard.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
 import CtaBand from '../components/CtaBand.astro';
@@ -24,8 +24,9 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
   {/* 2 — Demo player. The single most important element on the site. */}
   <WaveformPlayer surface="deep" id="demos" />
 
-  {/* 3 — Selected titles */}
-  <section class="section surface-base" data-reveal>
+  {/* 3 — Selected titles. Panel, so the Proof strip below can sit on base and
+      still read its own #2C2D33 panel against the section behind it. */}
+  <section class="section surface-panel" data-reveal>
     <div class="container stack">
       <p class="label">Selected titles</p>
       <div class="titles-grid">
@@ -35,15 +36,7 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
   </section>
 
   {/* 4 — Proof */}
-  <section class="section surface-panel" data-reveal>
-    <div class="container proof">
-      <Placeholder
-        label="Author testimonial"
-        note="Cormorant Garamond 28px italic, attribution in 13px champagne. Two lines is enough."
-        height="220px"
-      />
-    </div>
-  </section>
+  <Proof surface="base" />
 
   {/* 5 — Delivery spec. Deep, so the #2C2D33 panel reads against it. */}
   <section class="section surface-deep" data-reveal>

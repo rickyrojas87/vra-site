@@ -1,0 +1,272 @@
+---
+/**
+ * Proof — Home section 4. Two blocks: a stats strip, then per-title ratings.
+ *
+ * Every figure is computed from the Titles collection. Nothing is hardcoded, so
+ * publishing a title or gaining a rating moves these numbers on the next build.
+ *
+ * Ratings only. No reviewer text, no pull quotes.
+ */
+import { getCollection } from 'astro:content';
+
+interface Props {
+  surface?: 'base' | 'deep' | 'panel';
+}
+
+const { surface = 'base' } = Astro.props;
+
+const all = await getCollection('titles');
+const published = all.filter((t) => t.data.status === 'published');
+
+const rated = published
+  .filter((t) => typeof t.data.audibleRating === 'number')
+  .sort(
+    (a, b) =>
+      b.data.audibleRating! - a.data.audibleRating! ||
+      (b.data.ratingCount ?? 0) - (a.data.ratingCount ?? 0),
+  );
+
+/** Whole strip is gated on there being real ratings to show. */
+const show = rated.length > 0;
+
+const finishedHours = Math.round(
+  published.reduce((sum, t) => sum + (t.data.runtimeHours ?? 0), 0),
+);
+
+/** Weighted by ratingCount so a 5.0 from two listeners can't outrank a 4.7 from ten. */
+const weightTotal = rated.reduce((n, t) => n + (t.data.ratingCount ?? 0), 0);
+const weightedSum = rated.reduce(
+  (n, t) => n + t.data.audibleRating! * (t.data.ratingCount ?? 0),
+  0,
+);
+const averageRating = weightTotal ? weightedSum / weightTotal : 0;
+
+/**
+ * Catalog data is year-granular, so this is the span between the earliest and
+ * latest release year expressed in months. Clamped to one so a catalog that
+ * lands entirely inside one year never reads "0".
+ */
+const years = all.map((t) => t.data.releaseYear).filter((y): y is number => typeof y === 'number');
+const monthsActive = years.length
+  ? Math.max(1, (Math.max(...years) - Math.min(...years)) * 12)
+  : 0;
+
+const stats = [
+  { value: String(published.length), lineOne: 'Titles', lineTwo: 'published' },
+  { value: String(finishedHours), lineOne: 'Finished', lineTwo: 'hours' },
+  { value: (Math.round(averageRating * 10) / 10).toFixed(1), lineOne: 'Average', lineTwo: 'rating' },
+  { value: String(monthsActive), lineOne: 'Months', lineTwo: 'active' },
+];
+---
+
+{
+  show && (
+    <section class:list={['section', `surface-${surface}`]} data-reveal>
+      <div class="container proof">
+        {/* Block 1 — by the numbers */}
+        <div class="stats">
+          {stats.map((stat) => (
+            <div class="stat">
+              <p class="stat__value">{stat.value}</p>
+              <p class="stat__label">
+                <span>{stat.lineOne}</span>
+                <span>{stat.lineTwo}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Block 2 — rated on Audible */}
+        <div class="rated">
+          <h2 class="label">Rated on Audible</h2>
+          <ul class="rated__list">
+            {rated.map((entry) => {
+              const rating = entry.data.audibleRating!;
+              const row = (
+                <>
+                  <span class="rated__title">{entry.data.title}</span>
+                  {entry.data.author && <span class="rated__author">{entry.data.author}</span>}
+                  <span class="rated__score">
+                    <span class="stars" style={`--fill:${(rating / 5) * 100}%`} aria-hidden="true">
+                      <span class="stars__base">★★★★★</span>
+                      <span class="stars__fill">★★★★★</span>
+                    </span>
+                    <span class="rated__number">{rating.toFixed(1)}</span>
+                  </span>
+                </>
+              );
+
+              return (
+                <li class="rated__item">
+                  {entry.data.audibleUrl ? (
+                    <a
+                      class="rated__row"
+                      href={entry.data.audibleUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${entry.data.title}, rated ${rating.toFixed(1)} out of 5 on Audible`}
+                    >
+                      {row}
+                    </a>
+                  ) : (
+                    <div class="rated__row">{row}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <p class="rated__caption">Ratings from Audible listeners.</p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .proof {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* Block 1 — stats strip */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3) var(--space-2);
+    padding: var(--space-3);
+    background: var(--c-panel);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 10px 24px rgb(0 0 0 / 45%),
+      0 2px 4px rgb(0 0 0 / 30%),
+      0 0 0 1px var(--c-rule);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .stat__value {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--c-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat__label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  /* Block 2 — rated list */
+  .rated {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .rated .label {
+    margin: 0;
+    font-family: var(--font-body);
+  }
+
+  .rated__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rated__item {
+    border-bottom: 1px solid rgb(184 146 90 / 22%);
+  }
+
+  .rated__item:last-child {
+    border-bottom: 0;
+  }
+
+  .rated__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px var(--space-1);
+    padding: 14px 0;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .rated__title {
+    color: var(--c-text);
+    font-size: var(--fs-body);
+  }
+
+  .rated__author {
+    /* Same quiet grey as the caption — supporting, never competing. */
+    color: #8d8e96;
+    font-size: 14px;
+  }
+
+  .rated__score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    color: var(--c-accent);
+  }
+
+  a.rated__row:hover .rated__title {
+    color: var(--c-accent);
+  }
+
+  /* Partial fill, so 4.5 and 5.0 don't render identically. */
+  .stars {
+    position: relative;
+    display: inline-block;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .stars__base {
+    color: rgb(212 175 55 / 25%);
+  }
+
+  .stars__fill {
+    position: absolute;
+    inset: 0;
+    width: var(--fill);
+    overflow: hidden;
+    color: var(--c-accent);
+  }
+
+  .rated__number {
+    font-size: var(--fs-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rated__caption {
+    color: #8d8e96;
+    font-size: 12px;
+  }
+
+  @media (min-width: 700px) {
+    .stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

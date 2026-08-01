@@ -10,5 +10,7 @@ releaseYear: 2026
 coverImage: ./covers/smother.jpg
 sampleAudio: /audio/demo-smother.mp3
 audibleUrl: https://www.audible.com/pd/Smother-Audiobook/B0GYT75CT5
+audibleRating: 4.8
+ratingCount: 10
 
 # publisher: intentionally unset — independent ACX production, no publishing house.

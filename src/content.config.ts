@@ -33,6 +33,10 @@ const titles = defineCollection({
       audibleUrl: z.url().optional(),
       /** Path under /public, e.g. /audio/foo.mp3 */
       sampleAudio: z.string().optional(),
+      /** Audible listener rating, 0-5. Omit until the title has one. */
+      audibleRating: z.number().min(0).max(5).optional(),
+      /** Number of ratings behind `audibleRating`; weights the site average. */
+      ratingCount: z.number().int().nonnegative().optional(),
       sortOrder: z.number().int().default(0),
       /** Publisher credit, or "Indie". Shown on /works only. */
       publisher: z.string().optional(),

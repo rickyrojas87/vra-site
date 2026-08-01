@@ -8,6 +8,8 @@ releaseYear: 2026
 coverImage: ./covers/fragile-steps.jpg
 sampleAudio: /audio/demo-fragile-steps.mp3
 audibleUrl: https://www.audible.com/pd/Fragile-Steps-Audiobook/B0GLRCZ5GR
+audibleRating: 4.7
+ratingCount: 10
 
 # genre: no value proposed and none stated on Audible. Confirm with Vikki before
 # this ships. The card omits the field entirely until it is filled in.
