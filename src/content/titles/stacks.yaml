@@ -5,7 +5,9 @@ sortOrder: 5
 author: Keelan Reid
 # UNSOURCED — read from the cover and title, not stated on Audible.
 # Confirm with Vikki before this ships.
-genre: Crime Thriller
+# Normalized to the canonical taxonomy entry: the About pills are broad
+# categories, so "Crime Thriller" alongside "Thriller" read as a data error.
+genre: Thriller
 runtimeHours: 3.22
 releaseYear: 2026
 coverImage: ./covers/stacks.jpg
