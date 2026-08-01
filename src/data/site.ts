@@ -20,11 +20,19 @@ export type ExternalLink = {
   href: string | null;
 };
 
-/** Blocked on spec section 10, item 4. */
+/**
+ * Spec section 10 item 4 — all three now supplied. The `null` fallback stays in
+ * the type and in the templates so a future addition can be entered before its
+ * URL exists, but no entry currently takes that branch.
+ */
 export const externalLinks: ExternalLink[] = [
   { id: 'instagram', label: 'Instagram', href: 'https://instagram.com/vrojasaudio' },
-  { id: 'acx', label: 'ACX profile', href: null },
-  { id: 'audible', label: 'Audible narrator page', href: null },
+  { id: 'acx', label: 'ACX profile', href: 'https://www.acx.com/narrator?p=A2N6DR2ZQGH3PE' },
+  {
+    id: 'audible',
+    label: 'Audible narrator page',
+    href: 'https://www.audible.com/search?searchNarrator=Victoria+Rojas',
+  },
 ];
 
 /** Contact section 4 lists the two professional profiles, not social. */
