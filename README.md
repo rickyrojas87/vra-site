@@ -13,6 +13,11 @@ npm run build   # static output to dist/
 npm run preview # serve dist/ exactly as Netlify will
 ```
 
+As of Astro 7, `astro dev` daemonizes: `npm run dev` forks the server to the
+background and returns, so closing the terminal leaves it running and Ctrl-C has
+nothing to interrupt. Manage it with `npx astro dev stop`, `npx astro dev status`,
+and `npx astro dev logs`.
+
 ## Layout
 
 ```
