@@ -40,6 +40,11 @@ const entries = (await getCollection('titles')).sort((a, b) => a.data.sortOrder 
 
 const tracks = entries
   .map((entry) => {
+    // In-production titles never appear, even when a sample and its peaks exist.
+    // The MP3 and JSON stay on disk, so flipping status to `published` brings
+    // the track back with no other change.
+    if (entry.data.status === 'in-production') return null;
+
     const audio = entry.data.sampleAudio;
     if (!audio) return null;
     const name = audio.split('/').pop()!.replace('.mp3', '');
@@ -340,6 +345,10 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     let current: Track = tracks[0];
     let progress = 0;
     let raf = 0;
+    /** id of the track whose MP3 is currently assigned to the element, if any. */
+    let loadedId: string | null = null;
+    /** Bumped on every select and play; retires stale deferred seeks. */
+    let seekToken = 0;
 
     const mmss = (s: number) =>
       `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -394,15 +403,35 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
       raf = requestAnimationFrame(tick);
     }
 
-    function select(track: Track, { keepTime = false } = {}) {
-      current = track;
-      if (!keepTime) {
-        audio.pause();
-        progress = 0;
+    /**
+     * Selecting ANY track — including the one already loaded — rewinds to zero.
+     *
+     * The element is reused across tracks, so its currentTime outlives a
+     * selection change. Three things have to move together or the readout, the
+     * playhead and the element drift apart: `progress` (what we draw), the
+     * elapsed readout, and the element's own currentTime. Bumping `seekToken`
+     * also retires any deferred seek still waiting on loadedmetadata, so a
+     * pre-play seek from the previous selection can't land on the new track.
+     */
+    function select(track: Track) {
+      seekToken++;
+      audio.pause();
+      progress = 0;
+
+      // Same file still in the element: rewind it now, so pressing play
+      // resumes from the beginning rather than from where it was left.
+      if (loadedId === track.id) {
+        try {
+          audio.currentTime = 0;
+        } catch {
+          /* not seekable yet; play() re-syncs from `progress` anyway */
+        }
       }
+
+      current = track;
       nowEl.textContent = track.title;
       totalEl.textContent = mmss(track.duration);
-      elapsedEl.textContent = mmss(keepTime ? audio.currentTime : 0);
+      elapsedEl.textContent = '0:00';
       for (const b of trackButtons) {
         b.setAttribute('aria-current', b.dataset.track === track.id ? 'true' : 'false');
       }
@@ -411,19 +440,35 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     }
 
     function play() {
-      // First play of this track is the first time its MP3 is ever requested.
-      const url = new URL(current.src, location.href).href;
-      if (audio.src !== url) {
+      const token = ++seekToken;
+      const target = progress * current.duration;
+
+      if (loadedId !== current.id) {
+        // First play of this track is the first time its MP3 is ever requested.
+        // Assigning src resets currentTime to 0 on its own.
         audio.src = current.src;
+        loadedId = current.id;
+
         // Honour a seek made before the file existed: currentTime can only be
         // set once metadata has landed, so defer it rather than dropping it.
-        const target = progress * current.duration;
+        // The token check retires this if the selection changed in between.
         if (target > 0) {
-          audio.addEventListener('loadedmetadata', () => (audio.currentTime = target), {
-            once: true,
-          });
+          audio.addEventListener(
+            'loadedmetadata',
+            () => {
+              if (token !== seekToken) return;
+              audio.currentTime = target;
+            },
+            { once: true },
+          );
         }
+      } else if (Math.abs(audio.currentTime - target) > 0.25) {
+        // Already loaded. `progress` is the source of truth, so this covers both
+        // a rewind from re-selecting and a seek made while paused; an untouched
+        // pause/resume leaves the two within the threshold and simply resumes.
+        audio.currentTime = target;
       }
+
       audio.play();
     }
 
@@ -479,7 +524,8 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
       const rect = canvas.getBoundingClientRect();
       const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
       progress = ratio;
-      if (audio.src) audio.currentTime = ratio * current.duration;
+      // Only touch the element when it actually holds THIS track's file.
+      if (loadedId === current.id) audio.currentTime = ratio * current.duration;
       elapsedEl.textContent = mmss(ratio * current.duration);
       draw();
     }
@@ -502,7 +548,7 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
         const delta = e.key === 'ArrowRight' ? 5 : -5;
         const next = Math.min(current.duration, Math.max(0, (progress * current.duration) + delta));
         progress = current.duration ? next / current.duration : 0;
-        if (audio.src) audio.currentTime = next;
+        if (loadedId === current.id) audio.currentTime = next;
         elapsedEl.textContent = mmss(next);
         draw();
       }
