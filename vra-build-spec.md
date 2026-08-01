@@ -84,7 +84,7 @@ Remove the Instagram icon from the header. It moves to the footer.
 | 5 | Studio | Same delivery spec panel as Home section 5. Reuse, do not rewrite. |
 | 6 | CTA band | Same as Home section 6. |
 
-Kill the six stacked photos. Two images maximum on this page: one portrait, one booth shot.
+No unstructured photo stacking. Portrait and booth shot in their layout slots, plus a capped 4-image collage. Six images total is the ceiling for this page.
 
 ---
 

@@ -1,9 +1,9 @@
 import type { ImageMetadata } from 'astro';
 
-import main from '../assets/main.jpg';
+import portraitAlt from '../assets/portrait-alt.jpg';
 import boothAlt from '../assets/booth-alt.jpg';
+import booth from '../assets/booth.jpg';
 import reading from '../assets/reading.jpg';
-import portraitAlt from '../assets/potrait-alt.jpg';
 
 export interface GalleryImage {
   src: ImageMetadata;
@@ -19,18 +19,27 @@ export interface GalleryImage {
  * Add images by importing them from src/assets (never public/, or they skip the
  * sharp pipeline) and pushing them here. No markup changes needed.
  */
+/**
+ * No image here may also appear elsewhere on About — the bio portrait and the
+ * studio shot (main.jpg) are both spoken for. main.jpg moved out of this array
+ * when it took the studio slot; portrait-alt.jpg took its place.
+ *
+ * portrait-alt.jpg is also the Home hero background. With seven image slots
+ * across the site and six photographs, exactly one must appear twice; keeping
+ * the repeat on two different pages is the least visible way to spend it.
+ */
 export const gallery: GalleryImage[] = [
   {
-    src: main,
-    alt: 'Victoria Rojas laughing mid-take at the microphone, headphones on and a script tablet in her hand',
+    src: portraitAlt,
+    alt: 'Victoria Rojas standing in the booth beside her microphone and pop filter, holding a tablet against her side',
   },
   {
     src: boothAlt,
     alt: 'Victoria Rojas performing a line into the condenser microphone, reading from a tablet held at chest height',
   },
   {
-    src: portraitAlt,
-    alt: 'Victoria Rojas standing in the booth beside her microphone and pop filter, holding a tablet against her side',
+    src: booth,
+    alt: 'Victoria Rojas recording at a condenser microphone behind a pop filter, headphones on, reading from a tablet',
   },
   {
     src: reading,

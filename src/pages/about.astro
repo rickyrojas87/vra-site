@@ -9,7 +9,9 @@ import Gallery from '../components/Gallery.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { genres, accents } from '../data/taxonomy';
 import portrait from '../assets/portrait.jpg';
-import booth from '../assets/booth.jpg';
+/* Studio slot. Stronger frame for a studio context than the booth shot, which
+   moved into the collage. */
+import studio from '../assets/main.jpg';
 
 /**
  * Verbatim source copy. Do not reword, condense, or "fix" anything here — this
@@ -93,8 +95,8 @@ const bio = [
         <figure class="studio__photo">
           <Image
             class="photo"
-            src={booth}
-            alt="Victoria Rojas recording in her booth, wearing headphones at a condenser microphone behind a pop filter, reading from a tablet"
+            src={studio}
+            alt="Victoria Rojas laughing mid-take at the microphone, headphones on and a script tablet in her hand"
             width={1120}
           />
         </figure>
