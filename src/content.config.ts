@@ -33,6 +33,12 @@ const titles = defineCollection({
       audibleUrl: z.url().optional(),
       /** Path under /public, e.g. /audio/foo.mp3 */
       sampleAudio: z.string().optional(),
+      /**
+       * Clears an unreleased title's demo for the public player. Published
+       * titles never need it; an in-production title stays out of the player
+       * until this is explicitly set.
+       */
+      samplePublic: z.boolean().default(false),
       /** Audible listener rating, 0-5. Omit until the title has one. */
       audibleRating: z.number().min(0).max(5).optional(),
       /** Number of ratings behind `audibleRating`; weights the site average. */

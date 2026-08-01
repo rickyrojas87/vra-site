@@ -3,8 +3,11 @@ status: in-production
 sortOrder: 7
 coverImage: ./covers/unravel.jpg
 sampleAudio: /audio/demo-unravel.mp3
+# Cleared by Vikki for public use, so the demo plays even though the title
+# is unreleased. The dimmed "In production" card on Works is unaffected.
+samplePublic: true
 
-# All metadata intentionally empty while in production. Fill on release.
+# All other metadata intentionally empty while in production. Fill on release.
 # subtitle:
 # author:
 # genre:

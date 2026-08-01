@@ -43,4 +43,8 @@ export const defaultServiceId = services[0].id;
 export const WORDS_PER_FINISHED_HOUR = 9300;
 
 export const ESTIMATE_DISCLAIMER =
-  'Finished hours are estimated at 9,300 words per hour and vary with pacing, dialogue density, and genre. Final quotes are confirmed after reviewing the manuscript.';
+  'Finished hours are estimated at 9,300 words per hour. Final pricing depends on the demands of the material. Heavy character work, multiple accents, dense dialogue, and complex pacing take longer to perform and produce than straightforward single-narrator prose, and are quoted accordingly. Every project is confirmed after a manuscript review.';
+
+/** Sits below the disclaimer, one step more prominent — it's an invitation. */
+export const ARRANGEMENTS_NOTE =
+  'Royalty share and stipend-plus-royalty-share arrangements considered on a per-project basis.';

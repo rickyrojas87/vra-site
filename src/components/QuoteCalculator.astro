@@ -8,7 +8,13 @@
  * The output area stays hidden until a valid word count exists, so the panel
  * never shows a zero, a NaN or a placeholder dash.
  */
-import { services, defaultServiceId, WORDS_PER_FINISHED_HOUR, ESTIMATE_DISCLAIMER } from '../data/pricing';
+import {
+  services,
+  defaultServiceId,
+  WORDS_PER_FINISHED_HOUR,
+  ESTIMATE_DISCLAIMER,
+  ARRANGEMENTS_NOTE,
+} from '../data/pricing';
 
 interface Props {
   /** id of the section holding the intake form, for the handoff scroll. */
@@ -73,17 +79,17 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
         <dt class="calc__key">Estimated finished hours</dt>
         <dd class="calc__val" data-hours>&mdash;</dd>
       </div>
-      <div class="calc__figure">
-        <dt class="calc__key">Rate</dt>
-        <dd class="calc__val" data-rate>${defaultService.rate} / finished hour</dd>
-      </div>
+      {/* No standalone Rate figure: as an output it read like a fixed price.
+          The per-finished-hour numbers stay inside the toggle segments, where
+          they anchor the estimate without being presented as the quote. */}
       <div class="calc__figure calc__figure--total">
-        <dt class="calc__key">Estimated total</dt>
+        <dt class="calc__key">Starting estimate</dt>
         <dd class="calc__total" data-total aria-live="polite">&mdash;</dd>
       </div>
     </dl>
 
     <p class="calc__note" id="calc-note">{ESTIMATE_DISCLAIMER}</p>
+    <p class="calc__terms">{ARRANGEMENTS_NOTE}</p>
 
     <button class="btn btn--primary" type="button" data-handoff>Send this to Victoria</button>
   </div>
@@ -251,6 +257,17 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     line-height: 1.6;
   }
 
+  /* One step up from the disclaimer: this one is an invitation, not a caveat. */
+  .calc__terms {
+    max-width: 68ch;
+    margin-top: var(--space-1);
+    padding-top: var(--space-1);
+    border-top: 1px solid var(--c-rule);
+    color: var(--c-muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
   .calc [data-handoff] {
     align-self: flex-start;
   }
@@ -287,7 +304,6 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     const out = root.querySelector<HTMLElement>('[data-out]')!;
     const descEl = root.querySelector<HTMLElement>('[data-desc]')!;
     const hoursEl = root.querySelector<HTMLElement>('[data-hours]')!;
-    const rateEl = root.querySelector<HTMLElement>('[data-rate]')!;
     const totalEl = root.querySelector<HTMLElement>('[data-total]')!;
     const handoff = root.querySelector<HTMLButtonElement>('[data-handoff]')!;
     const segButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-service]')];
@@ -337,10 +353,6 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     }
 
     function render() {
-      // The rate belongs to the selected service, not to the input, so it shows
-      // even when the field is empty.
-      rateEl.textContent = `${usd.format(service.rate)} / finished hour`;
-
       if (!words || words <= 0) {
         hoursEl.textContent = DASH;
         totalEl.textContent = DASH;
