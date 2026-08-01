@@ -24,10 +24,10 @@ const publishedGenres = new Set(
 );
 
 const allGenres = [...new Set([...genres, ...publishedGenres])];
-const orderedGenres = [
-  ...allGenres.filter((g) => publishedGenres.has(g)).sort(),
-  ...allGenres.filter((g) => !publishedGenres.has(g)),
-];
+/** Catalog-backed, alphabetical. Anything here is a genre she has shipped. */
+const narrated = allGenres.filter((g) => publishedGenres.has(g)).sort();
+/** Everything else, in taxonomy order. */
+const availableFor = allGenres.filter((g) => !publishedGenres.has(g));
 import portrait from '../assets/portrait.jpg';
 /* Studio slot. Stronger frame for a studio context than the booth shot, which
    moved into the collage. */
@@ -79,39 +79,40 @@ const bio = [
   <section class="section surface-base" data-reveal>
     <div class="container rg">
       <div class="rg__col">
-        <h2 class="label">Range</h2>
-        {
-          accents.length > 0 ? (
-            <ul class="tags">
-              {accents.map((accent) => (
-                <li class="tag">{accent}</li>
-              ))}
-            </ul>
-          ) : (
-            <p class="muted">Accents to be confirmed.</p>
-          )
-        }
+        <div class="rg__group">
+          <h2 class="label">Range</h2>
+          <p class="rg__intro">Accents and dialects performed in character work.</p>
+          {
+            accents.length > 0 ? (
+              <ul class="tags">
+                {accents.map((accent) => (
+                  <li class="tag">{accent}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="muted">Accents to be confirmed.</p>
+            )
+          }
+        </div>
       </div>
 
+      {/* No "Genres" header above these two: it would sit in the same label
+          token directly above "Narrated" and read as a duplicate. The group
+          labels carry it, and genre names are self-evident in context. */}
       <div class="rg__col">
-        <h2 class="label">Genres</h2>
-        <ul class="tags">
-          {
-            orderedGenres.map((genre) => (
-              <li class:list={['tag', 'tag--pill', { 'is-published': publishedGenres.has(genre) }]}>
-                {genre}
-              </li>
-            ))
-          }
-        </ul>
-        <p class="legend">
-          <span class="legend__swatch" aria-hidden="true" />
-          Published
-          <span class="legend__sep" aria-hidden="true">
-            ·
-          </span>
-          outline: available for
-        </p>
+        <div class="rg__group">
+          <h2 class="label">Narrated</h2>
+          <ul class="tags">
+            {narrated.map((genre) => <li class="tag tag--pill is-published">{genre}</li>)}
+          </ul>
+        </div>
+
+        <div class="rg__group">
+          <h2 class="label">Also available for</h2>
+          <ul class="tags">
+            {availableFor.map((genre) => <li class="tag tag--pill">{genre}</li>)}
+          </ul>
+        </div>
       </div>
     </div>
   </section>
@@ -214,15 +215,30 @@ const bio = [
     gap: 28px;
   }
 
+  /* 40px between groups, 16px from a label to its own content — so the two
+     genre groups read as siblings rather than one continuous list. */
   .rg__col {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-3);
+  }
+
+  .rg__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
   }
 
   .rg__col .label {
     margin: 0;
     font-family: var(--font-body);
+  }
+
+  .rg__intro {
+    max-width: 60ch;
+    color: var(--c-muted);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
   }
 
   .tags {
@@ -263,27 +279,6 @@ const bio = [
     color: var(--c-bg);
   }
 
-  .legend {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    /* One-off legend grey: quieter than --c-muted so it recedes behind the tags. */
-    color: #8d8e96;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-  }
-
-  .legend__swatch {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    background: var(--c-accent);
-  }
-
-  .legend__sep {
-    opacity: 0.6;
-  }
 
   @media (min-width: 700px) {
     .rg {
