@@ -5,8 +5,10 @@ import PageHeader from '../components/PageHeader.astro';
 import QuoteCalculator from '../components/QuoteCalculator.astro';
 import { site, professionalLinks } from '../data/site';
 import { genreOptions, dealTypes } from '../data/taxonomy';
-
-const FORM_NAME = 'quote-request';
+/* Shared with the generated Netlify detection file at /__forms.html, so the two
+   cannot disagree about the form's identity. `npm run build` asserts the field
+   names match as well — see scripts/check-forms.mjs. */
+import { FORM_NAME, HONEYPOT_FIELD } from '../data/intakeForm';
 ---
 
 <BaseLayout
@@ -45,11 +47,11 @@ const FORM_NAME = 'quote-request';
         method="POST"
         action="/thanks"
         data-netlify="true"
-        netlify-honeypot="bot-field"
+        netlify-honeypot={HONEYPOT_FIELD}
       >
         <input type="hidden" name="form-name" value={FORM_NAME} />
         <p class="form__honeypot">
-          <label>Leave this field empty <input name="bot-field" tabindex="-1" /></label>
+          <label>Leave this field empty <input name={HONEYPOT_FIELD} tabindex="-1" /></label>
         </p>
 
         <div class="form__row">

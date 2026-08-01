@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev --host",
     "start": "astro dev --host",
-    "build": "astro build",
+    "build": "astro build && node scripts/generate-forms-file.mjs && node scripts/check-forms.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "peaks": "node scripts/generate-peaks.mjs"

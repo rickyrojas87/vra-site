@@ -93,6 +93,12 @@
   --c-text: #f5edd6;
   --c-muted: #c8b8a2;
 
+  /* Quietest text on the site — disclaimers, captions, secondary attribution.
+     Chosen for contrast, not taste: it must clear WCAG AA (4.5:1) against the
+     PANEL surface, the darkest background it ever sits on. #8D8E96 measured
+     4.21:1 there and failed; this is 4.97:1. Do not darken it. */
+  --c-quiet: #9a9ba4;
+
   /* Derived surfaces used by the header/footer specs */
   --c-footer-bg: var(--c-deep);
   --c-header-bg: rgb(34 35 40 / 92%); /* --c-bg @ 92% */
