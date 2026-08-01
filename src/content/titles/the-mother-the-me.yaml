@@ -1,6 +1,5 @@
-# Title derived from the cover filename — confirm wording and punctuation
-# (likely "The Mother, The Me" with a comma).
-title: The Mother The Me
+# Wording confirmed against her published site. The file slug stays comma-free.
+title: The Mother, The Me
 status: published
 sortOrder: 6
 coverImage: ./covers/the-mother-the-me.jpg
