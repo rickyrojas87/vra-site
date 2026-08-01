@@ -12,6 +12,7 @@
     "peaks": "node scripts/generate-peaks.mjs"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.1.6"
   },
   "allowScripts": {

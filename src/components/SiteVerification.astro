@@ -1,0 +1,31 @@
+---
+/**
+ * SEARCH ENGINE VERIFICATION — the only file you need to touch.
+ *
+ * This component renders into <head> on every page via BaseLayout, which is
+ * what both Google and Bing expect. Uncomment the line you need, paste the
+ * token between the quotes, redeploy, then press Verify in the relevant tool.
+ *
+ * ── Google Search Console ────────────────────────────────────────────────
+ *   search.google.com/search-console
+ *   Add property > URL prefix > HTML tag. Copy only the content="..." value.
+ *
+ * ── Bing Webmaster Tools ─────────────────────────────────────────────────
+ *   bing.com/webmasters
+ *   Add site > Option 1: HTML Meta Tag. Copy only the content="..." value.
+ *
+ * Both are inert meta tags with no runtime effect. Leave them in place after
+ * verifying — removing a tag can un-verify the property.
+ *
+ * Nothing else in the codebase needs editing for this.
+ */
+
+/** Paste the Google Search Console token here, e.g. 'AbC123...'. */
+const GOOGLE_SITE_VERIFICATION = '';
+
+/** Paste the Bing Webmaster Tools token here. */
+const BING_SITE_VERIFICATION = '';
+---
+
+{GOOGLE_SITE_VERIFICATION && <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />}
+{BING_SITE_VERIFICATION && <meta name="msvalidate.01" content={BING_SITE_VERIFICATION} />}

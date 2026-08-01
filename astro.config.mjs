@@ -1,9 +1,11 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 /**
  * Canonical origin — the single place the site's public URL is decided.
- * `<link rel="canonical">` and `og:url` in BaseLayout both derive from it.
+ * `<link rel="canonical">`, `og:url`, robots.txt and the sitemap all derive
+ * from it.
  *
  * On Netlify this comes from the build environment: `URL` is the site's primary
  * address, so it is the generated *.netlify.app host today and becomes
@@ -19,4 +21,11 @@ const site = process.env.URL || LOCAL_FALLBACK;
 export default defineConfig({
   site,
   trailingSlash: 'ignore',
+  integrations: [
+    sitemap({
+      // /thanks is a post-submit landing page with no standalone search value.
+      // __forms.html is a build artifact for Netlify's parser, not a page.
+      filter: (page) => !/\/thanks\/?$/.test(page) && !/__forms/.test(page),
+    }),
+  ],
 });

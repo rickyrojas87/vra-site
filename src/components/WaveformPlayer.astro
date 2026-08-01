@@ -68,7 +68,7 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
 
 <section class:list={['section', `surface-${surface}`]} id={id} data-reveal>
   <div class="container stack">
-    <p class="label">{heading}</p>
+    <h2 class="label">{heading}</h2>
 
     <div class="player" data-player>
       <div class="player__filters" role="group" aria-label="Filter demos by genre">

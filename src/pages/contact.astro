@@ -22,7 +22,7 @@ const FORM_NAME = 'quote-request';
   {/* 2 — Calculator */}
   <section class="section surface-deep" data-reveal>
     <div class="container stack">
-      <p class="label">Estimate</p>
+      <h2 class="label">Estimate</h2>
       <QuoteCalculator formTarget="intake" />
     </div>
   </section>
@@ -30,7 +30,7 @@ const FORM_NAME = 'quote-request';
   {/* 3 — Intake form. Fields 5, 6 and 8 are the qualifying ones — never cut them. */}
   <section class="section surface-base" id="intake" data-reveal>
     <div class="container stack">
-      <p class="label">Project details</p>
+      <h2 class="label">Project details</h2>
 
       {/*
         `action` is where Netlify redirects after it accepts the POST.
@@ -149,7 +149,7 @@ const FORM_NAME = 'quote-request';
   {/* 4 — Direct */}
   <section class="section surface-panel" data-reveal>
     <div class="container stack">
-      <p class="label">Direct</p>
+      <h2 class="label">Direct</h2>
       <div class="direct">
         <div class="direct__block">
           <a class="direct__email" href={`mailto:${site.email}`}>{site.email}</a>

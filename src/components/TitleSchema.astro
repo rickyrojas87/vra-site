@@ -1,0 +1,61 @@
+---
+/**
+ * Audiobook JSON-LD for the titles rendered on a page — spec section 9.
+ *
+ * Fields are emitted only where real data exists. A title with no author, no
+ * runtime or no rating simply omits those properties; nothing is inferred or
+ * filled in with a placeholder, because wrong structured data is worse than
+ * none. `narrator` points at the Person node BaseLayout already emits, so the
+ * two graphs join rather than duplicating her.
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entries: CollectionEntry<'titles'>[];
+}
+
+const { entries } = Astro.props;
+
+const origin = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
+
+/** 5.8 -> "PT5H48M". Schema.org wants ISO 8601 duration, not a decimal. */
+function isoDuration(hours: number) {
+  const whole = Math.floor(hours);
+  const minutes = Math.round((hours - whole) * 60);
+  if (minutes === 0) return `PT${whole}H`;
+  if (whole === 0) return `PT${minutes}M`;
+  return `PT${whole}H${minutes}M`;
+}
+
+const books = entries
+  // A bare name is not a useful Audiobook node; require at least an author.
+  .filter((e) => Boolean(e.data.author))
+  .map((e) => {
+    const d = e.data;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Audiobook',
+      name: d.subtitle ? `${d.title}: ${d.subtitle}` : d.title,
+      author: { '@type': 'Person', name: d.author },
+      narrator: { '@id': `${origin}/#victoria-rojas` },
+      ...(d.genre ? { genre: d.genre } : {}),
+      ...(d.runtimeHours ? { duration: isoDuration(d.runtimeHours) } : {}),
+      // Year-granular in the catalog; ISO 8601 permits a bare year.
+      ...(d.releaseYear ? { datePublished: String(d.releaseYear) } : {}),
+      ...(d.audibleUrl ? { url: d.audibleUrl } : {}),
+      ...(typeof d.audibleRating === 'number' && d.ratingCount
+        ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: d.audibleRating,
+              ratingCount: d.ratingCount,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
+    };
+  });
+---
+
+{books.length > 0 && <script type="application/ld+json" set:html={JSON.stringify(books)} is:inline />}

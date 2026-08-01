@@ -5,6 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
 import Proof from '../components/Proof.astro';
+import TitleSchema from '../components/TitleSchema.astro';
 import TitleCard from '../components/TitleCard.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
 import CtaBand from '../components/CtaBand.astro';
@@ -28,7 +29,7 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
       still read its own #2C2D33 panel against the section behind it. */}
   <section class="section surface-panel" data-reveal>
     <div class="container stack">
-      <p class="label">Selected titles</p>
+      <h2 class="label">Selected titles</h2>
       <div class="titles-grid">
         {selected.map((entry) => <TitleCard entry={entry} />)}
       </div>
@@ -41,13 +42,16 @@ const selected = (await getCollection('titles', ({ data }) => data.status === 'p
   {/* 5 — Delivery spec. Deep, so the #2C2D33 panel reads against it. */}
   <section class="section surface-deep" data-reveal>
     <div class="container stack">
-      <p class="label">Studio and delivery</p>
+      <h2 class="label">Studio and delivery</h2>
       <DeliverySpec />
     </div>
   </section>
 
   {/* 6 — CTA band. Base, so it differs from both the panel above and the footer. */}
   <CtaBand surface="base" />
+
+  {/* Structured data for the titles this page actually renders. */}
+  <TitleSchema entries={selected} />
 </BaseLayout>
 
 <style>

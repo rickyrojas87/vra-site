@@ -1,6 +1,8 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import PersonSchema from '../components/PersonSchema.astro';
+import SiteVerification from '../components/SiteVerification.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -17,6 +19,11 @@ const { title, description, noindex = false } = Astro.props;
  * environment. Nothing about the canonical origin is written twice.
  */
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+
+/** Absolute, because scrapers do not resolve relative image paths. */
+const ogImage = new URL('/og-default.jpg', canonical);
+const ogImageAlt =
+  'Victoria Rojas in her recording booth, beside the wordmark reading Victoria Rojas, Audiobook Narrator';
 ---
 
 <!doctype html>
@@ -30,10 +37,32 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     {noindex && <meta name="robots" content="noindex, follow" />}
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Victoria Rojas, Audiobook Narrator" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    {/* TODO (spec 9): og:image, verification tags, Person schema, favicon. */}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+
+    {/* Ownership tags for Search Console and Bing live in this one file. */}
+    <SiteVerification />
+
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#222328" />
+
+    <PersonSchema />
 
     {/* Self-hosted, so no preconnect and no third-party stylesheet. These two
         variable files cover all four weights in use — Cormorant 300/400 and
