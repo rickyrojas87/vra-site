@@ -1,0 +1,268 @@
+# Sveltia CMS — content editing for victoriarojasaudio.com
+#
+# Auth: Netlify's OAuth (the GitHub app registered against this Netlify site).
+# No base_url and no Cloudflare Worker: omitting base_url IS the Netlify method.
+#
+# Editorial workflow is deliberately absent. Saving commits straight to main,
+# Netlify rebuilds, and rollback is `git revert`.
+#
+# SCOPE: this file is the entire boundary of what can be edited. Pricing,
+# page structure, SEO, design tokens and everything under src/styles are
+# unreachable from the CMS because no collection points at them.
+
+backend:
+  name: github
+  repo: rickyrojas87/vra-site
+  branch: main
+
+# Fallback only. Every collection below sets its own media folder so uploads
+# land in src/, where sharp can optimise them, and never in public/.
+media_folder: src/assets
+public_folder: /src/assets
+
+site_url: https://victoriarojasaudio.com
+display_url: https://victoriarojasaudio.com
+logo_url: /icon-512.png
+
+collections:
+  # ── Audiobooks ────────────────────────────────────────────────────────────
+  - name: titles
+    label: Audiobooks
+    label_singular: Audiobook
+    description: >-
+      Every book on the site. These feed the Works page, the Home page cards,
+      the demo player and the statistics.
+    folder: src/content/titles
+    extension: yaml
+    format: yaml
+    create: true
+    slug: '{{fields.title | slugify}}'
+    identifier_field: title
+    summary: '{{title}} — {{author}}'
+    sortable_fields: [sortOrder, title, releaseYear]
+    media_folder: '/src/content/titles/covers'
+    public_folder: './covers'
+    fields:
+      - { name: title, label: Book title, widget: string }
+
+      - name: subtitle
+        label: Subtitle
+        widget: string
+        required: false
+        hint: >-
+          The rest of the Audible title, if it has one. Example: "A Novel".
+          Leave empty if the book has no subtitle.
+
+      - { name: author, label: Author, widget: string, required: false }
+
+      - name: genre
+        label: Genre
+        widget: string
+        required: false
+        hint: >-
+          One genre. This decides which filter the demo shows under, and which
+          tags light up gold on the About page.
+
+      - name: runtimeHours
+        label: Length in hours
+        widget: number
+        required: false
+        value_type: float
+        min: 0
+        hint: >-
+          Decimal hours, not hours and minutes. 5 hours 48 minutes is 5.8.
+
+      - name: releaseYear
+        label: Year released
+        widget: number
+        required: false
+        value_type: int
+        min: 2000
+        max: 2100
+
+      - name: status
+        label: Status
+        widget: select
+        default: published
+        options:
+          - { label: Published, value: published }
+          - { label: In production, value: in-production }
+        hint: >-
+          "In production" shows the book faded with an In production label and
+          no Audible link.
+
+      - name: coverImage
+        label: Cover art
+        widget: image
+        required: false
+        hint: Square. Bigger is better — 2400 x 2400 is ideal.
+
+      - name: sampleAudio
+        label: Demo audio
+        widget: file
+        required: false
+        media_folder: '/public/audio'
+        public_folder: '/audio'
+        hint: >-
+          An MP3. The waveform is drawn automatically the first time the site
+          rebuilds after you upload it — no need to do anything else.
+
+      - name: samplePublic
+        label: Show sample publicly
+        widget: boolean
+        required: false
+        default: false
+        hint: >-
+          Only matters for books still in production. Turn this on to let people
+          play the demo before the book is released.
+
+      - name: audibleUrl
+        label: Audible link
+        widget: string
+        required: false
+        hint: Paste the full address of the book's Audible page.
+
+      - name: audibleRating
+        label: Audible rating
+        widget: number
+        required: false
+        value_type: float
+        min: 0
+        max: 5
+        hint: Out of 5. Leave empty until the book has ratings.
+
+      - name: ratingCount
+        label: Number of ratings
+        widget: number
+        required: false
+        value_type: int
+        min: 0
+        hint: >-
+          How many people have rated it. Used to work out the site-wide average
+          fairly, so a 5.0 from two people doesn't outweigh a 4.7 from ten.
+
+      - name: publisher
+        label: Publisher
+        widget: string
+        required: false
+        hint: Leave empty for independent titles.
+
+      - name: sortOrder
+        label: Order on the page
+        widget: number
+        default: 0
+        value_type: int
+        hint: Lower numbers appear first.
+
+  # ── Photos ────────────────────────────────────────────────────────────────
+  - name: gallery
+    label: Photos
+    label_singular: Photo
+    description: >-
+      The photo collage on the About page. It only appears once there are at
+      least four photos — with fewer, the whole section stays hidden.
+    folder: src/content/gallery
+    extension: yaml
+    format: yaml
+    create: true
+    slug: '{{sortOrder}}-{{fields.alt | slugify | truncate(40, "")}}'
+    identifier_field: alt
+    summary: '{{alt}}'
+    sortable_fields: [sortOrder]
+    media_folder: '/src/assets'
+    public_folder: '../../assets'
+    fields:
+      - { name: image, label: Photo, widget: image }
+
+      - name: alt
+        label: Description
+        widget: string
+        hint: >-
+          Describe what is happening in the photo, for people using a screen
+          reader and for Google. "Victoria at the microphone with headphones on",
+          not "photo 3".
+
+      - name: sortOrder
+        label: Order in the collage
+        widget: number
+        default: 0
+        value_type: int
+        hint: Lower numbers appear first.
+
+  # ── Testimonials ──────────────────────────────────────────────────────────
+  - name: testimonials
+    label: Testimonials
+    label_singular: Testimonial
+    description: >-
+      Quotes from authors you have worked with. These appear on the Home page.
+      With none written, the section does not appear at all.
+    folder: src/content/testimonials
+    extension: yaml
+    format: yaml
+    create: true
+    slug: '{{fields.author | slugify}}'
+    identifier_field: author
+    summary: '{{author}} — {{quote}}'
+    sortable_fields: [sortOrder, author]
+    fields:
+      - name: quote
+        label: What they said
+        widget: text
+        hint: >-
+          Their words, not a summary. Two or three sentences reads best. No
+          quotation marks needed — the site adds the styling.
+
+      - { name: author, label: Who said it, widget: string }
+
+      - name: bookTitle
+        label: Which book
+        widget: string
+        required: false
+        hint: Optional. The book you narrated for them.
+
+      - name: link
+        label: Link
+        widget: string
+        required: false
+        hint: >-
+          Optional. Their website or the book's page. Must start with https://
+
+      - name: sortOrder
+        label: Order on the page
+        widget: number
+        default: 0
+        value_type: int
+        hint: Lower numbers appear first.
+
+  # ── Studio & delivery ─────────────────────────────────────────────────────
+  - name: settings
+    label: Studio & delivery
+    description: >-
+      The studio and delivery panel that appears on the Home and About pages.
+    files:
+      - name: delivery
+        label: Studio & delivery panel
+        file: src/content/settings/delivery.yaml
+        fields:
+          - name: turnaround
+            label: Turnaround time
+            widget: string
+            required: false
+            hint: >-
+              How fast you deliver, in your own words. Example: "Roughly one
+              finished hour per working day." Leave empty and the line does not
+              appear on the site at all.
+
+          - name: studio
+            label: Studio equipment
+            widget: list
+            field: { name: item, label: Item, widget: string }
+            hint: One line per item. Drag to reorder.
+
+          - name: delivery
+            label: Delivery specifications
+            widget: list
+            field: { name: item, label: Specification, widget: string }
+            hint: >-
+              The technical standards you deliver to. Only change these if your
+              actual delivery specs change.

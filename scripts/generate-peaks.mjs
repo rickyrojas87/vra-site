@@ -9,15 +9,20 @@
  * without touching a single audio file — the MP3 is fetched only when the user
  * presses play on that track.
  *
- * Run this whenever a demo is added, removed, or re-encoded, then commit the
- * JSON. It is deliberately NOT part of `npm run build`: the output is
- * deterministic, so regenerating it on every deploy would only add an ffmpeg
- * dependency to CI for no benefit.
+ * Two modes:
+ *
+ *   npm run peaks            rebuild every envelope from scratch
+ *   npm run peaks:missing    only generate envelopes that don't exist yet
+ *
+ * `build` runs the second one first, so a demo uploaded through the CMS — which
+ * commits an MP3 but cannot run a script — gets its waveform on the next deploy
+ * with nobody intervening. Existing files are left alone, so a normal build does
+ * no ffmpeg work at all.
  *
  * ffmpeg-static is a devDependency. Nothing audio-related ships to the browser.
  */
 import { execFileSync } from 'node:child_process';
-import { readdirSync, writeFileSync, mkdirSync, statSync } from 'node:fs';
+import { readdirSync, writeFileSync, mkdirSync, statSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, basename } from 'node:path';
 import ffmpeg from 'ffmpeg-static';
@@ -35,16 +40,35 @@ const RATE = 8000;
 
 mkdirSync(outDir, { recursive: true });
 
-const files = readdirSync(audioDir)
+const MISSING_ONLY = process.argv.includes('--missing-only');
+
+const all = readdirSync(audioDir)
   .filter((f) => f.toLowerCase().endsWith('.mp3'))
   .sort();
 
-if (!files.length) {
+if (!all.length) {
+  // Not an error in missing-only mode: a site with no demos is a valid state.
+  if (MISSING_ONLY) {
+    console.log('peaks: no MP3s in public/audio, nothing to do');
+    process.exit(0);
+  }
   console.error('No MP3s found in public/audio.');
   process.exit(1);
 }
 
-console.log(`Extracting peaks from ${files.length} file(s) at ${SAMPLE_COUNT} samples each\n`);
+const outPath = (file) => join(outDir, basename(file, '.mp3') + '.json');
+const files = MISSING_ONLY ? all.filter((f) => !existsSync(outPath(f))) : all;
+
+if (MISSING_ONLY && !files.length) {
+  console.log(`peaks: all ${all.length} envelope(s) present, nothing to generate`);
+  process.exit(0);
+}
+
+console.log(
+  `Extracting peaks from ${files.length} file(s) at ${SAMPLE_COUNT} samples each` +
+    (MISSING_ONLY ? ` (missing only, ${all.length} total)` : '') +
+    '\n',
+);
 
 let totalJson = 0;
 
@@ -90,10 +114,10 @@ for (const file of files) {
     peaks: normalized,
   };
 
-  const outPath = join(outDir, basename(file, '.mp3') + '.json');
-  writeFileSync(outPath, JSON.stringify(out));
+  const target = outPath(file);
+  writeFileSync(target, JSON.stringify(out));
 
-  const jsonBytes = statSync(outPath).size;
+  const jsonBytes = statSync(target).size;
   const mp3Bytes = statSync(input).size;
   totalJson += jsonBytes;
 

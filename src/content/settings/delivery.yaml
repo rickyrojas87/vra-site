@@ -1,0 +1,18 @@
+# Studio and delivery panel, shown on Home and About.
+# Editable from the CMS under "Studio & delivery".
+turnaround: ''
+
+studio:
+  - Large-diaphragm condenser microphone
+  - Dedicated audio interface
+  - Professional DAW, edited and mastered in-house
+  - Treated, isolated recording booth
+
+delivery:
+  - ACX compliant
+  - RMS -23 to -18 dB
+  - Peak -3 dB
+  - Noise floor under -60 dB
+  - 192 kbps MP3, 44.1 kHz, mono
+  - Room tone headers and footers
+  - Punch and roll recording

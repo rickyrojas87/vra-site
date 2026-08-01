@@ -49,4 +49,51 @@ const titles = defineCollection({
     }),
 });
 
-export const collections = { titles };
+/**
+ * Gallery — the About collage. One file per photo so the CMS can add, remove
+ * and reorder without anyone editing an array by hand.
+ *
+ * `image` paths are relative to the entry file, which is what lets Astro run
+ * them through sharp. Uploads land in src/assets, never public/.
+ */
+const gallery = defineCollection({
+  loader: glob({ pattern: '*.{yaml,yml,json}', base: './src/content/gallery' }),
+  schema: ({ image }) =>
+    z.object({
+      image: image(),
+      /** Describe what is in the frame, never the filename. */
+      alt: z.string(),
+      sortOrder: z.number().int().default(0),
+    }),
+});
+
+/**
+ * Testimonials — quotes from authors she has worked with. The Home proof
+ * section renders them only when at least one exists.
+ */
+const testimonials = defineCollection({
+  loader: glob({ pattern: '*.{yaml,yml,json}', base: './src/content/testimonials' }),
+  schema: z.object({
+    quote: z.string(),
+    author: z.string(),
+    bookTitle: z.string().optional(),
+    link: z.string().url().optional(),
+    sortOrder: z.number().int().default(0),
+  }),
+});
+
+/**
+ * Editable copy that isn't a page and isn't a title — currently just the
+ * studio and delivery panel. Kept as a single file so the CMS presents it as
+ * one form rather than a list of entries.
+ */
+const settings = defineCollection({
+  loader: glob({ pattern: '*.{yaml,yml,json}', base: './src/content/settings' }),
+  schema: z.object({
+    turnaround: z.string().optional(),
+    studio: z.array(z.string()).default([]),
+    delivery: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { titles, gallery, testimonials, settings };

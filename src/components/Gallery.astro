@@ -6,11 +6,12 @@
  * ruling a straight line. The offset is `margin-top`, not `transform`, so the
  * grid still reserves the space and nothing overflows the section.
  *
- * Entirely data-driven from src/data/gallery.ts — adding photos never touches
- * this file. Renders nothing at all below GALLERY_MIN entries.
+ * Driven by the `gallery` content collection — one file per photo, so the CMS
+ * can add, remove and reorder without anyone editing this file. Renders nothing
+ * at all below GALLERY_MIN entries.
  */
 import { Image } from 'astro:assets';
-import { gallery, GALLERY_MIN } from '../data/gallery';
+import { getCollection } from 'astro:content';
 
 interface Props {
   heading?: string;
@@ -18,6 +19,13 @@ interface Props {
 }
 
 const { heading = 'In the booth', surface = 'panel' } = Astro.props;
+
+/** A partial row breaks the stagger, so the collage is all-or-nothing. */
+const GALLERY_MIN = 4;
+
+const gallery = (await getCollection('gallery')).sort(
+  (a, b) => a.data.sortOrder - b.data.sortOrder,
+);
 const show = gallery.length >= GALLERY_MIN;
 ---
 
@@ -27,9 +35,9 @@ const show = gallery.length >= GALLERY_MIN;
       <div class="container stack">
         <h2 class="label">{heading}</h2>
         <ul class="gallery">
-          {gallery.map((image) => (
+          {gallery.map((entry) => (
             <li class="gallery__item">
-              <Image class="photo gallery__img" src={image.src} alt={image.alt} width={640} />
+              <Image class="photo gallery__img" src={entry.data.image} alt={entry.data.alt} width={640} />
             </li>
           ))}
         </ul>

@@ -26,7 +26,15 @@ const rated = published
       (b.data.ratingCount ?? 0) - (a.data.ratingCount ?? 0),
   );
 
-/** Whole strip is gated on there being real ratings to show. */
+/**
+ * Author testimonials, managed from the CMS. The block below renders only when
+ * at least one exists, so an empty collection leaves no trace on the page.
+ */
+const testimonials = (await getCollection('testimonials')).sort(
+  (a, b) => a.data.sortOrder - b.data.sortOrder,
+);
+
+/** Stats and ratings are gated on there being real ratings to show. */
 const show = rated.length > 0;
 
 const finishedHours = Math.round(
@@ -117,6 +125,32 @@ const stats = [
           </ul>
           <p class="rated__caption">Ratings from Audible listeners.</p>
         </div>
+
+        {/* Block 3 — testimonials. Absent entirely until one is written. */}
+        {
+          testimonials.length > 0 && (
+            <div class="quotes">
+              <h2 class="label">In their words</h2>
+              <ul class="quotes__list">
+                {testimonials.map((t) => (
+                  <li class="quote">
+                    <blockquote class="quote__text">{t.data.quote}</blockquote>
+                    <p class="quote__by">
+                      {t.data.link ? (
+                        <a class="quote__link" href={t.data.link} target="_blank" rel="noopener noreferrer">
+                          {t.data.author}
+                        </a>
+                      ) : (
+                        <span>{t.data.author}</span>
+                      )}
+                      {t.data.bookTitle && <span class="quote__book">{t.data.bookTitle}</span>}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
       </div>
     </section>
   )
@@ -262,6 +296,71 @@ const stats = [
   .rated__caption {
     color: var(--c-quiet);
     font-size: 12px;
+  }
+
+  /* Block 3 — testimonials */
+  .quotes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .quotes .label {
+    margin: 0;
+    font-family: var(--font-body);
+  }
+
+  .quotes__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .quote {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    max-width: 720px;
+  }
+
+  .quote__text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-h3);
+    font-style: italic;
+    letter-spacing: var(--ls-h3);
+    line-height: var(--lh-heading);
+    color: var(--c-text);
+  }
+
+  .quote__by {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px var(--space-1);
+    font-size: 13px;
+    color: var(--c-muted);
+  }
+
+  .quote__book {
+    color: var(--c-quiet);
+  }
+
+  .quote__link {
+    color: var(--c-accent-2);
+  }
+
+  .quote__link:hover {
+    color: var(--c-accent);
+  }
+
+  @media (min-width: 900px) {
+    .quotes__list {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
   }
 
   @media (min-width: 700px) {

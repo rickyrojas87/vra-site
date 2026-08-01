@@ -2,23 +2,16 @@
 /**
  * Delivery spec panel — Home section 5, reused verbatim as About section 5.
  * Panel on #2C2D33, 12px radius, two columns.
+ *
+ * Copy lives in src/content/settings/delivery.yaml so it is editable from the
+ * CMS. The turnaround line only renders once someone fills it in.
  */
-const studio = [
-  'Large-diaphragm condenser microphone',
-  'Dedicated audio interface',
-  'Professional DAW, edited and mastered in-house',
-  'Treated, isolated recording booth',
-];
+import { getEntry } from 'astro:content';
 
-const delivery = [
-  'ACX compliant',
-  'RMS -23 to -18 dB',
-  'Peak -3 dB',
-  'Noise floor under -60 dB',
-  '192 kbps MP3, 44.1 kHz, mono',
-  'Room tone headers and footers',
-  'Punch and roll recording',
-];
+const entry = await getEntry('settings', 'delivery');
+const studio = entry?.data.studio ?? [];
+const delivery = entry?.data.delivery ?? [];
+const turnaround = entry?.data.turnaround?.trim();
 ---
 
 <div class="panel">
@@ -35,6 +28,15 @@ const delivery = [
       {delivery.map((item) => <li>{item}</li>)}
     </ul>
   </div>
+
+  {
+    turnaround && (
+      <p class="panel__turnaround">
+        <span class="label panel__heading">Turnaround</span>
+        <span>{turnaround}</span>
+      </p>
+    )
+  }
 </div>
 
 <style>
@@ -86,11 +88,27 @@ const delivery = [
     background: var(--c-accent-2);
   }
 
+  /* Spans both columns and only exists when the copy does. */
+  .panel__turnaround {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--c-rule);
+    color: var(--c-text);
+    font-size: var(--fs-body);
+    line-height: 1.5;
+  }
+
   @media (min-width: 768px) {
     .panel {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-4);
       padding: var(--space-4);
+    }
+
+    .panel__turnaround {
+      grid-column: 1 / -1;
     }
   }
 </style>
