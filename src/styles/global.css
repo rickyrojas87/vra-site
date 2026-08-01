@@ -1,0 +1,321 @@
+/* ==========================================================================
+   VRA 2026 — global tokens and base styles
+   Section 1 of vra-build-spec.md is the single source of truth for every
+   value in this file. Do not hard-code these anywhere else.
+   ========================================================================== */
+
+:root {
+  /* --- Color -------------------------------------------------------------
+     Rule: gold (--c-accent) is for ONE action per screen. Side-by-side
+     buttons = primary filled gold, secondary transparent w/ 1px --c-accent-2. */
+  --c-bg: #222328;
+  --c-panel: #2c2d33;
+  --c-accent: #d4af37;
+  --c-accent-2: #b8925a;
+  --c-text: #f5edd6;
+  --c-muted: #c8b8a2;
+
+  /* Derived surfaces used by the header/footer specs */
+  --c-footer-bg: #1b1c20;
+  --c-header-bg: rgb(34 35 40 / 92%); /* --c-bg @ 92% */
+  --c-rule: rgb(184 146 90 / 30%); /* --c-accent-2 @ 30% */
+
+  /* --- Type families ---------------------------------------------------- */
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* --- Type scale (mobile first; desktop overrides below) ---------------- */
+  --fs-h1: 40px;
+  --fs-h2: 28px;
+  --fs-h3: 22px;
+  --fs-body: 16px;
+  --fs-label: 12px;
+  --fs-button: 14px;
+
+  --fw-h1: 300;
+  --fw-h2: 300;
+  --fw-h3: 400;
+  --fw-body: 400;
+  --fw-label: 500;
+  --fw-button: 500;
+
+  --ls-h1: 0.14em;
+  --ls-h2: 0.06em;
+  --ls-h3: 0.04em;
+  --ls-body: 0;
+  --ls-label: 0.2em;
+  --ls-button: 0.12em;
+
+  --lh-heading: 1.25;
+  --lh-body: 1.7;
+
+  /* --- Spacing ----------------------------------------------------------- */
+  --max-width: 1140px;
+  --gutter: 24px;
+  --section-pad: 64px; /* mobile */
+
+  /* Element vertical rhythm inside a section: these four values ONLY. */
+  --space-1: 16px;
+  --space-2: 24px;
+  --space-3: 40px;
+  --space-4: 64px;
+
+  /* --- Chrome ------------------------------------------------------------ */
+  --header-h: 64px; /* mobile */
+  --radius-panel: 12px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fs-h1: 64px;
+    --fs-h2: 42px;
+    --fs-h3: 28px;
+    --fs-body: 17px;
+    --fs-label: 13px;
+    --fs-button: 14px;
+
+    --section-pad: 120px;
+    --header-h: 88px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reset / base
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Anchor targets clear the sticky header */
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--c-accent);
+  color: var(--c-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Type primitives
+   -------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: var(--lh-heading);
+}
+
+h1,
+.h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-h1);
+  letter-spacing: var(--ls-h1);
+}
+
+h2,
+.h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-h2);
+  letter-spacing: var(--ls-h2);
+}
+
+h3,
+.h3 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-h3);
+  letter-spacing: var(--ls-h3);
+}
+
+p {
+  margin: 0;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-label);
+  letter-spacing: var(--ls-label);
+  line-height: var(--lh-body);
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.muted {
+  color: var(--c-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Layout primitives
+   -------------------------------------------------------------------------- */
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-pad);
+}
+
+/* Adjacent sections would otherwise stack to 240px of dead space. */
+.section + .section {
+  padding-top: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons — Raleway 14 / 500 / 0.12em / uppercase
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 32px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: var(--fs-button);
+  font-weight: var(--fw-button);
+  letter-spacing: var(--ls-button);
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+/* One per screen. */
+.btn--primary {
+  background: var(--c-accent);
+  color: var(--c-bg);
+}
+
+.btn--primary:hover {
+  background: var(--c-accent-2);
+}
+
+.btn--outline {
+  background: transparent;
+  border-color: var(--c-accent-2);
+  color: var(--c-text);
+}
+
+.btn--outline:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Pills — shared by genre tags (About 4, Works 2, Home 2)
+   -------------------------------------------------------------------------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 18px;
+  border: 1px solid var(--c-accent-2);
+  border-radius: 999px;
+  color: var(--c-muted);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-label);
+  letter-spacing: var(--ls-label);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.pill[aria-pressed='true'],
+.pill--active {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility helper
+   -------------------------------------------------------------------------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: var(--c-accent);
+  color: var(--c-bg);
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  transition: top 150ms ease;
+}
+
+.skip-link:focus {
+  top: 12px;
+}

@@ -1,0 +1,161 @@
+---
+/** Home — spec section 3. */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Placeholder from '../components/Placeholder.astro';
+import TitleCard from '../components/TitleCard.astro';
+import DeliverySpec from '../components/DeliverySpec.astro';
+import CtaBand from '../components/CtaBand.astro';
+
+const selected = (await getCollection('titles', ({ data }) => data.status === 'published'))
+  .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
+  .slice(0, 4);
+---
+
+<BaseLayout
+  title="Victoria Rojas, Audiobook Narrator, Central Texas"
+  description="Audiobook narration from a treated, ACX-compliant studio in Central Texas. Hear demos and request a quote."
+>
+  {/* 1 — Hero */}
+  <section class="hero">
+    <div class="hero__bg" aria-hidden="true">
+      <Placeholder
+        label="Animated hero custom element"
+        note="Phase 1 build. Full bleed, sits behind this copy."
+        height="100%"
+      />
+    </div>
+
+    <div class="container hero__inner">
+      <p class="label">Audiobook Narrator</p>
+      <h1 class="hero__title">Victoria Rojas</h1>
+      <p class="hero__line">Voice. Story. Experience.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#demos">Hear demos</a>
+        <a class="btn btn--outline" href="/contact">Request a quote</a>
+      </div>
+    </div>
+  </section>
+
+  {/* 2 — Demo player */}
+  <section class="section" id="demos">
+    <div class="container stack">
+      <p class="label">Demos</p>
+      <Placeholder
+        label="Waveform demo player embed"
+        note="Genre pills across the top, one player below. Blocked on demo audio files with final labels."
+        height="420px"
+      />
+    </div>
+  </section>
+
+  {/* 3 — Selected titles */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Selected titles</p>
+      <div class="titles-grid">
+        {selected.map((entry) => <TitleCard entry={entry} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* 4 — Proof */}
+  <section class="section">
+    <div class="container proof">
+      <Placeholder
+        label="Author testimonial"
+        note="Cormorant Garamond 28px italic, attribution in 13px champagne. Two lines is enough."
+        height="220px"
+      />
+    </div>
+  </section>
+
+  {/* 5 — Delivery spec */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Studio and delivery</p>
+      <DeliverySpec />
+    </div>
+  </section>
+
+  {/* 6 — CTA band */}
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  /* 1 — Hero */
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - var(--header-h));
+    overflow: hidden;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    opacity: 0.5;
+  }
+
+  .hero__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding-block: var(--space-4);
+  }
+
+  .hero__title {
+    text-transform: uppercase;
+  }
+
+  .hero__line {
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-h3);
+    letter-spacing: var(--ls-h3);
+    line-height: var(--lh-heading);
+    color: var(--c-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+
+  /* Shared section rhythm */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* 3 — Selected titles */
+  .titles-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gutter);
+  }
+
+  /* 4 — Proof */
+  .proof {
+    display: flex;
+    justify-content: center;
+  }
+
+  .proof > :global(*) {
+    max-width: 720px;
+  }
+
+  /* auto-fit so 3 titles fill the row as well as 4 do. */
+  @media (min-width: 768px) {
+    .titles-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+  }
+</style>

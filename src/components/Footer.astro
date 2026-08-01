@@ -1,0 +1,139 @@
+---
+/** Spec section 7. Three columns plus a bottom bar. */
+import { site, pages, externalLinks } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__col">
+      <a class="footer__wordmark" href="/">{site.wordmark}</a>
+      <p class="footer__tagline">{site.tagline}</p>
+      <a class="footer__email" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+
+    <nav class="footer__col" aria-label="Footer">
+      <h2 class="label footer__heading">Pages</h2>
+      <ul class="footer__list">
+        {
+          pages.map((page) => (
+            <li>
+              <a class="footer__link" href={page.href}>
+                {page.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="footer__col">
+      <h2 class="label footer__heading">Elsewhere</h2>
+      <ul class="footer__list">
+        {
+          externalLinks.map((link) => (
+            <li>
+              {link.href ? (
+                <a class="footer__link" href={link.href} target="_blank" rel="me noopener noreferrer">
+                  {link.label}
+                </a>
+              ) : (
+                <span class="footer__link is-pending" title="URL still needed">
+                  {link.label}
+                </span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__bar">
+    <p>&copy; {year} {site.name}. All rights reserved.</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--c-footer-bg);
+    border-top: 1px solid var(--c-rule);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+  }
+
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .footer__wordmark {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--c-text);
+  }
+
+  .footer__tagline,
+  .footer__email {
+    font-size: 14px;
+    color: var(--c-muted);
+  }
+
+  .footer__email:hover {
+    color: var(--c-accent);
+  }
+
+  .footer__heading {
+    margin: 0;
+    font-family: var(--font-body);
+  }
+
+  .footer__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer__link {
+    font-size: 14px;
+    color: var(--c-muted);
+    transition: color 200ms ease;
+  }
+
+  a.footer__link:hover {
+    color: var(--c-accent);
+  }
+
+  .footer__link.is-pending {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .footer__bar {
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--c-rule);
+    font-size: 12px;
+    color: var(--c-muted);
+  }
+
+  @media (min-width: 768px) {
+    .footer__grid {
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: var(--gutter);
+    }
+  }
+</style>

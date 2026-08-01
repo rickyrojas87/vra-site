@@ -1,0 +1,183 @@
+---
+/** Spec section 2. Sticky, 88px desktop / 64px mobile. No Instagram icon — it lives in the Footer. */
+const nav = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/about' },
+  { label: 'Works', href: '/works' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="header">
+  <div class="header__inner">
+    <a class="wordmark" href="/">Victoria Rojas</a>
+
+    <nav class="nav" aria-label="Primary">
+      {
+        nav.map((item) => (
+          <a
+            class:list={['nav__link', { 'is-active': isActive(item.href) }]}
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <a class="btn btn--outline header__cta" href="/contact">Request a quote</a>
+
+    <button class="header__toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
+      <span class="visually-hidden">Menu</span>
+      <span class="header__toggle-bar" aria-hidden="true"></span>
+      <span class="header__toggle-bar" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div class="header__drawer" id="mobile-nav" hidden>
+    <nav class="drawer__nav" aria-label="Primary, mobile">
+      {
+        nav.map((item) => (
+          <a
+            class:list={['nav__link', { 'is-active': isActive(item.href) }]}
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <a class="btn btn--outline" href="/contact">Request a quote</a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--c-header-bg);
+    border-bottom: 1px solid var(--c-rule);
+    backdrop-filter: blur(10px);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    max-width: var(--max-width);
+    height: var(--header-h);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Text only. Never a photo. */
+  .wordmark {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--c-text);
+    white-space: nowrap;
+  }
+
+  .nav {
+    display: none;
+    gap: var(--space-3);
+  }
+
+  .nav__link {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--c-muted);
+    transition: color 200ms ease;
+  }
+
+  .nav__link:hover {
+    color: var(--c-accent-2);
+  }
+
+  .nav__link.is-active {
+    color: var(--c-accent);
+  }
+
+  .header__cta {
+    display: none;
+    min-height: 40px;
+    padding: 0 22px;
+  }
+
+  .header__toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .header__toggle-bar {
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--c-text);
+  }
+
+  .header__drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--gutter) var(--space-3);
+    border-top: 1px solid var(--c-rule);
+    background: var(--c-bg);
+  }
+
+  .header__drawer[hidden] {
+    display: none;
+  }
+
+  .drawer__nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  @media (min-width: 900px) {
+    .nav,
+    .header__cta {
+      display: flex;
+    }
+
+    .header__toggle,
+    .header__drawer {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.header__toggle');
+  const drawer = document.querySelector<HTMLElement>('#mobile-nav');
+
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    if (drawer) drawer.hidden = open;
+  });
+</script>

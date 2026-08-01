@@ -1,0 +1,127 @@
+---
+/**
+ * Cover card — Home section 3 and Works sections 3/4.
+ * Champagne 1px frame, no shadow. In-production cards dim to 60% and drop the link.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Placeholder from './Placeholder.astro';
+import { formatRuntime } from '../utils/format';
+
+interface Props {
+  entry: CollectionEntry<'titles'>;
+  /** Works grid shows release year and publisher; Home does not. */
+  showMeta?: boolean;
+}
+
+const { entry, showMeta = false } = Astro.props;
+const t = entry.data;
+const inProduction = t.status === 'in-production';
+---
+
+<article class:list={['card', { 'card--dim': inProduction }]}>
+  <div class="card__cover">
+    {
+      t.coverImage ? (
+        <Image src={t.coverImage} alt={`Cover art for ${t.title}`} width={520} height={520} />
+      ) : (
+        <Placeholder label="Cover art" ratio="1 / 1" />
+      )
+    }
+  </div>
+
+  <div class="card__body">
+    <h3 class="card__title">{t.title}</h3>
+    <p class="card__author">{t.author}</p>
+    <p class="card__meta">
+      {t.genre} &middot; {formatRuntime(t.runtimeHours)}{
+        showMeta && <> &middot; {t.releaseYear}{t.publisher && <> &middot; {t.publisher}</>}</>
+      }
+    </p>
+
+    {
+      inProduction ? (
+        <span class="card__flag">In production</span>
+      ) : t.audibleUrl ? (
+        <a class="card__link" href={t.audibleUrl} target="_blank" rel="noopener noreferrer">
+          Listen on Audible
+        </a>
+      ) : (
+        <span class="card__link is-pending" title="Audible URL still needed">
+          Listen on Audible
+        </span>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--c-muted);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .card--dim {
+    opacity: 0.6;
+  }
+
+  .card__cover {
+    aspect-ratio: 1 / 1;
+    border-bottom: 1px solid var(--c-muted);
+    overflow: hidden;
+  }
+
+  .card__cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: var(--space-2);
+  }
+
+  .card__title {
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-h3);
+    letter-spacing: var(--ls-h3);
+    color: var(--c-text);
+  }
+
+  .card__author {
+    font-size: 15px;
+    color: var(--c-text);
+  }
+
+  .card__meta {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--c-muted);
+  }
+
+  .card__link,
+  .card__flag {
+    margin-top: 6px;
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-accent-2);
+  }
+
+  a.card__link:hover {
+    color: var(--c-accent);
+  }
+
+  .card__link.is-pending,
+  .card__flag {
+    color: var(--c-muted);
+    opacity: 0.7;
+  }
+</style>

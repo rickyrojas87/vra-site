@@ -1,0 +1,96 @@
+---
+/**
+ * Delivery spec panel — Home section 5, reused verbatim as About section 5.
+ * Panel on #2C2D33, 12px radius, two columns.
+ */
+const studio = [
+  'Large-diaphragm condenser microphone',
+  'Dedicated audio interface',
+  'Professional DAW, edited and mastered in-house',
+  'Treated, isolated recording booth',
+];
+
+const delivery = [
+  'ACX compliant',
+  'RMS -23 to -18 dB',
+  'Peak -3 dB',
+  'Noise floor under -60 dB',
+  '192 kbps MP3, 44.1 kHz, mono',
+  'Room tone headers and footers',
+  'Punch and roll recording',
+];
+---
+
+<div class="panel">
+  <div class="panel__col">
+    <h3 class="label panel__heading">Studio</h3>
+    <ul class="panel__list">
+      {studio.map((item) => <li>{item}</li>)}
+    </ul>
+  </div>
+
+  <div class="panel__col">
+    <h3 class="label panel__heading">Delivery</h3>
+    <ul class="panel__list">
+      {delivery.map((item) => <li>{item}</li>)}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--c-panel);
+    border-radius: var(--radius-panel);
+  }
+
+  .panel__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .panel__heading {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--c-accent-2);
+  }
+
+  .panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-body);
+    line-height: 1.5;
+    color: var(--c-text);
+  }
+
+  .panel__list li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .panel__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 6px;
+    height: 1px;
+    background: var(--c-accent-2);
+  }
+
+  @media (min-width: 768px) {
+    .panel {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      padding: var(--space-4);
+    }
+  }
+</style>
