@@ -6,9 +6,16 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description: string;
+  /** Keep a page out of the index — used by /thanks. */
+  noindex?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, noindex = false } = Astro.props;
+
+/**
+ * Derived from `site` in astro.config.mjs, which itself reads Netlify's build
+ * environment. Nothing about the canonical origin is written twice.
+ */
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
 ---
 
@@ -20,6 +27,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />

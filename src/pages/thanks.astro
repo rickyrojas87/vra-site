@@ -1,0 +1,80 @@
+---
+/**
+ * Landing page after a successful intake submission. The form's `action`
+ * points here, so Netlify redirects to it once it accepts the POST.
+ *
+ * Noindexed: it has no standalone value in search results and would only
+ * compete with the pages that do.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="Thanks — Victoria Rojas, Audiobook Narrator"
+  description="Your project details are in. Victoria replies within two business days."
+  noindex
+>
+  <section class="section surface-base">
+    <div class="container thanks">
+      <p class="label">Request received</p>
+      <h1>Thank you.</h1>
+      <p class="thanks__lead">
+        Your project details are in. I read every one personally and come back
+        within two business days &mdash; usually sooner.
+      </p>
+      <p class="thanks__meta">
+        Something urgent, or a detail you forgot? Reply straight to
+        <a class="thanks__email" href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+      <div class="thanks__actions">
+        <a class="btn btn--primary" href="/">Back to home</a>
+        <a class="btn btn--outline" href="/works">Hear the demos</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .thanks {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    /* Short page — keep it off the header without a full 120px band above. */
+    min-height: 46vh;
+    justify-content: center;
+  }
+
+  .thanks__lead {
+    max-width: 56ch;
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-h3);
+    letter-spacing: var(--ls-h3);
+    line-height: var(--lh-heading);
+    color: var(--c-muted);
+  }
+
+  .thanks__meta {
+    max-width: 60ch;
+    color: var(--c-muted);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  .thanks__email {
+    color: var(--c-accent-2);
+  }
+
+  .thanks__email:hover {
+    color: var(--c-accent);
+  }
+
+  .thanks__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+</style>

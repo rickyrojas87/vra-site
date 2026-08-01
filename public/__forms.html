@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Netlify form detection</title>
+  </head>
+  <body>
+    <!--
+      Netlify's build-time form parser reads static HTML in the publish
+      directory. It does not reliably see forms rendered from .astro
+      components, so the real form on /contact was never registered and
+      submissions 404'd. This bare copy exists purely so the parser finds it.
+
+      Nobody visits this page. It is noindexed and linked from nowhere.
+
+      SOURCE OF TRUTH: src/pages/contact.astro. The `name` attribute below and
+      every field name must match that form exactly, or submissions will post
+      fields Netlify has no record of. Update both together.
+    -->
+    <form name="quote-request" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="quote-request" />
+      <input name="bot-field" />
+
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="bookTitle" />
+      <input type="text" name="genre" />
+      <input type="number" name="wordCount" />
+      <input type="text" name="dealType" />
+      <input type="date" name="deliveryDate" />
+      <input type="text" name="manuscriptFinal" />
+      <input type="url" name="manuscriptUrl" />
+      <textarea name="notes"></textarea>
+
+      <button type="submit">Send</button>
+    </form>
+  </body>
+</html>

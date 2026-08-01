@@ -9,8 +9,7 @@ export const site = {
   name: 'Victoria Rojas',
   wordmark: 'Victoria Rojas',
   tagline: 'Audiobook narrator, Central Texas',
-  /** TODO: confirm the business address to publish. */
-  email: 'hello@victoriarojasaudio.com',
+  email: 'victoriarojasaudio@gmail.com',
   responseTime: 'Replies within two business days.',
 } as const;
 

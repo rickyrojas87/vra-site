@@ -32,10 +32,18 @@ const FORM_NAME = 'quote-request';
     <div class="container stack">
       <p class="label">Project details</p>
 
+      {/*
+        `action` is where Netlify redirects after it accepts the POST.
+        Detection itself happens from public/__forms.html — Netlify's build
+        parser does not see forms rendered from .astro components, which is why
+        submissions used to 404. Field names here must stay in sync with that
+        file.
+      */}
       <form
         class="form"
         name={FORM_NAME}
         method="POST"
+        action="/thanks"
         data-netlify="true"
         netlify-honeypot="bot-field"
       >
