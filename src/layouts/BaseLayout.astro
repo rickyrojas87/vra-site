@@ -27,16 +27,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     <meta property="og:url" content={canonical} />
     {/* TODO (spec 9): og:image, verification tags, Person schema, favicon. */}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Self-hosted, so no preconnect and no third-party stylesheet. These two
+        variable files cover all four weights in use — Cormorant 300/400 and
+        Raleway 400/500 — so two preloads serve every above-the-fold face.
+        `crossorigin` is required on font preloads even same-origin; without it
+        the browser fetches the file a second time. */}
     <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Raleway:wght@400;500&display=swap"
+      rel="preload"
+      href="/fonts/cormorant-garamond-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
+    <link rel="preload" href="/fonts/raleway-latin.woff2" as="font" type="font/woff2" crossorigin />
 
     {/* Runs before first paint so revealed sections never flash in at full
-        opacity first. Gated on motion preference and on JS existing at all.
-        Placed after the font hints so it can't delay their discovery. */}
+        opacity first. Gated on motion preference and on JS existing at all. */}
     <script is:inline>
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('has-reveal');

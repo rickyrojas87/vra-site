@@ -23,6 +23,7 @@ and `npx astro dev logs`.
 ```
 public/
   audio/         Demo MP3s, served as-is (not optimized)
+  fonts/         Self-hosted woff2 — no third-party font request
 src/
   assets/        portrait.jpg, booth.jpg — optimized by sharp at build
   components/    Header, Footer, PageHeader, TitleCard, DeliverySpec, CtaBand, Placeholder
