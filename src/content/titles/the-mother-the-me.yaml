@@ -1,14 +1,13 @@
-# Wording confirmed against her published site. The file slug stays comma-free.
 title: The Mother, The Me
+subtitle: Alyssa Garcia Memoir
 status: published
 sortOrder: 6
+author: Alyssa Garcia
+genre: Memoir
+runtimeHours: 2.73
+releaseYear: 2025
 coverImage: ./covers/the-mother-the-me.jpg
 sampleAudio: /audio/demo-the-mother-the-me.mp3
+audibleUrl: https://www.audible.com/pd/The-Mother-The-Me-Alyssa-Garcia-Memoir-Audiobook/B0GD312G2F
 
-# Still needed — uncomment and fill. Omitted fields are simply not rendered.
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# publisher:
-# audibleUrl:
+# publisher: intentionally unset — independent ACX production, no publishing house.

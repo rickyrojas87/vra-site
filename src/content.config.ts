@@ -18,6 +18,12 @@ const titles = defineCollection({
     z.object({
       title: z.string(),
       status: z.enum(['published', 'in-production']),
+      /**
+       * Audible's full titles are too long for a card grid, so `title` stays
+       * short and `subtitle` carries the rest ("A Novel", "Money & Blood, Part 1").
+       * Cards omit it when absent.
+       */
+      subtitle: z.string().optional(),
       author: z.string().optional(),
       genre: z.string().optional(),
       runtimeHours: z.number().positive().optional(),

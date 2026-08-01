@@ -1,13 +1,15 @@
 title: Fragile Steps
+subtitle: A Novel
 status: published
 sortOrder: 1
+author: Stephen Duffy
+runtimeHours: 5.8
+releaseYear: 2026
 coverImage: ./covers/fragile-steps.jpg
 sampleAudio: /audio/demo-fragile-steps.mp3
+audibleUrl: https://www.audible.com/pd/Fragile-Steps-Audiobook/B0GLRCZ5GR
 
-# Still needed — uncomment and fill. Omitted fields are simply not rendered.
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# publisher:
-# audibleUrl:
+# genre: no value proposed and none stated on Audible. Confirm with Vikki before
+# this ships. The card omits the field entirely until it is filled in.
+
+# publisher: intentionally unset — independent ACX production, no publishing house.

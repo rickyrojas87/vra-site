@@ -1,13 +1,15 @@
 title: Stacks
+subtitle: 'Money & Blood, Part 1: Homecoming'
 status: published
 sortOrder: 5
+author: Keelan Reid
+# UNSOURCED — read from the cover and title, not stated on Audible.
+# Confirm with Vikki before this ships.
+genre: Crime Thriller
+runtimeHours: 3.22
+releaseYear: 2026
 coverImage: ./covers/stacks.jpg
 sampleAudio: /audio/demo-stacks.mp3
+audibleUrl: https://www.audible.com/pd/Stacks-Money-Blood-Part-1-Homecoming-Audiobook/B0GS6XJP7S
 
-# Still needed — uncomment and fill. Omitted fields are simply not rendered.
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# publisher:
-# audibleUrl:
+# publisher: intentionally unset — independent ACX production, no publishing house.

@@ -1,14 +1,15 @@
-# Title derived from the cover filename — confirm exact wording and punctuation.
 title: Of Blood and Dragon
+subtitle: Half Truths
 status: published
 sortOrder: 2
+author: Raymond Potter
+# UNSOURCED — read from the cover and title, not stated on Audible.
+# Confirm with Vikki before this ships.
+genre: Fantasy
+runtimeHours: 1.75
+releaseYear: 2026
 coverImage: ./covers/of-blood-and-dragon.jpg
 sampleAudio: /audio/demo-of-blood-and-dragon.mp3
+audibleUrl: https://www.audible.com/pd/Of-Blood-and-Dragon-Half-Truths-Audiobook/B0GV5G3LRP
 
-# Still needed — uncomment and fill. Omitted fields are simply not rendered.
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# publisher:
-# audibleUrl:
+# publisher: intentionally unset — independent ACX production, no publishing house.

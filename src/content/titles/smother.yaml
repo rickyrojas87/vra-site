@@ -1,13 +1,14 @@
 title: Smother
 status: published
 sortOrder: 4
+author: Daya Winters
+# UNSOURCED — read from the cover and title, not stated on Audible.
+# Confirm with Vikki before this ships.
+genre: Thriller
+runtimeHours: 9.9
+releaseYear: 2026
 coverImage: ./covers/smother.jpg
 sampleAudio: /audio/demo-smother.mp3
+audibleUrl: https://www.audible.com/pd/Smother-Audiobook/B0GYT75CT5
 
-# Still needed — uncomment and fill. Omitted fields are simply not rendered.
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# publisher:
-# audibleUrl:
+# publisher: intentionally unset — independent ACX production, no publishing house.

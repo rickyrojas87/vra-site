@@ -1,13 +1,13 @@
 title: Old Bastards
+subtitle: A Very Naughty Comedy
 status: published
 sortOrder: 3
+author: Stevie Duffy
+genre: Comedy
+runtimeHours: 4.33
+releaseYear: 2026
 coverImage: ./covers/old-bastards.jpg
 sampleAudio: /audio/demo-old-bastards.mp3
+audibleUrl: https://www.audible.com/ac/Old-Bastards-Audiobook/B0H6H7LV44
 
-# Still needed — uncomment and fill. Omitted fields are simply not rendered.
-# author:
-# genre:
-# runtimeHours:
-# releaseYear:
-# publisher:
-# audibleUrl:
+# publisher: intentionally unset — independent ACX production, no publishing house.
