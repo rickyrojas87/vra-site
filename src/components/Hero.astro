@@ -2,13 +2,19 @@
 /**
  * Animated hero — spec section 3, row 1 (spec section 8 phase 1).
  *
- * Pure CSS. No canvas, no JS. Four stacked layers behind the copy:
- *   1. radial gold glow      2. vertical bars      3. vignette      4. grain
+ * Photo background under three CSS layers, bottom to top:
+ *   1. portrait   2. directional scrim   3. vertical bars   4. grain
+ *
+ * The scrim replaces the radial glow and vignette the earlier version used —
+ * the photo now does that work, and stacking all four muddied it.
  *
  * Bar values are derived from a seeded sine hash rather than Math.random() so
  * the build is reproducible — the same input always emits the same markup, which
  * keeps diffs and cache keys stable across rebuilds.
  */
+import { Image } from 'astro:assets';
+import portrait from '../assets/portrait.jpg';
+
 const BAR_COUNT = 21;
 
 const seeded = (i: number, salt: number) => {
@@ -29,10 +35,21 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
 ---
 
 <section class="hero">
-  <div class="hero__layers" aria-hidden="true">
-    <div class="hero__glow"></div>
+  <div class="hero__layers">
+    {/* Photo. LCP element, so it loads eagerly at high priority. */}
+    <Image
+      class="hero__photo"
+      src={portrait}
+      alt="Victoria Rojas in her studio"
+      width={1200}
+      height={1598}
+      loading="eager"
+      fetchpriority="high"
+    />
 
-    <div class="hero__bars">
+    <div class="hero__scrim" aria-hidden="true"></div>
+
+    <div class="hero__bars" aria-hidden="true">
       {
         bars.map((bar) => (
           <span
@@ -43,9 +60,7 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
       }
     </div>
 
-    <div class="hero__vignette"></div>
-
-    <div class="hero__grain"></div>
+    <div class="hero__grain" aria-hidden="true"></div>
   </div>
 
   <div class="container hero__inner">
@@ -65,8 +80,8 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
     position: relative;
     display: flex;
     align-items: center;
-    min-height: calc(100vh - var(--header-h));
-    background: var(--c-bg);
+    min-height: 100vh;
+    background: var(--c-deep);
     overflow: hidden;
     isolation: isolate;
   }
@@ -78,19 +93,32 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
     pointer-events: none;
   }
 
-  /* 1 — Gold glow behind the name. */
-  .hero__glow {
+  /* 1 — Photo, full bleed.
+     object-position keeps her face inside the right-hand clear zone of the
+     scrim. On wide viewports cover crops vertically, so the Y value is what
+     actually holds the face in frame; the X value takes over on narrow ones. */
+  .hero__photo {
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-      ellipse 60% 45% at 38% 46%,
-      rgb(212 175 55 / 10%) 0%,
-      rgb(212 175 55 / 4%) 45%,
-      transparent 72%
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% 22%;
+  }
+
+  /* 2 — Directional scrim: text side opaque, face side readable. */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      rgb(27 28 32 / 94%) 0%,
+      rgb(27 28 32 / 82%) 45%,
+      rgb(27 28 32 / 40%) 100%
     );
   }
 
-  /* 2 — Vertical bars. */
+  /* 3 — Vertical bars. */
   .hero__bars {
     position: absolute;
     inset: 0;
@@ -105,11 +133,12 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
     flex: 1 1 0;
     height: var(--bar-h);
     max-width: 26px;
+    /* 16%, down from 20%: atmosphere over the photo, not competition with it. */
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgb(212 175 55 / 20%) 18%,
-      rgb(212 175 55 / 20%) 82%,
+      rgb(212 175 55 / 16%) 18%,
+      rgb(212 175 55 / 16%) 82%,
       transparent 100%
     );
     transform: scaleY(var(--bar-min));
@@ -125,19 +154,7 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
     }
   }
 
-  /* 3 — Vignette. */
-  .hero__vignette {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse 78% 72% at 50% 50%,
-      transparent 38%,
-      rgb(0 0 0 / 28%) 72%,
-      rgb(0 0 0 / 58%) 100%
-    );
-  }
-
-  /* 4 — Grain.
+  /* 4 — Grain, over everything.
      Same feTurbulence, but rasterized once into a 180px tile and repeated rather
      than filtered across the full viewport. `stitchTiles` makes the seams
      invisible. Filtering a 1350x940 hero directly costs ~1.3M pixels of CPU noise
@@ -196,6 +213,28 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
     flex-wrap: wrap;
     gap: var(--space-1);
     margin-top: var(--space-2);
+  }
+
+  /* Below 900px the scrim turns vertical — dark at the bottom where the copy
+     sits — so the photo keeps its contrast instead of washing out flat. */
+  @media (max-width: 899px) {
+    .hero__scrim {
+      background: linear-gradient(
+        to bottom,
+        rgb(27 28 32 / 40%) 0%,
+        rgb(27 28 32 / 82%) 55%,
+        rgb(27 28 32 / 94%) 100%
+      );
+    }
+
+    .hero__photo {
+      object-position: 60% 18%;
+    }
+
+    /* Copy follows the dark end of the vertical scrim. */
+    .hero {
+      align-items: flex-end;
+    }
   }
 
   /* Freeze the bars at their resting heights; every other layer is static. */

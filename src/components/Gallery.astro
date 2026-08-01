@@ -1,0 +1,88 @@
+---
+/**
+ * Staggered photo collage.
+ *
+ * Four columns, with columns 2 and 4 dropped so the top edge zigzags rather than
+ * ruling a straight line. The offset is `margin-top`, not `transform`, so the
+ * grid still reserves the space and nothing overflows the section.
+ *
+ * Entirely data-driven from src/data/gallery.ts — adding photos never touches
+ * this file. Renders nothing at all below GALLERY_MIN entries.
+ */
+import { Image } from 'astro:assets';
+import { gallery, GALLERY_MIN } from '../data/gallery';
+
+interface Props {
+  heading?: string;
+  surface?: 'base' | 'deep' | 'panel';
+}
+
+const { heading = 'In the booth', surface = 'panel' } = Astro.props;
+const show = gallery.length >= GALLERY_MIN;
+---
+
+{
+  show && (
+    <section class:list={['section', `surface-${surface}`]} data-reveal>
+      <div class="container stack">
+        <p class="label">{heading}</p>
+        <ul class="gallery">
+          {gallery.map((image) => (
+            <li class="gallery__item">
+              <Image class="photo gallery__img" src={image.src} alt={image.alt} width={640} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gallery__img {
+    width: 100%;
+    height: auto;
+  }
+
+  /* 2 columns, every second item dropped. */
+  @media (min-width: 600px) {
+    .gallery {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gallery__item:nth-child(2n) {
+      margin-top: var(--space-3);
+    }
+  }
+
+  /* 4 columns, columns 2 and 4 dropped. */
+  @media (min-width: 900px) {
+    .gallery {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .gallery__item:nth-child(2n) {
+      margin-top: 0;
+    }
+
+    .gallery__item:nth-child(4n + 2),
+    .gallery__item:nth-child(4n + 4) {
+      margin-top: var(--space-4);
+    }
+  }
+</style>

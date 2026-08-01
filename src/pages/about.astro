@@ -5,6 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Placeholder from '../components/Placeholder.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
+import Gallery from '../components/Gallery.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { genres, accents } from '../data/taxonomy';
 import portrait from '../assets/portrait.jpg';
@@ -35,8 +36,9 @@ const bio = [
   <section class="section surface-deep" data-reveal>
     <div class="container bio">
       <div class="bio__portrait">
-        {/* Source is 3:4; the spec's 4:5 slot trims ~6% off the vertical. */}
+        {/* Fills the column height so both columns end on the same line. */}
         <Image
+          class="photo"
           src={portrait}
           alt="Victoria Rojas seated in her studio beside a pair of over-ear headphones, acoustic panelling behind her"
           width={900}
@@ -86,17 +88,23 @@ const bio = [
   <section class="section surface-deep" data-reveal>
     <div class="container stack">
       <p class="label">Studio and delivery</p>
-      <DeliverySpec />
-      {/* Rendered at the source's own 3:4 rather than cropped to a landscape slot. */}
-      <figure class="studio-photo">
-        <Image
-          src={booth}
-          alt="Victoria Rojas recording in her booth, wearing headphones at a condenser microphone behind a pop filter, reading from a tablet"
-          width={1120}
-        />
-      </figure>
+      {/* Booth beside the panel, both stretched to the same height. */}
+      <div class="studio">
+        <figure class="studio__photo">
+          <Image
+            class="photo"
+            src={booth}
+            alt="Victoria Rojas recording in her booth, wearing headphones at a condenser microphone behind a pop filter, reading from a tablet"
+            width={1120}
+          />
+        </figure>
+        <DeliverySpec />
+      </div>
     </div>
   </section>
+
+  {/* Self-hides until there are at least four images. */}
+  <Gallery surface="panel" />
 
   {/* 6 — CTA band */}
   <CtaBand />
@@ -116,21 +124,46 @@ const bio = [
     gap: var(--space-3);
   }
 
+  /* The image is taken out of flow so it can't contribute to the grid row
+     height — the copy column alone sets it, and the photo crops to match.
+     With `height: 100%` alone the img's intrinsic size still influences row
+     sizing and the columns drift apart again. */
+  .bio__portrait {
+    position: relative;
+    min-height: 320px;
+  }
+
   .bio__portrait :global(img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 25%;
   }
 
-  /* 5 — Booth photo. Constrained so a portrait-orientation shot doesn't run the
-     full 1140px content width and tower over the delivery panel. */
-  .studio-photo {
-    max-width: 480px;
+  /* 5 — Booth beside the delivery panel, equal height. */
+  .studio {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gutter);
+    align-items: stretch;
+  }
+
+  /* Same treatment: the delivery panel sets the height, the booth crops to it. */
+  .studio__photo {
+    position: relative;
     margin: 0;
+    min-height: 320px;
   }
 
-  .studio-photo :global(img) {
+  .studio__photo :global(img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
   }
 
   .bio__copy {
@@ -178,7 +211,12 @@ const bio = [
     .bio {
       grid-template-columns: 5fr 7fr;
       gap: var(--gutter);
-      align-items: start;
+      /* Both columns end on the same line. */
+      align-items: stretch;
+    }
+
+    .studio {
+      grid-template-columns: 1fr 1.5fr;
     }
   }
 </style>

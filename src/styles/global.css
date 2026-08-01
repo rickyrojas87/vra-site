@@ -382,6 +382,22 @@ p {
 }
 
 /* --------------------------------------------------------------------------
+   Photos
+
+   Shared treatment for photography — portrait, booth, gallery. NOT cover art,
+   which carries its own frame and hover elevation in TitleCard.
+   The ring is a second box-shadow layer rather than a border so it can't affect
+   layout or fight `object-fit`.
+   -------------------------------------------------------------------------- */
+
+.photo {
+  border-radius: 4px;
+  box-shadow:
+    0 12px 28px rgb(0 0 0 / 50%),
+    0 0 0 1px var(--c-rule);
+}
+
+/* --------------------------------------------------------------------------
    Accessibility helper
    -------------------------------------------------------------------------- */
 
