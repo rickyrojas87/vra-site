@@ -1,31 +1,56 @@
 # Victoria Rojas Audio: Build Spec
 
-Target: new Classic Editor site, Dev Mode on, no plan attached during build.
-Swap method: reassign Core plan when approved.
+Static site built with Astro, deployed on Netlify, content edited through
+Sveltia CMS. This document describes what exists, not what was once planned.
+
+> **History.** The original spec targeted a Wix Classic Editor build with Velo
+> custom elements and HTML embeds. None of that was used. The design system,
+> section structure, form fields and content schema below carried over intact;
+> the delivery mechanism did not.
+
+**Pages:** `/` `/about` `/works` `/contact` — slugs unchanged from the old Wix
+site, so no redirects are needed at cutover. Plus `/thanks` (post-submit,
+noindexed) and `/admin` (CMS, noindexed).
 
 ---
 
 ## 1. Global setup
 
-**Site name:** VRA 2026
-**Page slugs:** `/` `/about` `/works` `/contact` (keep identical to current site, no redirects needed)
-
 ### Color tokens
 
-| Role | Hex |
-|---|---|
-| Page background | `#222328` |
-| Elevated panel | `#2C2D33` |
-| Primary accent (CTA, active state, waveform) | `#D4AF37` |
-| Secondary accent (borders, dividers, hover) | `#B8925A` |
-| Body text on dark | `#F5EDD6` |
-| Muted text, captions, metadata | `#C8B8A2` |
+Defined once in `src/styles/global.css`. Never hard-coded anywhere else.
 
-Rule: gold is for one action per screen. If two buttons sit side by side, the primary is `#D4AF37` filled, the secondary is transparent with a `#B8925A` 1px border.
+| Role | Token | Hex |
+|---|---|---|
+| Deep surface (footer, alternating bands) | `--c-deep` | `#1B1C20` |
+| Page background | `--c-bg` | `#222328` |
+| Elevated panel | `--c-panel` | `#2C2D33` |
+| Primary accent (CTA, active state, waveform) | `--c-accent` | `#D4AF37` |
+| Secondary accent (borders, dividers, hover) | `--c-accent-2` | `#B8925A` |
+| Body text on dark | `--c-text` | `#F5EDD6` |
+| Muted text, captions, metadata | `--c-muted` | `#C8B8A2` |
+| Quietest text (disclaimers, attribution) | `--c-quiet` | `#9A9BA4` |
+
+Derived: `--c-header-bg` (page bg at 92%), `--c-rule` (`--c-accent-2` at 30%),
+`--c-card-border` (`--c-accent-2` at 35%).
+
+Rules:
+
+- Gold is for one action per screen. Side-by-side buttons mean the primary is
+  `#D4AF37` filled and the secondary is transparent with a `#B8925A` 1px border.
+- `--c-quiet` is chosen for contrast, not taste: it must clear WCAG AA (4.5:1)
+  against `--c-panel`, the darkest surface it sits on. Do not darken it.
+
+### Surfaces
+
+Three background values alternate down every page. **No two consecutive
+sections may share a surface**, and the last band before the footer must not be
+`deep`, because the footer is. Utility classes: `.surface-base`,
+`.surface-deep`, `.surface-panel`.
 
 ### Typography
 
-Wix Editor path: Site Design > Text Themes
+Self-hosted woff2 in `public/fonts`. No third-party font request.
 
 | Token | Font | Desktop | Mobile | Weight | Tracking |
 |---|---|---|---|---|---|
@@ -36,7 +61,10 @@ Wix Editor path: Site Design > Text Themes
 | Label / eyebrow | Raleway | 13px | 12px | 500 | 0.20em, uppercase |
 | Button | Raleway | 14px | 14px | 500 | 0.12em, uppercase |
 
-Line height: 1.25 on all headings, 1.7 on body.
+Line height: 1.25 on headings, 1.7 on body. Both families are **variable
+fonts** — one file per family covers every weight.
+
+Breakpoint for the desktop step is 768px.
 
 ### Spacing
 
@@ -45,151 +73,186 @@ Line height: 1.25 on all headings, 1.7 on body.
 - Column gutter: 24px
 - Element vertical rhythm inside a section: 16 / 24 / 40 / 64px only
 
+### Headings
+
+Section eyebrows are `<h2 class="label">`, not `<p>`. Card titles are `<h3>`.
+Every page outline runs h1 → h2 → h3 with no skips.
+
 ---
 
 ## 2. Header
 
-Sticky, background `#222328` at 92% opacity, 1px bottom border `#B8925A` at 30% opacity. Height 88px desktop, 64px mobile.
+Sticky, `--c-bg` at 92% opacity, 1px bottom border `--c-rule`. Height 88px
+desktop, 64px mobile.
 
-- Left: wordmark. Text only, Cormorant Garamond 22px, `#F5EDD6`, tracking 0.18em, reading `VICTORIA ROJAS`. Do not use a photo.
-- Center: Home, About, Works, Contact. Raleway 14px, `#C8B8A2`, active state `#D4AF37`. Four items only, no More overflow.
-- Right: one gold outline button, `Request a quote`, links to `/contact`.
+- Left: wordmark. Text only, Cormorant Garamond 22px, `--c-text`, tracking
+  0.18em, reading `VICTORIA ROJAS`. Never a photo.
+- Center: Home, About, Works, Contact. Raleway 14px, `--c-muted`, active state
+  `--c-accent`. Four items, no overflow menu.
+- Right: one gold outline button, `Request a quote`, to `/contact`.
+- Below 900px the nav collapses to a drawer.
 
-Remove the Instagram icon from the header. It moves to the footer.
+No Instagram icon in the header; it lives in the footer.
 
 ---
 
 ## 3. Home
 
-| # | Section | Height | Content |
+| # | Section | Surface | Content |
 |---|---|---|---|
-| 1 | Hero | 100vh minus header | Animated hero custom element. `VICTORIA ROJAS` H1, `AUDIOBOOK NARRATOR` label, `Voice. Story. Experience.` H3 in `#C8B8A2`. Two buttons: `Hear demos` (gold filled, anchors to section 2), `Request a quote` (outline, to /contact). |
-| 2 | Demo player | auto | Waveform demo player embed. Genre pills across top, one player below. This is the single most important element on the site. |
-| 3 | Selected titles | auto | 3 or 4 cover cards in a row. Cover art, title, author, genre, run time, Audible link. Champagne `#C8B8A2` 1px frame. |
-| 4 | Proof | auto | One author testimonial. Cormorant Garamond 28px italic, `#F5EDD6`, attribution in `#C8B8A2` 13px. Centered, max width 720px. |
-| 5 | Delivery spec | auto | Panel on `#2C2D33`, 12px radius. Two columns: Studio (mic, interface, DAW, treated booth) and Delivery (ACX compliant, RMS -23 to -18 dB, peak -3 dB, noise floor under -60 dB, 192 kbps MP3 44.1 kHz mono, room tone headers and footers, punch and roll). |
-| 6 | CTA band | 240px | H2 `Let's talk about your book.` One gold button to /contact. |
-| 7 | Footer | auto | See section 7. |
+| 1 | Hero | base | Full-bleed photo at 100vh, directional scrim, 21 animated gold bars, grain. `VICTORIA ROJAS` H1, `AUDIOBOOK NARRATOR` label, 44px gold divider, `Voice. Story. Experience.` H3. Two buttons: `Hear demos` (anchors to §2), `Request a quote`. |
+| 2 | Demo player | deep | Waveform player. Genre pills, track list, canvas, transport. |
+| 3 | Selected titles | panel | Up to 4 cover cards. Champagne frame, elevation, gold hover ring. |
+| 4 | Proof | base | Stats strip, Audible ratings list, testimonials. Hidden entirely when no ratings exist. |
+| 5 | Delivery spec | deep | Panel on `--c-panel`, 12px radius, two columns plus optional turnaround line. |
+| 6 | CTA band | base | H2 `Let's talk about your book.` One gold button to `/contact`. |
+| 7 | Footer | deep | See §7. |
 
 ---
 
 ## 4. About
 
-| # | Section | Content |
-|---|---|---|
-| 1 | Title | H1 `About`, eyebrow label `NARRATOR, CENTRAL TEXAS` |
-| 2 | Bio | Two columns, 5/7 split. Left: one portrait, full resolution, 4:5 ratio. Right: existing bio copy. Delete the sentence beginning "I am a newer voice in the industry." Replace with: "I've worked closely with experienced audio engineers and voice actors to refine both performance and production, so every title meets professional delivery standards start to finish." |
-| 3 | Range | Voice range matrix element (phase 2). Until it ships, use a 3-column grid of accent names in `#F5EDD6` on `#2C2D33` cells, not a comma list. |
-| 4 | Genres | Single row of pill tags, `#C8B8A2` text, `#B8925A` 1px border. |
-| 5 | Studio | Same delivery spec panel as Home section 5. Reuse, do not rewrite. |
-| 6 | CTA band | Same as Home section 6. |
+| # | Section | Surface | Content |
+|---|---|---|---|
+| 1 | Title | base | H1 `About`. No eyebrow. |
+| 2 | Bio | deep | Two columns, 5/7 split. Portrait fills its column; both columns end on the same line. Copy is verbatim from her own site, with the "newer voice in the industry" sentence deleted. |
+| 3+4 | Range and Genres | base | One two-column block, 1fr / 1.35fr, 28px gap, stacking below 700px. Left: intro line and accent tags. Right: NARRATED (catalog-derived, filled gold) and ALSO AVAILABLE FOR (outline). |
+| 5 | Studio | deep | Booth photo beside the delivery panel, 1fr / 1.5fr, equal height. |
+| — | Photos | panel | Staggered 4-column collage. Hidden below 4 photos. |
+| 6 | CTA band | base | Same as Home §6. |
 
-No unstructured photo stacking. Portrait and booth shot in their layout slots, plus a capped 4-image collage. Six images total is the ceiling for this page.
+Ceiling of six images on this page: portrait, studio shot, and a four-image
+collage. No unstructured photo stacking.
 
 ---
 
 ## 5. Works
 
-| # | Section | Content |
-|---|---|---|
-| 1 | Title | H1 `Works` |
-| 2 | Demos | Waveform player, full version with genre and accent filters. Rename every demo. No file names. Format: `Genre, character type` for character demos and `Title, Author` for book samples. |
-| 3 | Published titles | Grid, 3 across desktop, 1 across mobile. Cover, title, author, publisher or indie, run time, release year, Audible link. Driven by a CMS collection named `Titles` so Vikki adds books herself. |
-| 4 | In production | Same grid, dimmed to 60%, no link, label `In production`. |
-| 5 | CTA band | Same as Home section 6. |
-
-### CMS collection: `Titles`
-
-Fields: `title` (text), `author` (text), `genre` (text), `runtimeHours` (number), `releaseYear` (number), `coverImage` (image), `audibleUrl` (url), `status` (text: published / in-production), `sampleAudio` (audio), `sortOrder` (number).
+| # | Section | Surface | Content |
+|---|---|---|---|
+| 1 | Title | base | H1 `Works` |
+| 2 | Demos | deep | Waveform player, same component as Home. |
+| 3 | Published titles | base | Grid, 3 across desktop, 1 across mobile. Cover, title, subtitle, author, genre, run time, year, publisher, Audible link. |
+| 4 | In production | panel | Same grid, dimmed to 60%, no link, `In production` label. |
+| 5 | CTA band | base | Same as Home §6. |
 
 ---
 
 ## 6. Contact
 
-| # | Section | Content |
-|---|---|---|
-| 1 | Title | H1 `Request a quote`, subhead `Tell me about your book and I'll come back within two business days.` |
-| 2 | Calculator | Quote calculator embed (phase 3). |
-| 3 | Intake form | Fields below. |
-| 4 | Direct | Email address, response time, and links to ACX profile and Audible narrator page. |
+| # | Section | Surface | Content |
+|---|---|---|---|
+| 1 | Title | base | H1 `Request a quote`, subhead about the two-business-day reply. |
+| 2 | Estimate | deep | Quote calculator. |
+| 3 | Intake form | base | Fields below. Posts to Netlify Forms, redirects to `/thanks`. |
+| 4 | Direct | panel | Email, response time, ACX and Audible profile links. |
 
 ### Form fields
 
 1. Name (text, required)
 2. Email (email, required)
 3. Book title (text, required)
-4. Genre (dropdown: Romance, Thriller / Suspense, Mystery, Fantasy, Science Fiction, Horror, Historical Fiction, Young Adult, Children's, Memoir / Biography, True Crime, Self-Help, Other)
+4. Genre (dropdown: Romance, Thriller / Suspense, Mystery, Fantasy, Science
+   Fiction, Horror, Historical Fiction, Young Adult, Children's,
+   Memoir / Biography, True Crime, Self-Help, Other)
 5. Word count (number, required)
-6. Deal type (dropdown: ACX royalty share, Per finished hour, Stipend plus royalty share, Not sure yet)
+6. Deal type (dropdown: ACX royalty share, Per finished hour, Stipend plus
+   royalty share, Not sure yet)
 7. Target delivery date (date)
 8. Is the manuscript final? (yes / no, required)
 9. Link to manuscript or sample (url)
 10. Anything else (long text)
 
-Fields 5, 6, and 8 are the qualifying ones. Do not cut them to shorten the form.
+Fields 5, 6 and 8 are the qualifying ones. Do not cut them to shorten the form.
+
+The field list is mirrored in `src/data/intakeForm.ts`, which generates the
+Netlify detection file. A build-time assertion fails the build if they diverge.
+
+### Quote calculator
+
+Two services, rates in `src/data/pricing.ts`:
+
+| Service | Rate |
+|---|---|
+| Narration Only (Raw Audio) | $135 per finished hour |
+| Full Production (Narration + Mastering) | $200 per finished hour |
+
+Estimated finished hours = word count ÷ 9,300. **Round only at display.** The
+total is computed from unrounded hours; rounding first compounds and reads $0
+on small inputs. Output shows finished hours and a "Starting estimate" — no
+standalone rate figure, because as an output it read like a fixed price.
 
 ---
 
 ## 7. Footer
 
-Background `#1B1C20`, 1px top border `#B8925A` at 30%.
+Background `--c-deep`, 1px top border `--c-rule`.
 
 - Column 1: wordmark, tagline, business email
 - Column 2: page links
 - Column 3: Instagram, ACX profile, Audible narrator page
-- Bottom bar: copyright, Raleway 12px `#C8B8A2`
+- Bottom bar: copyright, Raleway 12px `--c-muted`
 
 ---
 
-## 8. Custom element build order
+## 8. Interactive elements
 
-| Phase | Element | Page | Method |
-|---|---|---|---|
-| 1 | Animated hero | Home | Velo custom element, full bleed |
-| 1 | Waveform demo player | Home, Works | HTML embed |
-| 2 | Voice range matrix | About | HTML embed |
-| 3 | Quote calculator | Contact | HTML embed |
+All built as Astro components with inlined vanilla JS. No dependencies, no
+third-party player libraries, no iframes.
 
-I write each one as a single self-contained file. You paste it, size the frame, publish.
-
----
-
-## 9. SEO migration checklist
-
-Run this before the plan reassignment, not after.
-
-- [ ] Per-page SEO title and description entered on all four pages
-- [ ] Google Search Console verification tag added to the new site
-- [ ] Bing verification tag added to the new site
-- [ ] Open Graph title, description, and image set per page
-- [ ] Person schema markup added (name, jobTitle, url, sameAs for Instagram / ACX / Audible)
-- [ ] Alt text on every image
-- [ ] Favicon uploaded
-- [ ] Google Analytics or Wix Analytics reconnected
-- [ ] Sitemap resubmitted in Search Console after the domain moves
-- [ ] Slugs verified identical to the old site so no redirects are required
-
-### Suggested page titles
-
-| Page | Title |
-|---|---|
-| Home | Victoria Rojas, Audiobook Narrator, Central Texas |
-| About | About Victoria Rojas, Female Audiobook Narrator |
-| Works | Audiobook Narration Demos and Published Titles |
-| Contact | Hire an Audiobook Narrator, Request a Quote |
+| Element | Page | Status |
+|---|---|---|
+| Animated hero | Home | Built. Pure CSS, seeded bar values, reduced-motion aware. |
+| Waveform demo player | Home, Works | Built. Custom canvas renderer, precomputed peaks. |
+| Voice range matrix | About | Not built. Interim treatment is the accent tag row. |
+| Quote calculator | Contact | Built. |
 
 ---
 
-## 10. Still needed from you
+## 9. SEO — complete
 
-Blocking specific sections:
+- [x] Per-page SEO title and description on all four pages
+- [x] Canonical derived from `process.env.URL`, never hardcoded
+- [x] Open Graph title, description, type, url, image (1200×630), image:alt
+- [x] Twitter `summary_large_image` with matching tags
+- [x] Person schema (name, jobTitle, url, image, email, address, sameAs)
+- [x] Audiobook schema per title with ISO 8601 duration and aggregateRating
+- [x] Sitemap via `@astrojs/sitemap`, excluding `/thanks` and `__forms.html`
+- [x] `robots.txt` generated from the same origin as the canonical
+- [x] Alt text on every image — 18 images, none missing, none echoing a filename
+- [x] Favicon, apple-touch-icon, web manifest, theme-color
+- [x] Slugs verified identical to the old site
+- [ ] Google Search Console verification tag — slot ready, token needed
+- [ ] Bing verification tag — slot ready, token needed
+- [ ] Analytics — no provider chosen
+- [ ] Sitemap resubmitted in Search Console — after the domain moves
 
-1. Demo audio files with real labels (blocks Home 2, Works 2)
-2. Cover art, author, run time, release year, Audible link per finished title (blocks Home 3, Works 3)
-3. Full resolution portrait and one booth photo (blocks Home 1, About 2)
-4. ACX profile URL and Audible narrator page URL (blocks Footer, Contact 4)
-5. Author testimonial, even two lines (blocks Home 4)
-6. Rate decision: publish a PFH range, or quote on request (blocks Contact 2)
-7. Stated turnaround time per finished hour (blocks Home 5)
+Lighthouse, desktop preset: Performance 100, Accessibility 100, SEO 100, Best
+Practices 100 on all four pages.
 
-Nothing else is blocked. Sections 1, 2, 6, and 7 of this spec can be built today.
+---
+
+## 10. Outstanding
+
+**Content still needed:**
+
+1. Author testimonials — collection and rendering exist, no entries written
+2. Turnaround time per finished hour — field exists and is empty, so the line
+   does not render
+3. Logo — the wordmark is text-only; there is no mark
+4. Accent recordings for the voice range matrix (§8 phase 2)
+
+**Technical:**
+
+5. IndexNow integration
+6. Search Console and Bing verification tokens
+7. Analytics provider
+8. Per-page OG images — currently one shared default
+9. `releaseDate` field — the catalog is year-granular, so the "Months active"
+   stat is an approximation
+10. `portrait.jpg` and `booth.jpg` are 1200px sources while the rest are 2400px
+
+**Never verified in a browser:** the waveform player and quote calculator.
+Their logic is covered by simulation tests, but playback, seeking, filter
+switching, the segmented toggle and the handoff scroll have not been exercised
+by a human.

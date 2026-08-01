@@ -43,7 +43,12 @@ If the popup gets blocked, allow popups for the site and click sign in again.
 4. Click **Save**
 
 **You can leave most fields empty.** A book with only a title and cover will
-show up correctly — it just won't display the bits you left out. Nothing breaks.
+show up correctly — it just won't display the bits you left out.
+
+This is worth saying clearly because it caused a problem once: an early version
+of the site couldn't cope with blank fields and stopped publishing. That's
+fixed. Leaving anything blank is now genuinely safe, whichever fields you skip.
+The only thing a book really needs is a **title**.
 
 ### About the demo audio
 
@@ -113,6 +118,15 @@ itself and publishes. Refresh the page after a few minutes and it'll be there.
 
 If it's been more than ten minutes, tell Ricky — it means a build failed, and
 that's for him to look at, not you.
+
+### One small habit
+
+Every **Save** republishes the whole site, and there's a monthly allowance for
+that. It's generous and normal editing won't get near it — but if you're
+filling in a book with ten fields, fill them all in and save once at the end,
+rather than saving after each one.
+
+Don't let this stop you editing. It's a habit, not a rule.
 
 ---
 
