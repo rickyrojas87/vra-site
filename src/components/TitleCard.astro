@@ -17,6 +17,18 @@ interface Props {
 const { entry, showMeta = false } = Astro.props;
 const t = entry.data;
 const inProduction = t.status === 'in-production';
+
+/**
+ * Only `title` and `status` are guaranteed. Every other field is dropped from the
+ * card when absent rather than rendered blank, so a half-filled entry still looks
+ * deliberate. Home shows genre and runtime; Works adds year and publisher.
+ */
+const meta = [
+  t.genre,
+  t.runtimeHours ? formatRuntime(t.runtimeHours) : undefined,
+  showMeta ? t.releaseYear : undefined,
+  showMeta ? t.publisher : undefined,
+].filter(Boolean);
 ---
 
 <article class:list={['card', { 'card--dim': inProduction }]}>
@@ -32,24 +44,18 @@ const inProduction = t.status === 'in-production';
 
   <div class="card__body">
     <h3 class="card__title">{t.title}</h3>
-    <p class="card__author">{t.author}</p>
-    <p class="card__meta">
-      {t.genre} &middot; {formatRuntime(t.runtimeHours)}{
-        showMeta && <> &middot; {t.releaseYear}{t.publisher && <> &middot; {t.publisher}</>}</>
-      }
-    </p>
+    {t.author && <p class="card__author">{t.author}</p>}
+    {meta.length > 0 && <p class="card__meta">{meta.join(' · ')}</p>}
 
     {
       inProduction ? (
         <span class="card__flag">In production</span>
-      ) : t.audibleUrl ? (
-        <a class="card__link" href={t.audibleUrl} target="_blank" rel="noopener noreferrer">
-          Listen on Audible
-        </a>
       ) : (
-        <span class="card__link is-pending" title="Audible URL still needed">
-          Listen on Audible
-        </span>
+        t.audibleUrl && (
+          <a class="card__link" href={t.audibleUrl} target="_blank" rel="noopener noreferrer">
+            Listen on Audible
+          </a>
+        )
       )
     }
   </div>
@@ -119,7 +125,6 @@ const inProduction = t.status === 'in-production';
     color: var(--c-accent);
   }
 
-  .card__link.is-pending,
   .card__flag {
     color: var(--c-muted);
     opacity: 0.7;

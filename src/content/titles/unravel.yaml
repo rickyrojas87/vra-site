@@ -1,0 +1,13 @@
+title: Unravel
+status: in-production
+sortOrder: 7
+coverImage: ./covers/unravel.jpg
+sampleAudio: /audio/demo-unravel.mp3
+
+# Still needed — uncomment and fill. Omitted fields are simply not rendered.
+# audibleUrl stays empty until release.
+# author:
+# genre:
+# runtimeHours:
+# releaseYear:
+# publisher:

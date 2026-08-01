@@ -1,0 +1,14 @@
+# Title derived from the cover filename — confirm exact wording and punctuation.
+title: Of Blood and Dragon
+status: published
+sortOrder: 2
+coverImage: ./covers/of-blood-and-dragon.jpg
+sampleAudio: /audio/demo-of-blood-and-dragon.mp3
+
+# Still needed — uncomment and fill. Omitted fields are simply not rendered.
+# author:
+# genre:
+# runtimeHours:
+# releaseYear:
+# publisher:
+# audibleUrl:

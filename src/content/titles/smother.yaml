@@ -1,0 +1,13 @@
+title: Smother
+status: published
+sortOrder: 4
+coverImage: ./covers/smother.jpg
+sampleAudio: /audio/demo-smother.mp3
+
+# Still needed — uncomment and fill. Omitted fields are simply not rendered.
+# author:
+# genre:
+# runtimeHours:
+# releaseYear:
+# publisher:
+# audibleUrl:

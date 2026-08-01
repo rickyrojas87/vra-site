@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "astro": "^7.1.6"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true
   }
 }

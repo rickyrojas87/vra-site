@@ -7,27 +7,28 @@ import { glob } from 'astro/loaders';
  * One YAML file per book in src/content/titles/. Field names match the spec's
  * CMS collection exactly so the data maps 1:1 if it ever moves to a hosted CMS.
  *
- * Fields blocked on assets (coverImage, audibleUrl, sampleAudio) are optional so
- * a title can be entered before its art and links exist; the UI falls back to a
- * correctly sized placeholder.
+ * Only `title` and `status` are required. Everything else is optional by design:
+ * a title is entered as soon as its cover exists, and the metadata is filled in
+ * as it arrives. Cards omit whatever is missing rather than rendering a blank —
+ * so leaving a field out is always safe, and inventing a value never is.
  */
 const titles = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml,json}', base: './src/content/titles' }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
-      author: z.string(),
-      genre: z.string(),
-      runtimeHours: z.number().positive(),
-      releaseYear: z.number().int(),
+      status: z.enum(['published', 'in-production']),
+      author: z.string().optional(),
+      genre: z.string().optional(),
+      runtimeHours: z.number().positive().optional(),
+      releaseYear: z.number().int().optional(),
       /** Cover art, 1:1. Path relative to this file, e.g. ./covers/foo.jpg */
       coverImage: image().optional(),
       audibleUrl: z.url().optional(),
-      status: z.enum(['published', 'in-production']),
       /** Path under /public, e.g. /audio/foo.mp3 */
       sampleAudio: z.string().optional(),
       sortOrder: z.number().int().default(0),
-      /** Optional override for the publisher credit shown on /works. */
+      /** Publisher credit, or "Indie". Shown on /works only. */
       publisher: z.string().optional(),
     }),
 });

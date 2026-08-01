@@ -1,0 +1,15 @@
+# Title derived from the cover filename — confirm wording and punctuation
+# (likely "The Mother, The Me" with a comma).
+title: The Mother The Me
+status: published
+sortOrder: 6
+coverImage: ./covers/the-mother-the-me.jpg
+sampleAudio: /audio/demo-the-mother-the-me.mp3
+
+# Still needed — uncomment and fill. Omitted fields are simply not rendered.
+# author:
+# genre:
+# runtimeHours:
+# releaseYear:
+# publisher:
+# audibleUrl:
