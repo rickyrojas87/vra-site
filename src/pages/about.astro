@@ -1,7 +1,7 @@
 ---
 /** About — spec section 4. Two images maximum on this page: portrait and booth. */
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
+import { loadPublishedTitles } from '../utils/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
@@ -18,7 +18,7 @@ import { genres, accents } from '../data/taxonomy';
  * exists on a published title but is missing from taxonomy.ts still appears,
  * rather than silently vanishing from the page.
  */
-const publishedTitles = await getCollection('titles', ({ data }) => data.status === 'published');
+const publishedTitles = await loadPublishedTitles();
 const publishedGenres = new Set(
   publishedTitles.map((t) => t.data.genre).filter((g): g is string => Boolean(g)),
 );

@@ -1,6 +1,6 @@
 ---
 /** Works — spec section 5. */
-import { getCollection } from 'astro:content';
+import { loadPublishedTitles, loadInProductionTitles } from '../utils/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import TitleCard from '../components/TitleCard.astro';
@@ -8,12 +8,8 @@ import WaveformPlayer from '../components/WaveformPlayer.astro';
 import CtaBand from '../components/CtaBand.astro';
 import TitleSchema from '../components/TitleSchema.astro';
 
-const all = await getCollection('titles');
-const byOrder = (a: { data: { sortOrder: number } }, b: { data: { sortOrder: number } }) =>
-  a.data.sortOrder - b.data.sortOrder;
-
-const published = all.filter((e) => e.data.status === 'published').sort(byOrder);
-const inProduction = all.filter((e) => e.data.status === 'in-production').sort(byOrder);
+const published = await loadPublishedTitles();
+const inProduction = await loadInProductionTitles();
 ---
 
 <BaseLayout

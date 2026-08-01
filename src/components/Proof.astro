@@ -7,7 +7,7 @@
  *
  * Ratings only. No reviewer text, no pull quotes.
  */
-import { getCollection } from 'astro:content';
+import { loadTitles, loadTestimonials } from '../utils/content';
 
 interface Props {
   surface?: 'base' | 'deep' | 'panel';
@@ -15,7 +15,7 @@ interface Props {
 
 const { surface = 'base' } = Astro.props;
 
-const all = await getCollection('titles');
+const all = await loadTitles();
 const published = all.filter((t) => t.data.status === 'published');
 
 const rated = published
@@ -30,9 +30,7 @@ const rated = published
  * Author testimonials, managed from the CMS. The block below renders only when
  * at least one exists, so an empty collection leaves no trace on the page.
  */
-const testimonials = (await getCollection('testimonials')).sort(
-  (a, b) => a.data.sortOrder - b.data.sortOrder,
-);
+const testimonials = await loadTestimonials();
 
 /** Stats and ratings are gated on there being real ratings to show. */
 const show = rated.length > 0;

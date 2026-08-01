@@ -1,6 +1,6 @@
 ---
 /** Home — spec section 3. */
-import { getCollection } from 'astro:content';
+import { loadPublishedTitles } from '../utils/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
@@ -10,9 +10,7 @@ import TitleCard from '../components/TitleCard.astro';
 import DeliverySpec from '../components/DeliverySpec.astro';
 import CtaBand from '../components/CtaBand.astro';
 
-const selected = (await getCollection('titles', ({ data }) => data.status === 'published'))
-  .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
-  .slice(0, 4);
+const selected = (await loadPublishedTitles()).slice(0, 4);
 ---
 
 <BaseLayout

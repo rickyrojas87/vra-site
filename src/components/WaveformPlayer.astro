@@ -11,7 +11,7 @@
  * list cannot drift from the data. A title with no peak file — meaning no
  * sample MP3 — is absent from the player entirely.
  */
-import { getCollection } from 'astro:content';
+import { loadTitles } from '../utils/content';
 
 /** Demos run minutes, not hours — mm:ss, not the card grid's "3 hr 12 min". */
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -36,7 +36,7 @@ const peaksByName = new Map(
   ]),
 );
 
-const entries = (await getCollection('titles')).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const entries = (await loadTitles()).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
 
 const tracks = entries
   .map((entry) => {

@@ -11,7 +11,7 @@
  * at all below GALLERY_MIN entries.
  */
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
+import { loadGallery } from '../utils/content';
 
 interface Props {
   heading?: string;
@@ -23,9 +23,7 @@ const { heading = 'In the booth', surface = 'panel' } = Astro.props;
 /** A partial row breaks the stagger, so the collage is all-or-nothing. */
 const GALLERY_MIN = 4;
 
-const gallery = (await getCollection('gallery')).sort(
-  (a, b) => a.data.sortOrder - b.data.sortOrder,
-);
+const gallery = await loadGallery();
 const show = gallery.length >= GALLERY_MIN;
 ---
 
