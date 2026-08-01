@@ -22,7 +22,7 @@ export type ExternalLink = {
 
 /** Blocked on spec section 10, item 4. */
 export const externalLinks: ExternalLink[] = [
-  { id: 'instagram', label: 'Instagram', href: null },
+  { id: 'instagram', label: 'Instagram', href: 'https://instagram.com/vrojasaudio' },
   { id: 'acx', label: 'ACX profile', href: null },
   { id: 'audible', label: 'Audible narrator page', href: null },
 ];

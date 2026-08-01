@@ -7,9 +7,22 @@ import DeliverySpec from '../components/DeliverySpec.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { genres, accents } from '../data/taxonomy';
 
-/** Mandated verbatim by the spec, replacing the "newer voice" sentence. */
-const replacementSentence =
-  "I've worked closely with experienced audio engineers and voice actors to refine both performance and production, so every title meets professional delivery standards start to finish.";
+/**
+ * Bio copy carried over verbatim from victoriarojasaudio.com/about.
+ *
+ * Paragraph 3 is the one edit the spec calls for: the sentence beginning "I am a
+ * newer voice in the industry" is gone, and the spec's replacement sentence
+ * stands in for it. That replacement also subsumes the original's near-identical
+ * follow-on sentence ("I have worked closely with experienced audio engineers
+ * ...ensuring each audiobook meets high professional standards"), which would
+ * otherwise repeat the same clause twice. Every other word is hers.
+ */
+const bio = [
+  "Hi, I'm Victoria, a narrator based in Central Texas with a lifelong love for the arts and storytelling. I approach my work with care, discipline, and a deep respect for the craft, always focused on delivering performances that feel authentic, immersive, and thoughtfully produced.",
+  'My connection to storytelling began long before stepping into the booth. Some of my favorite moments happen at bedtime, reading to my two kids and watching their faces light up as I bring different character voices to life. Those moments quietly shaped my path into voice acting and clarified my mission. I strive to captivate listeners and pull them fully into the story, creating an experience that feels engaging, emotional, and alive.',
+  "I've worked closely with experienced audio engineers and voice actors to refine both performance and production, so every title meets professional delivery standards start to finish. My background in music has also shaped how I listen and perform, giving me a strong sensitivity to rhythm, pacing, and tonal nuance.",
+  'When I am not in production, I am often reading for pleasure. Stories play in my mind like a film, unfolding frame by frame with clear voices, vivid scenes, and emotional detail. That is the experience I aim to give every listener, a story that feels immersive, intentional, and memorable.',
+];
 ---
 
 <BaseLayout
@@ -31,12 +44,7 @@ const replacementSentence =
       </div>
 
       <div class="bio__copy">
-        <Placeholder
-          label="Existing bio copy"
-          note="Carry over from the current site, minus the sentence beginning &ldquo;I am a newer voice in the industry.&rdquo;"
-          height="240px"
-        />
-        <p class="bio__replacement">{replacementSentence}</p>
+        {bio.map((paragraph) => <p>{paragraph}</p>)}
       </div>
     </div>
   </section>
@@ -108,9 +116,6 @@ const replacementSentence =
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-  }
-
-  .bio__replacement {
     font-size: var(--fs-body);
     line-height: var(--lh-body);
     color: var(--c-text);

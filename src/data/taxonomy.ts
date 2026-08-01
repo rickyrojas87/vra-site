@@ -1,9 +1,34 @@
-/**
- * Shared vocabularies. The genre list is the spec's own (section 6, form field 4)
- * and is the single source for both the Contact dropdown and the About pills.
- */
+/** Shared vocabularies. */
 
+/**
+ * Genres Vikki narrates — About section 4 pill row.
+ *
+ * Deliberately NOT the same list as `genreOptions` below. This one describes her
+ * range; that one is the client-facing intake dropdown enumerated in spec
+ * section 6, which merges pairs ("Thriller / Suspense") and adds "Other".
+ * Editing one should not silently change the other.
+ */
 export const genres = [
+  'Romance',
+  'Fiction',
+  'Mystery',
+  'Thriller',
+  'Suspense',
+  'Fantasy',
+  'Science Fiction',
+  'Horror',
+  'Historical Fiction',
+  'Nonfiction',
+  'Memoir',
+  'Biography',
+  'Young Adult',
+  "Children's Fiction",
+  'True Crime',
+  'Self-Help',
+] as const;
+
+/** Contact form dropdown — verbatim from spec section 6, form field 4. */
+export const genreOptions = [
   'Romance',
   'Thriller / Suspense',
   'Mystery',
@@ -16,10 +41,8 @@ export const genres = [
   'Memoir / Biography',
   'True Crime',
   'Self-Help',
+  'Other',
 ] as const;
-
-/** Contact form only — "Other" is an intake option, not a genre Vikki narrates. */
-export const genreOptions = [...genres, 'Other'] as const;
 
 export const dealTypes = [
   'ACX royalty share',
@@ -29,9 +52,16 @@ export const dealTypes = [
 ] as const;
 
 /**
- * About section 3 — accents rendered as a 3-column grid, never a comma list.
- * Empty until Vikki confirms her actual range; the page falls back to a
- * correctly sized placeholder. Fill this array and the grid renders itself.
- * Superseded by the voice range matrix element in phase 2.
+ * About section 3 — rendered as a 3-column grid of accent names, never a comma
+ * list. Superseded by the voice range matrix element in phase 2.
  */
-export const accents: string[] = [];
+export const accents: string[] = [
+  'Spanish',
+  'US Boston',
+  'US Southern',
+  'US New York',
+  'US Standard American',
+  'US Miami',
+  'British Standard',
+  'Australian',
+];
