@@ -389,7 +389,19 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
       canvas.setAttribute('aria-valuetext', `${pct}%, ${mmss(progress * current.duration)}`);
     }
 
+    /**
+     * True only while the element actually holds the selected track's file.
+     *
+     * Every handler that writes `progress`, the readout or the playhead must
+     * check this first. `audio.pause()` flips `.paused` synchronously but queues
+     * the `pause` EVENT as a task, so a frame or a `timeupdate` belonging to the
+     * outgoing track can still land after select() has run — and would divide
+     * the OLD currentTime by the NEW duration.
+     */
+    const isLive = () => loadedId === current.id;
+
     function tick() {
+      if (!isLive()) return;
       if (current.duration) progress = audio.currentTime / current.duration;
       elapsedEl.textContent = mmss(audio.currentTime);
       draw();
@@ -415,6 +427,12 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
      */
     function select(track: Track) {
       seekToken++;
+
+      // Kill the loop synchronously, BEFORE zeroing. Waiting for the `pause`
+      // event to cancel it lets one more frame run and overwrite the reset.
+      cancelAnimationFrame(raf);
+      raf = 0;
+
       audio.pause();
       progress = 0;
 
@@ -483,12 +501,13 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
       cancelAnimationFrame(raf);
     });
     audio.addEventListener('ended', () => {
+      if (!isLive()) return;
       progress = 0;
       elapsedEl.textContent = '0:00';
       draw();
     });
     audio.addEventListener('timeupdate', () => {
-      if (!reduced.matches) return;
+      if (!reduced.matches || !isLive()) return;
       if (current.duration) progress = audio.currentTime / current.duration;
       elapsedEl.textContent = mmss(audio.currentTime);
       draw();
