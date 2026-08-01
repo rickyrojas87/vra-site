@@ -13,7 +13,14 @@
  * keeps diffs and cache keys stable across rebuilds.
  */
 import { Image } from 'astro:assets';
-import portrait from '../assets/portrait.jpg';
+/**
+ * Landscape 7415x5561 original — chosen over the other three landscape shots
+ * because she sits furthest right of centre in it and both edges are quiet
+ * (mic stand against acoustic panel on the left, plain panelling on the right).
+ * Replaces the old 1200px portrait, which had to be upscaled ~1.6x to fill a
+ * desktop hero and cropped 58% of its height away.
+ */
+import heroPhoto from '../assets/potrait-alt.jpg';
 
 const BAR_COUNT = 21;
 
@@ -39,10 +46,13 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
     {/* Photo. LCP element, so it loads eagerly at high priority. */}
     <Image
       class="hero__photo"
-      src={portrait}
-      alt="Victoria Rojas in her studio"
-      width={1200}
-      height={1598}
+      src={heroPhoto}
+      alt="Victoria Rojas standing in her recording booth beside a microphone and pop filter"
+      {/* Sits under a 40-94% scrim plus grain, so aggressive compression is
+          invisible here and keeps the LCP inside budget. */}
+      width={1600}
+      height={1200}
+      quality={55}
       loading="eager"
       fetchpriority="high"
     />
@@ -94,16 +104,17 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
   }
 
   /* 1 — Photo, full bleed.
-     object-position keeps her face inside the right-hand clear zone of the
-     scrim. On wide viewports cover crops vertically, so the Y value is what
-     actually holds the face in frame; the X value takes over on narrow ones. */
+     The source is 4:3, so which axis gets cropped depends on the viewport:
+     on a wide desktop hero it fills the width and crops vertically (X does
+     nothing, Y holds her face in frame), and on a narrow tall one it fills the
+     height and crops horizontally (X keeps her off the text). Both are tuned. */
   .hero__photo {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 62% 22%;
+    object-position: 58% 28%;
   }
 
   /* 2 — Directional scrim: text side opaque, face side readable. */
@@ -227,8 +238,10 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
       );
     }
 
+    /* Copy sits at the bottom on mobile, so bias the crop upward to keep her
+       face clear of it. */
     .hero__photo {
-      object-position: 60% 18%;
+      object-position: 55% 20%;
     }
 
     /* Copy follows the dark end of the vertical scrim. */
