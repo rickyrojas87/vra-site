@@ -1,0 +1,38 @@
+---
+/** Page title block — About 1, Works 1, Contact 1. */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  subhead?: string;
+}
+
+const { eyebrow, title, subhead } = Astro.props;
+---
+
+<section class="section page-header">
+  <div class="container page-header__inner">
+    {eyebrow && <p class="label">{eyebrow}</p>}
+    <h1>{title}</h1>
+    {subhead && <p class="page-header__subhead">{subhead}</p>}
+  </div>
+</section>
+
+<style>
+  /* Keeps its own bottom padding; the global `.section + .section` rule zeroes
+     the top of whatever follows, so the gap stays a single 120px. */
+  .page-header__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .page-header__subhead {
+    max-width: 620px;
+    font-size: var(--fs-h3);
+    font-family: var(--font-display);
+    font-weight: var(--fw-h3);
+    letter-spacing: var(--ls-h3);
+    line-height: var(--lh-heading);
+    color: var(--c-muted);
+  }
+</style>

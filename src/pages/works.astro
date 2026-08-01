@@ -1,0 +1,94 @@
+---
+/** Works — spec section 5. */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Placeholder from '../components/Placeholder.astro';
+import TitleCard from '../components/TitleCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+
+const all = await getCollection('titles');
+const byOrder = (a: { data: { sortOrder: number } }, b: { data: { sortOrder: number } }) =>
+  a.data.sortOrder - b.data.sortOrder;
+
+const published = all.filter((e) => e.data.status === 'published').sort(byOrder);
+const inProduction = all.filter((e) => e.data.status === 'in-production').sort(byOrder);
+---
+
+<BaseLayout
+  title="Audiobook Narration Demos and Published Titles"
+  description="Narration demos across genres and character types, plus published audiobook titles and works currently in production."
+>
+  {/* 1 — Title */}
+  <PageHeader title="Works" />
+
+  {/* 2 — Demos */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Demos</p>
+      <Placeholder
+        label="Waveform player, full version"
+        note="Genre and accent filters. Every demo renamed, no file names: &ldquo;Genre, character type&rdquo; for character demos, &ldquo;Title, Author&rdquo; for book samples."
+        height="520px"
+      />
+    </div>
+  </section>
+
+  {/* 3 — Published titles */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Published titles</p>
+      {
+        published.length > 0 ? (
+          <div class="titles-grid">
+            {published.map((entry) => (
+              <TitleCard entry={entry} showMeta />
+            ))}
+          </div>
+        ) : (
+          <p class="muted">No published titles yet.</p>
+        )
+      }
+    </div>
+  </section>
+
+  {/* 4 — In production */}
+  {
+    inProduction.length > 0 && (
+      <section class="section">
+        <div class="container stack">
+          <p class="label">In production</p>
+          <div class="titles-grid">
+            {inProduction.map((entry) => (
+              <TitleCard entry={entry} showMeta />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {/* 5 — CTA band */}
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* 3 across desktop, 1 across mobile. */
+  .titles-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gutter);
+  }
+
+  @media (min-width: 768px) {
+    .titles-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

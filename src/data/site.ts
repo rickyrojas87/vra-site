@@ -15,16 +15,20 @@ export const site = {
 } as const;
 
 export type ExternalLink = {
+  id: 'instagram' | 'acx' | 'audible';
   label: string;
   href: string | null;
 };
 
 /** Blocked on spec section 10, item 4. */
 export const externalLinks: ExternalLink[] = [
-  { label: 'Instagram', href: null },
-  { label: 'ACX profile', href: null },
-  { label: 'Audible narrator page', href: null },
+  { id: 'instagram', label: 'Instagram', href: null },
+  { id: 'acx', label: 'ACX profile', href: null },
+  { id: 'audible', label: 'Audible narrator page', href: null },
 ];
+
+/** Contact section 4 lists the two professional profiles, not social. */
+export const professionalLinks = externalLinks.filter((l) => l.id !== 'instagram');
 
 export const pages = [
   { label: 'Home', href: '/' },

@@ -33,10 +33,13 @@ src/
 
 ## Built / not built
 
-Built: global tokens, Header (spec 2), Home (spec 3), Footer (spec 7), Titles
-collection (spec 5), Netlify config.
+Built: global tokens, Header (spec 2), all four pages — Home (3), About (4),
+Works (5), Contact (6) — Footer (7), Titles collection, Netlify config.
 
-Not built yet: `/about`, `/works`, `/contact` pages, and the three custom
-elements — waveform player, voice range matrix, quote calculator (spec 8).
-Everything blocked on assets renders as a dashed `Placeholder` at the correct
-dimensions; each one names what it's waiting on.
+Not built yet: the three custom elements — waveform player, voice range matrix,
+quote calculator (spec 8). Everything blocked on assets renders as a dashed
+`Placeholder` at the correct dimensions; each one names what it's waiting on.
+
+The contact form posts to [Netlify Forms](https://docs.netlify.com/forms/setup/)
+via `data-netlify="true"` — it only collects submissions once deployed to Netlify,
+and does nothing locally.

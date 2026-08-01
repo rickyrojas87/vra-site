@@ -1,0 +1,158 @@
+---
+/** About — spec section 4. Two images maximum on this page: portrait and booth. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Placeholder from '../components/Placeholder.astro';
+import DeliverySpec from '../components/DeliverySpec.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { genres, accents } from '../data/taxonomy';
+
+/** Mandated verbatim by the spec, replacing the "newer voice" sentence. */
+const replacementSentence =
+  "I've worked closely with experienced audio engineers and voice actors to refine both performance and production, so every title meets professional delivery standards start to finish.";
+---
+
+<BaseLayout
+  title="About Victoria Rojas, Female Audiobook Narrator"
+  description="Audiobook narrator based in Central Texas, recording and mastering in a treated home studio to professional delivery standards."
+>
+  {/* 1 — Title */}
+  <PageHeader eyebrow="Narrator, Central Texas" title="About" />
+
+  {/* 2 — Bio, 5/7 split */}
+  <section class="section">
+    <div class="container bio">
+      <div class="bio__portrait">
+        <Placeholder
+          label="Portrait"
+          note="Full resolution, 4:5. One of the two images allowed on this page."
+          ratio="4 / 5"
+        />
+      </div>
+
+      <div class="bio__copy">
+        <Placeholder
+          label="Existing bio copy"
+          note="Carry over from the current site, minus the sentence beginning &ldquo;I am a newer voice in the industry.&rdquo;"
+          height="240px"
+        />
+        <p class="bio__replacement">{replacementSentence}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* 3 — Range */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Range</p>
+      {
+        accents.length > 0 ? (
+          <ul class="accent-grid">
+            {accents.map((accent) => (
+              <li class="accent-grid__cell">{accent}</li>
+            ))}
+          </ul>
+        ) : (
+          <Placeholder
+            label="Accent and voice range"
+            note="Interim treatment is a 3-column grid of accent names, never a comma list. Add them to accents[] in src/data/taxonomy.ts. Superseded by the voice range matrix in phase 2."
+            height="232px"
+          />
+        )
+      }
+    </div>
+  </section>
+
+  {/* 4 — Genres */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Genres</p>
+      <ul class="genre-row">
+        {genres.map((genre) => <li class="pill">{genre}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {/* 5 — Studio. Same panel as Home section 5, reused not rewritten. */}
+  <section class="section">
+    <div class="container stack">
+      <p class="label">Studio and delivery</p>
+      <DeliverySpec />
+      <Placeholder
+        label="Booth photo"
+        note="The second and final image on this page."
+        ratio="3 / 2"
+      />
+    </div>
+  </section>
+
+  {/* 6 — CTA band */}
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* 2 — Bio */
+  .bio {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .bio__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .bio__replacement {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--c-text);
+  }
+
+  /* 3 — Range */
+  .accent-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .accent-grid__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    padding: var(--space-1);
+    background: var(--c-panel);
+    color: var(--c-text);
+    font-size: var(--fs-body);
+    text-align: center;
+  }
+
+  /* 4 — Genres */
+  .genre-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 768px) {
+    .bio {
+      grid-template-columns: 5fr 7fr;
+      gap: var(--gutter);
+      align-items: start;
+    }
+  }
+</style>
