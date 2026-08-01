@@ -1,0 +1,515 @@
+---
+/**
+ * Waveform demo player — spec section 8, phase 1. One instance per page.
+ *
+ * Nothing audio-related is fetched until the user presses play. The canvas
+ * draws from precomputed envelopes in src/data/peaks (see `npm run peaks`), so
+ * every waveform is visible, seekable and measurable at zero network cost. The
+ * MP3 is requested on first play of that track and never before.
+ *
+ * Tracks and genre pills both derive from the Titles collection, so the filter
+ * list cannot drift from the data. A title with no peak file — meaning no
+ * sample MP3 — is absent from the player entirely.
+ */
+import { getCollection } from 'astro:content';
+
+/** Demos run minutes, not hours — mm:ss, not the card grid's "3 hr 12 min". */
+const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+interface Props {
+  heading?: string;
+  surface?: 'base' | 'deep' | 'panel';
+  id?: string;
+}
+
+const { heading = 'Demos', surface = 'deep', id = 'demos' } = Astro.props;
+
+/** Peak envelopes, keyed by MP3 basename. */
+const peakModules = import.meta.glob<{
+  default: { duration: number; samples: number; peaks: number[] };
+}>('../data/peaks/*.json', { eager: true });
+
+const peaksByName = new Map(
+  Object.entries(peakModules).map(([path, mod]) => [
+    path.split('/').pop()!.replace('.json', ''),
+    mod.default,
+  ]),
+);
+
+const entries = (await getCollection('titles')).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+
+const tracks = entries
+  .map((entry) => {
+    const audio = entry.data.sampleAudio;
+    if (!audio) return null;
+    const name = audio.split('/').pop()!.replace('.mp3', '');
+    const peaks = peaksByName.get(name);
+    // No envelope means no sample shipped: leave the title out of the player.
+    if (!peaks) return null;
+    return {
+      id: entry.id,
+      title: entry.data.title,
+      genre: entry.data.genre ?? null,
+      src: audio,
+      duration: peaks.duration,
+      peaks: peaks.peaks,
+    };
+  })
+  .filter((t): t is NonNullable<typeof t> => t !== null);
+
+/** Pills come from the tracks actually in the player, never a hand-written list. */
+const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string => Boolean(g)))].sort();
+---
+
+<section class:list={['section', `surface-${surface}`]} id={id} data-reveal>
+  <div class="container stack">
+    <p class="label">{heading}</p>
+
+    <div class="player" data-player>
+      <div class="player__filters" role="group" aria-label="Filter demos by genre">
+        <button class="pill" type="button" data-genre="all" aria-pressed="true">All</button>
+        {
+          genres.map((genre) => (
+            <button class="pill" type="button" data-genre={genre} aria-pressed="false">
+              {genre}
+            </button>
+          ))
+        }
+      </div>
+
+      <ul class="player__tracks" data-tracks>
+        {
+          tracks.map((track) => (
+            <li class="player__track" data-track-genre={track.genre ?? ''}>
+              <button class="track" type="button" data-track={track.id} aria-current="false">
+                <span class="track__title">{track.title}</span>
+                <span class="track__time">{mmss(track.duration)}</span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="player__stage">
+        <button class="player__toggle" type="button" data-toggle aria-label="Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
+            <path class="player__icon-play" d="M7 4.5v15l13-7.5z" fill="currentColor"></path>
+            <path class="player__icon-pause" d="M6 4.5h4v15H6zm8 0h4v15h-4z" fill="currentColor"></path>
+          </svg>
+        </button>
+
+        <canvas
+          class="player__wave"
+          data-wave
+          role="slider"
+          tabindex="0"
+          aria-label="Seek within the demo"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-valuetext="0%"></canvas>
+
+        <p class="player__time">
+          <span data-elapsed>0:00</span><span class="player__sep">/</span><span data-total>0:00</span>
+        </p>
+      </div>
+
+      <p class="player__now">
+        <span class="visually-hidden">Selected demo:</span>
+        <span data-now></span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" data-tracks-json set:html={JSON.stringify(tracks)} />
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .player {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    background: var(--c-panel);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 10px 24px rgb(0 0 0 / 45%),
+      0 2px 4px rgb(0 0 0 / 30%),
+      0 0 0 1px var(--c-rule);
+  }
+
+  .player__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .player__filters .pill {
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      color 200ms ease;
+  }
+
+  .player__filters .pill[aria-pressed='true'] {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: var(--c-bg);
+  }
+
+  .player__tracks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .player__track[hidden] {
+    display: none;
+  }
+
+  .track {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: 0;
+    border-left: 2px solid transparent;
+    color: var(--c-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 15px;
+    text-align: left;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .track:hover {
+    background: rgb(184 146 90 / 8%);
+    color: var(--c-text);
+  }
+
+  .track[aria-current='true'] {
+    border-left-color: var(--c-accent);
+    background: rgb(212 175 55 / 10%);
+    color: var(--c-text);
+  }
+
+  .track__time {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-muted);
+  }
+
+  .player__stage {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .player__toggle {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    background: var(--c-accent);
+    border: 0;
+    border-radius: 50%;
+    color: var(--c-bg);
+    cursor: pointer;
+    transition: background-color 200ms ease;
+  }
+
+  .player__toggle:hover {
+    background: var(--c-accent-2);
+  }
+
+  .player__icon-pause {
+    display: none;
+  }
+
+  .player[data-playing] .player__icon-play {
+    display: none;
+  }
+
+  .player[data-playing] .player__icon-pause {
+    display: block;
+  }
+
+  .player__wave {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 72px;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .player__time {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--c-muted);
+    white-space: nowrap;
+  }
+
+  .player__sep {
+    padding-inline: 6px;
+    opacity: 0.5;
+  }
+
+  .player__now {
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-h3);
+    letter-spacing: var(--ls-h3);
+    line-height: var(--lh-heading);
+    color: var(--c-text);
+  }
+
+  @media (max-width: 599px) {
+    .player__stage {
+      flex-wrap: wrap;
+    }
+
+    .player__wave {
+      order: 3;
+      width: 100%;
+      flex-basis: 100%;
+    }
+
+    .player__time {
+      margin-left: auto;
+    }
+  }
+</style>
+
+<script>
+  interface Track {
+    id: string;
+    title: string;
+    genre: string | null;
+    src: string;
+    duration: number;
+    peaks: number[];
+  }
+
+  const BAR_W = 3;
+  const BAR_GAP = 1;
+  const STEP = BAR_W + BAR_GAP;
+
+  const root = document.querySelector<HTMLElement>('[data-player]');
+  const json = document.querySelector<HTMLScriptElement>('[data-tracks-json]');
+  if (root && json) {
+    const tracks: Track[] = JSON.parse(json.textContent || '[]');
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-wave]')!;
+    const ctx = canvas.getContext('2d')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    const elapsedEl = root.querySelector<HTMLElement>('[data-elapsed]')!;
+    const totalEl = root.querySelector<HTMLElement>('[data-total]')!;
+    const nowEl = root.querySelector<HTMLElement>('[data-now]')!;
+    const pills = [...root.querySelectorAll<HTMLButtonElement>('[data-genre]')];
+    const trackButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-track]')];
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    // One element for the whole player: starting a track inherently stops the last.
+    const audio = new Audio();
+    audio.preload = 'none';
+
+    let current: Track = tracks[0];
+    let progress = 0;
+    let raf = 0;
+
+    const mmss = (s: number) =>
+      `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const { width, height } = canvas.getBoundingClientRect();
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+
+    function draw() {
+      const { width: w, height: h } = canvas.getBoundingClientRect();
+      if (!w || !h) return;
+      ctx.clearRect(0, 0, w, h);
+
+      const bars = Math.max(1, Math.floor(w / STEP));
+      const mid = h / 2;
+      const peaks = current.peaks;
+
+      for (let i = 0; i < bars; i++) {
+        const v = peaks[Math.floor((i / bars) * peaks.length)] ?? 0;
+        const half = Math.max(1, v * (mid - 1));
+        const played = (i + 0.5) / bars <= progress;
+        ctx.fillStyle = played ? css('--c-accent') : css('--c-accent-2');
+        ctx.globalAlpha = played ? 1 : 0.55;
+        ctx.fillRect(i * STEP, mid - half, BAR_W, half * 2);
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = css('--c-text');
+      ctx.fillRect(Math.min(w - 1, progress * w), 0, 1, h);
+
+      const pct = Math.round(progress * 100);
+      canvas.setAttribute('aria-valuenow', String(pct));
+      canvas.setAttribute('aria-valuetext', `${pct}%, ${mmss(progress * current.duration)}`);
+    }
+
+    function tick() {
+      if (current.duration) progress = audio.currentTime / current.duration;
+      elapsedEl.textContent = mmss(audio.currentTime);
+      draw();
+      if (!audio.paused) raf = requestAnimationFrame(tick);
+    }
+
+    /** Reduced motion: repaint on timeupdate only, no per-frame playhead easing. */
+    function startLoop() {
+      if (reduced.matches) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function select(track: Track, { keepTime = false } = {}) {
+      current = track;
+      if (!keepTime) {
+        audio.pause();
+        progress = 0;
+      }
+      nowEl.textContent = track.title;
+      totalEl.textContent = mmss(track.duration);
+      elapsedEl.textContent = mmss(keepTime ? audio.currentTime : 0);
+      for (const b of trackButtons) {
+        b.setAttribute('aria-current', b.dataset.track === track.id ? 'true' : 'false');
+      }
+      root!.removeAttribute('data-playing');
+      draw();
+    }
+
+    function play() {
+      // First play of this track is the first time its MP3 is ever requested.
+      const url = new URL(current.src, location.href).href;
+      if (audio.src !== url) {
+        audio.src = current.src;
+        // Honour a seek made before the file existed: currentTime can only be
+        // set once metadata has landed, so defer it rather than dropping it.
+        const target = progress * current.duration;
+        if (target > 0) {
+          audio.addEventListener('loadedmetadata', () => (audio.currentTime = target), {
+            once: true,
+          });
+        }
+      }
+      audio.play();
+    }
+
+    toggle.addEventListener('click', () => (audio.paused ? play() : audio.pause()));
+
+    audio.addEventListener('play', () => {
+      root!.setAttribute('data-playing', '');
+      startLoop();
+    });
+    audio.addEventListener('pause', () => {
+      root!.removeAttribute('data-playing');
+      cancelAnimationFrame(raf);
+    });
+    audio.addEventListener('ended', () => {
+      progress = 0;
+      elapsedEl.textContent = '0:00';
+      draw();
+    });
+    audio.addEventListener('timeupdate', () => {
+      if (!reduced.matches) return;
+      if (current.duration) progress = audio.currentTime / current.duration;
+      elapsedEl.textContent = mmss(audio.currentTime);
+      draw();
+    });
+
+    for (const button of trackButtons) {
+      button.addEventListener('click', () => {
+        const track = tracks.find((t) => t.id === button.dataset.track);
+        if (track) select(track); // Loads peaks and title. Does not fetch audio.
+      });
+    }
+
+    for (const pill of pills) {
+      pill.addEventListener('click', () => {
+        const genre = pill.dataset.genre!;
+        for (const p of pills) p.setAttribute('aria-pressed', String(p === pill));
+
+        let firstVisible: Track | null = null;
+        for (const li of root!.querySelectorAll<HTMLElement>('.player__track')) {
+          const match = genre === 'all' || li.dataset.trackGenre === genre;
+          li.hidden = !match;
+          const id = li.querySelector<HTMLButtonElement>('[data-track]')!.dataset.track;
+          const track = tracks.find((t) => t.id === id)!;
+          if (match && !firstVisible) firstVisible = track;
+        }
+        // If the playing track just got filtered out, stop and move to the first visible.
+        const stillVisible = genre === 'all' || current.genre === genre;
+        if (!stillVisible && firstVisible) select(firstVisible);
+      });
+    }
+
+    function seekTo(clientX: number) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      progress = ratio;
+      if (audio.src) audio.currentTime = ratio * current.duration;
+      elapsedEl.textContent = mmss(ratio * current.duration);
+      draw();
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      seekTo(e.clientX);
+    });
+
+    root.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement;
+      // Let Enter/Space work normally on the pills and track buttons.
+      if (e.key === ' ' && target.tagName === 'BUTTON') return;
+
+      if (e.key === ' ') {
+        e.preventDefault();
+        audio.paused ? play() : audio.pause();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const delta = e.key === 'ArrowRight' ? 5 : -5;
+        const next = Math.min(current.duration, Math.max(0, (progress * current.duration) + delta));
+        progress = current.duration ? next / current.duration : 0;
+        if (audio.src) audio.currentTime = next;
+        elapsedEl.textContent = mmss(next);
+        draw();
+      }
+    });
+
+    new ResizeObserver(resize).observe(canvas);
+    if (tracks.length) select(tracks[0]);
+    resize();
+  }
+</script>

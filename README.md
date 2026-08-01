@@ -11,7 +11,14 @@ npm install     # once
 npm run dev     # http://localhost:4321
 npm run build   # static output to dist/
 npm run preview # serve dist/ exactly as Netlify will
+npm run peaks   # regenerate waveform data after adding/replacing a demo MP3
 ```
+
+`npm run peaks` decodes every MP3 in `public/audio` with a build-time ffmpeg
+binary and writes amplitude envelopes to `src/data/peaks/`. Commit that JSON —
+it is deliberately not part of `npm run build`, so deploys need no ffmpeg. The
+player draws from those envelopes and fetches an MP3 only when someone presses
+play on that track.
 
 As of Astro 7, `astro dev` daemonizes: `npm run dev` forks the server to the
 background and returns, so closing the terminal leaves it running and Ctrl-C has

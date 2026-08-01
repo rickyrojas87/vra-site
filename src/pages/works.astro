@@ -3,8 +3,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
-import Placeholder from '../components/Placeholder.astro';
 import TitleCard from '../components/TitleCard.astro';
+import WaveformPlayer from '../components/WaveformPlayer.astro';
 import CtaBand from '../components/CtaBand.astro';
 
 const all = await getCollection('titles');
@@ -13,17 +13,6 @@ const byOrder = (a: { data: { sortOrder: number } }, b: { data: { sortOrder: num
 
 const published = all.filter((e) => e.data.status === 'published').sort(byOrder);
 const inProduction = all.filter((e) => e.data.status === 'in-production').sort(byOrder);
-
-/**
- * Demos are driven off the Titles collection so a sample never drifts from its
- * book. Native <audio> is the interim treatment until the waveform player embed
- * ships — that element replaces this block wholesale, including the filtering.
- *
- * Labels are titles for now. The spec's naming rule ("Title, Author" for book
- * samples, "Genre, character type" for character demos) needs author and genre,
- * which no entry has yet.
- */
-const demos = all.filter((e) => e.data.sampleAudio).sort(byOrder);
 ---
 
 <BaseLayout
@@ -34,36 +23,7 @@ const demos = all.filter((e) => e.data.sampleAudio).sort(byOrder);
   <PageHeader title="Works" />
 
   {/* 2 — Demos */}
-  <section class="section surface-deep" data-reveal>
-    <div class="container stack">
-      <p class="label">Demos</p>
-      {
-        demos.length > 0 ? (
-          <ul class="demos">
-            {demos.map((entry) => (
-              <li class="demo">
-                <div class="demo__head">
-                  <h2 class="demo__title">{entry.data.title}</h2>
-                  {entry.data.status === 'in-production' && (
-                    <span class="demo__flag">In production</span>
-                  )}
-                </div>
-                <audio class="demo__audio" controls preload="none" src={entry.data.sampleAudio}>
-                  <a href={entry.data.sampleAudio}>Download the {entry.data.title} sample</a>
-                </audio>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Placeholder label="Demo audio" note="No sample audio wired to any title yet." height="520px" />
-        )
-      }
-      <p class="demos__note muted">
-        Interim players. The waveform embed with genre and accent filters replaces this
-        section in phase 1.
-      </p>
-    </div>
-  </section>
+  <WaveformPlayer surface="deep" id="demos" />
 
   {/* 3 — Published titles */}
   <section class="section surface-base" data-reveal>
