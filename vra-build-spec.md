@@ -85,8 +85,10 @@ Every page outline runs h1 → h2 → h3 with no skips.
 Sticky, `--c-bg` at 92% opacity, 1px bottom border `--c-rule`. Height 88px
 desktop, 64px mobile.
 
-- Left: wordmark. Text only, Cormorant Garamond 22px, `--c-text`, tracking
-  0.18em, reading `VICTORIA ROJAS`. Never a photo.
+- Left: the horizontal lockup — emblem plus VICTORIA ROJAS over AUDIO —
+  inlined from `src/assets/logos/logo-horizontal.svg` and filled `--c-text`
+  by CSS, not gold, which is reserved for the active nav item and the CTA.
+  44px tall in the 88px bar, 32px in the 64px one. Never a photo.
 - Center: Home, About, Works, Contact. Raleway 14px, `--c-muted`, active state
   `--c-accent`. Four items, no overflow menu.
 - Right: one gold outline button, `Request a quote`, to `/contact`.
@@ -188,7 +190,8 @@ standalone rate figure, because as an output it read like a fixed price.
 
 Background `--c-deep`, 1px top border `--c-rule`.
 
-- Column 1: wordmark, tagline, business email
+- Column 1: the horizontal lockup at 52px, same ivory fill as the header,
+  then tagline and business email
 - Column 2: page links
 - Column 3: Instagram, ACX profile, Audible narrator page
 - Bottom bar: copyright, Raleway 12px `--c-muted`
@@ -239,16 +242,16 @@ Practices 100 on all four pages.
 1. Author testimonials — collection and rendering exist, no entries written
 2. Turnaround time per finished hour — field exists and is empty, so the line
    does not render
-3. Logo — the wordmark is text-only; there is no mark
-4. Accent recordings for the voice range matrix (§8 phase 2)
+3. Accent recordings for the voice range matrix (§8 phase 2)
 
 **Technical:**
 
-5. IndexNow integration
-6. Search Console and Bing verification tokens
-7. Analytics provider
-8. Per-page OG images — currently one shared default
-9. `releaseDate` field — the catalog is year-granular, so the "Months active"
+4. IndexNow integration
+5. Search Console and Bing verification tokens
+6. Analytics provider
+7. Per-page OG images — currently one shared default, with `og-logo.png`
+   available as a fallback for any page that has no better image
+8. `releaseDate` field — the catalog is year-granular, so the "Months active"
    stat is an approximation
 10. `portrait.jpg` and `booth.jpg` are 1200px sources while the rest are 2400px
 

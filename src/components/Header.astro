@@ -1,5 +1,10 @@
 ---
 /** Spec section 2. Sticky, 88px desktop / 64px mobile. No Instagram icon — it lives in the Footer. */
+import logoHorizontal from '../assets/logos/logo-horizontal.svg?raw';
+import { decorativeSvg } from '../utils/logo';
+
+const logo = decorativeSvg(logoHorizontal);
+
 const nav = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
@@ -13,7 +18,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
 <header class="header">
   <div class="header__inner">
-    <a class="wordmark" href="/">Victoria Rojas</a>
+    <a class="wordmark" href="/" aria-label="Victoria Rojas"><Fragment set:html={logo} /></a>
 
     <nav class="nav" aria-label="Primary">
       {
@@ -78,17 +83,33 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     padding-inline: var(--gutter);
   }
 
-  /* Text only. Never a photo. */
+  /* The lockup, never a photo. 32px in the 64px bar, 44px in the 88px one —
+     both leave 16px of clear space above and below, and neither changes
+     --header-h. Width follows from the 2265x571 viewBox: 127px and 175px, both
+     narrower than the 210px text wordmark this replaced, so the nav gained
+     room rather than losing it. */
   .wordmark {
+    display: flex;
     flex-shrink: 0;
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 300;
-    letter-spacing: 0.18em;
-    line-height: 1;
-    text-transform: uppercase;
-    color: var(--c-text);
-    white-space: nowrap;
+    align-items: center;
+    --logo-h: 32px;
+  }
+
+  /* Injected markup carries no scope attribute, hence :global. The file's own
+     fill="#D4AF37" is a presentation attribute, so this rule wins over it and
+     every path inherits — one place controls the colour. */
+  .wordmark :global(svg) {
+    display: block;
+    height: var(--logo-h);
+    width: auto;
+    fill: var(--c-text);
+    transition: fill 200ms ease;
+  }
+
+  /* Bronze, matching .nav__link:hover. Gold here would read as a second
+     active state next to the CTA border. */
+  .wordmark:hover :global(svg) {
+    fill: var(--c-accent-2);
   }
 
   .nav {
@@ -156,6 +177,15 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+  }
+
+  /* Follows --header-h, which steps up at 768px — not the 900px nav
+     breakpoint. Keyed to 900 the lockup would sit at 32px inside an 88px bar
+     for that whole band. */
+  @media (min-width: 768px) {
+    .wordmark {
+      --logo-h: 44px;
+    }
   }
 
   @media (min-width: 900px) {

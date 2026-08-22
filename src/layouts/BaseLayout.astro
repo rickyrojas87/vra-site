@@ -56,8 +56,12 @@ const ogImageAlt =
     {/* Ownership tags for Search Console and Bing live in this one file. */}
     <SiteVerification />
 
-    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    {/* .ico first for the browsers that only read that, then the SVG, which
+        modern browsers prefer and which scales to any tab or bookmark size.
+        The 16/32 PNGs the SEO pass emitted are gone; the .ico carries 16, 32
+        and 48 in one file. */}
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#222328" />

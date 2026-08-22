@@ -135,5 +135,12 @@ underscore-prefixed files from routing, so it silently emits nothing.
 - **Scoped component styles land in the page's inlined `<style>`**, not always
   the shared bundle. Verifying CSS by grepping the wrong file gives false
   negatives — and class names in CSS selectors inflate markup counts.
+- **Markup injected with `set:html` carries no scope attribute**, so a scoped
+  rule like `.wordmark svg` never matches it — the logo lockups need
+  `.wordmark :global(svg)`. Same trap for anything else inlined as raw HTML.
+- **The logo's colour is a CSS `fill`, not the file's.** The lockups in
+  `src/assets/logos/` ship `fill="#D4AF37"` on the root `<svg>`; the header and
+  footer override it to `var(--c-text)`. The `-ivory` and `-dark` variants are
+  for print and other non-CSS uses — don't wire them into a component.
 - **`--c-quiet` (`#9A9BA4`) is contrast-critical.** It must clear 4.5:1 against
   `--c-panel`. The previous value failed AA at 4.21:1.

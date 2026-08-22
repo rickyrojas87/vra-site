@@ -1,6 +1,10 @@
 ---
 /** Spec section 7. Three columns plus a bottom bar. */
+import logoHorizontal from '../assets/logos/logo-horizontal.svg?raw';
 import { site, pages, externalLinks } from '../data/site';
+import { decorativeSvg } from '../utils/logo';
+
+const logo = decorativeSvg(logoHorizontal);
 
 const year = new Date().getFullYear();
 ---
@@ -8,7 +12,7 @@ const year = new Date().getFullYear();
 <footer class="footer">
   <div class="container footer__grid">
     <div class="footer__col">
-      <a class="footer__wordmark" href="/">{site.wordmark}</a>
+      <a class="footer__wordmark" href="/" aria-label={site.wordmark}><Fragment set:html={logo} /></a>
       <p class="footer__tagline">{site.tagline}</p>
       <a class="footer__email" href={`mailto:${site.email}`}>{site.email}</a>
     </div>
@@ -74,14 +78,28 @@ const year = new Date().getFullYear();
     gap: var(--space-1);
   }
 
+  /* Horizontal, not stacked: this column already runs as a vertical stack of
+     lockup, tagline and email, and the stacked lockup's 894x753 block would
+     sit two lines deep and throw that rhythm off against the two short nav
+     columns beside it. The horizontal drops into the single line the text
+     wordmark occupied. 52px tall, a little larger than the header's, so the
+     footer reads as the closing signature. */
   .footer__wordmark {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 300;
-    letter-spacing: 0.18em;
-    line-height: 1;
-    text-transform: uppercase;
-    color: var(--c-text);
+    align-self: flex-start;
+    max-width: 100%;
+  }
+
+  .footer__wordmark :global(svg) {
+    display: block;
+    height: 52px;
+    width: auto;
+    max-width: 100%;
+    fill: var(--c-text);
+    transition: fill 200ms ease;
+  }
+
+  .footer__wordmark:hover :global(svg) {
+    fill: var(--c-accent-2);
   }
 
   .footer__tagline,
