@@ -2,15 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=900">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Signature</title>
 <style>
-  body { margin:0; padding:28px 20px; background:#ffffff; -webkit-text-size-adjust:100%; }
+  body { margin:0; padding:24px 18px 60px; background:#fff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; -webkit-text-size-adjust:100%; }
+  #copyBtn {
+    -webkit-appearance:none; appearance:none;
+    background:#D4AF37; color:#222328; border:0; border-radius:6px;
+    font-size:17px; font-weight:600; padding:15px 26px; width:100%; max-width:340px;
+  }
+  #copyBtn:active { background:#B8925A; }
+  #msg { font-size:14px; color:#6b6c73; margin-top:10px; min-height:20px; }
+  hr.sep { border:0; border-top:1px solid #e8e8ea; margin:24px 0; }
+  #wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
 </style>
 </head>
 <body>
 
+<button id="copyBtn" type="button">Copy signature</button>
+<div id="msg"></div>
+<hr class="sep">
+
+<div id="wrap">
+<div id="sig">
 <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;">
   <tr>
     <td valign="middle" style="padding:0 16px 0 0;">
@@ -25,28 +40,73 @@
       <div style="border-top:1px solid #e8e2d6;font-size:1px;line-height:1px;margin:10px 0 0 0;">&nbsp;</div>
 
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b6c73;padding-top:10px;">
-        Professional Home Studio &nbsp;&middot;&nbsp; TX (CST)<br>
-        Adobe Audition &nbsp;&middot;&nbsp; R&Oslash;DE NT1 &nbsp;&middot;&nbsp; SSL 2 &nbsp;&middot;&nbsp; RX 11
+        Professional Home Studio &nbsp;&middot;&nbsp; TX (CST)
       </div>
 
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;padding-top:12px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;padding-top:10px;">
         <a href="https://victoriarojasaudio.com" style="color:#222328;font-weight:bold;text-decoration:none;">victoriarojasaudio.com</a>
       </div>
 
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;padding-top:4px;color:#a8a9b0;">
-        <span style="font-size:11px;color:#a8a9b0;">Email</span>
-        <a href="mailto:victoriarojasaudio@gmail.com" style="color:#8a6d2f;text-decoration:none;">victoriarojasaudio@gmail.com</a>
-        &nbsp;<span style="color:#d5d6da;">&middot;</span>&nbsp;
-        <span style="font-size:11px;color:#a8a9b0;">ACX</span>
-        <a href="https://www.acx.com/narrator?p=A2N6DR2ZQGH3PE" style="color:#8a6d2f;text-decoration:none;">Profile</a>
-        &nbsp;<span style="color:#d5d6da;">&middot;</span>&nbsp;
-        <span style="font-size:11px;color:#a8a9b0;">IG</span>
-        <a href="https://instagram.com/vrojasaudio" style="color:#8a6d2f;text-decoration:none;">@vrojasaudio</a>
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;margin-top:6px;">
+        <tr>
+          <td style="font-size:11px;line-height:18px;color:#a8a9b0;padding:0 10px 0 0;vertical-align:top;">Email</td>
+          <td style="font-size:12px;line-height:18px;"><a href="mailto:victoriarojasaudio@gmail.com" style="color:#8a6d2f;text-decoration:none;">victoriarojasaudio@gmail.com</a></td>
+        </tr>
+        <tr>
+          <td style="font-size:11px;line-height:18px;color:#a8a9b0;padding:0 10px 0 0;vertical-align:top;">ACX</td>
+          <td style="font-size:12px;line-height:18px;"><a href="https://www.acx.com/narrator?p=A2N6DR2ZQGH3PE" style="color:#8a6d2f;text-decoration:none;">Profile</a></td>
+        </tr>
+        <tr>
+          <td style="font-size:11px;line-height:18px;color:#a8a9b0;padding:0 10px 0 0;vertical-align:top;">IG</td>
+          <td style="font-size:12px;line-height:18px;"><a href="https://instagram.com/vrojasaudio" style="color:#8a6d2f;text-decoration:none;">@vrojasaudio</a></td>
+        </tr>
+      </table>
 
     </td>
   </tr>
 </table>
+</div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('copyBtn');
+  var msg = document.getElementById('msg');
+  var sig = document.getElementById('sig');
+
+  function fallback() {
+    var range = document.createRange();
+    range.selectNodeContents(sig);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    if (ok) {
+      msg.textContent = 'Copied. Now paste it into the Gmail signature box.';
+      window.getSelection().removeAllRanges();
+    } else {
+      msg.textContent = 'The signature below is now selected. Tap it and choose Copy.';
+    }
+  }
+
+  btn.addEventListener('click', function () {
+    if (navigator.clipboard && window.ClipboardItem) {
+      try {
+        var item = new ClipboardItem({
+          'text/html': new Blob([sig.innerHTML], { type: 'text/html' }),
+          'text/plain': new Blob([sig.innerText], { type: 'text/plain' })
+        });
+        navigator.clipboard.write([item]).then(function () {
+          msg.textContent = 'Copied. Now paste it into the Gmail signature box.';
+        }).catch(fallback);
+        return;
+      } catch (e) {}
+    }
+    fallback();
+  });
+})();
+</script>
 
 </body>
 </html>
