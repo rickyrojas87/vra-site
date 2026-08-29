@@ -1,17 +1,15 @@
 title: Stacks
 subtitle: 'Money & Blood, Part 1: Homecoming'
-status: published
-sortOrder: 5
 author: Keelan Reid
-# Normalized to the canonical taxonomy entry: the About pills are broad
-# categories, so "Crime Thriller" alongside "Thriller" read as a data error.
 genre: Thriller
 runtimeHours: 3.22
 releaseYear: 2026
+status: published
 coverImage: ./covers/stacks.jpg
 sampleAudio: /audio/demo-stacks.mp3
+samplePublic: false
 audibleUrl: https://www.audible.com/pd/Stacks-Money-Blood-Part-1-Homecoming-Audiobook/B0GS6XJP7S
 audibleRating: 4.5
 ratingCount: 2
-
-# publisher: intentionally unset — independent ACX production, no publishing house.
+publisher: ''
+sortOrder: 6
