@@ -1,15 +1,15 @@
 title: Fragile Steps
 subtitle: A Novel
-status: published
-sortOrder: 1
 author: Stephen Duffy
 genre: Thriller
 runtimeHours: 5.8
 releaseYear: 2026
+status: published
 coverImage: ./covers/fragile-steps.jpg
 sampleAudio: /audio/demo-fragile-steps.mp3
+samplePublic: false
 audibleUrl: https://www.audible.com/pd/Fragile-Steps-Audiobook/B0GLRCZ5GR
 audibleRating: 4.7
 ratingCount: 10
-
-# publisher: intentionally unset — independent ACX production, no publishing house.
+publisher: ''
+sortOrder: 5
