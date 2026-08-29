@@ -1,13 +1,15 @@
 title: Of Blood and Dragon
 subtitle: Half Truths
-status: published
-sortOrder: 2
 author: Raymond Potter
 genre: Fantasy
 runtimeHours: 1.75
 releaseYear: 2026
+status: published
 coverImage: ./covers/of-blood-and-dragon.jpg
 sampleAudio: /audio/demo-of-blood-and-dragon.mp3
+samplePublic: false
 audibleUrl: https://www.audible.com/pd/Of-Blood-and-Dragon-Half-Truths-Audiobook/B0GV5G3LRP
-
-# publisher: intentionally unset — independent ACX production, no publishing house.
+audibleRating: null
+ratingCount: null
+publisher: ''
+sortOrder: 5
