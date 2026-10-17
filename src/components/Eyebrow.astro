@@ -1,0 +1,19 @@
+---
+/**
+ * Section eyebrow with a gold chapter number: "01 ── The listening room"
+ * (spec v2 §2). Styles in global.css (`.eyebrow`).
+ */
+interface Props {
+  /** Chapter number, 1–7. Rendered two-digit. */
+  chapter: number;
+  label: string;
+}
+
+const { chapter, label } = Astro.props;
+---
+
+<p class="eyebrow">
+  <span class="eyebrow__num">{String(chapter).padStart(2, '0')}</span>
+  <span class="eyebrow__rule" aria-hidden="true"></span>
+  <span>{label}</span>
+</p>

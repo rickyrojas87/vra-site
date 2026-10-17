@@ -67,14 +67,50 @@
     U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* 600 is for buttons (spec v2 §2). Same variable file — its axis runs 100–900. */
 @font-face {
   font-family: 'Raleway';
   font-style: normal;
-  font-weight: 400 500;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/raleway-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400 600;
   font-display: swap;
   src: url('/fonts/raleway-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
     U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Handwriting face — the hero tagline and the About signature, nowhere else.
+   Deliberately NOT preloaded in BaseLayout: a declared @font-face is only
+   fetched when a glyph actually renders in it, so pages without the tagline or
+   signature never download it. */
+@font-face {
+  font-family: 'La Belle Aurore';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/la-belle-aurore-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'La Belle Aurore';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/la-belle-aurore-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113,
     U+2C60-2C7F, U+A720-A7FF;
 }
 
@@ -105,9 +141,37 @@
   --c-rule: rgb(184 146 90 / 30%); /* --c-accent-2 @ 30% */
   --c-card-border: rgb(184 146 90 / 35%); /* --c-accent-2 @ 35% */
 
+  /* --- Library greens (spec v2 §2) ---------------------------------------
+     Green is a SURFACE and STATE colour, never a button fill — gold stays the
+     only action colour. Text on any green surface is ivory. */
+  --c-library: #12271e; /* testimonial band base */
+  --c-hunter: #1f4d3a; /* selected chip/track, hover fills, offset photo block */
+  --c-emerald: #3f8c64; /* hairlines, bullets, active borders, progress start */
+  /* Live dot and small labels only, 13px and up. 6.1:1 on --c-library, 5.3:1
+     on --c-panel — but only 3.7:1 on --c-hunter, so never put it there. */
+  --c-emerald-glow: #4fb383;
+
+  /* Gold-leaf stops for the primary button, ribbons and the gold thread. */
+  --c-gold-light: #e6c85e;
+  --c-gold-glow: rgb(212 175 55 / 45%);
+
+  /* --- Text colours (spec v2 §2) -----------------------------------------
+     Brightened so copy holds contrast on the green surfaces. --c-text stays
+     as-is: the logo fill and existing components still read it. */
+  --c-text-body: #faf6ec;
+  --c-text-lede: #f3ecdd;
+  --c-text-card: #dcd2bd; /* card body copy */
+  --c-text-caption: #e6dcc6; /* captions on green */
+  --c-text-library: #fff; /* headings on the testimonial band */
+
+  /* Card edge: --c-accent-2 @ 28%, turning solid gold on hover. */
+  --c-card-edge: rgb(184 146 90 / 28%);
+  --shadow-card: 0 30px 70px rgb(0 0 0 / 40%);
+
   /* --- Type families ---------------------------------------------------- */
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-body: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-hand: 'La Belle Aurore', 'Segoe Script', 'Brush Script MT', cursive;
 
   /* --- Type scale (mobile first; desktop overrides below) ---------------- */
   --fs-h1: 40px;
@@ -115,21 +179,21 @@
   --fs-h3: 22px;
   --fs-body: 16px;
   --fs-label: 12px;
-  --fs-button: 14px;
+  --fs-button: 13px;
 
   --fw-h1: 300;
   --fw-h2: 300;
   --fw-h3: 400;
   --fw-body: 400;
   --fw-label: 500;
-  --fw-button: 500;
+  --fw-button: 600;
 
   --ls-h1: 0.14em;
   --ls-h2: 0.06em;
   --ls-h3: 0.04em;
   --ls-body: 0;
   --ls-label: 0.2em;
-  --ls-button: 0.12em;
+  --ls-button: 0.16em;
 
   --lh-heading: 1.25;
   --lh-body: 1.7;
@@ -148,6 +212,18 @@
   /* --- Chrome ------------------------------------------------------------ */
   --header-h: 64px; /* mobile */
   --radius-panel: 12px;
+
+  /* --- Shape and motion (spec v2 §2) ------------------------------------- */
+  --radius-card: 24px;
+  --radius-photo: 20px;
+  --radius-btn: 10px;
+  --radius-chip: 8px;
+
+  --join: 240px; /* section-to-section fade length */
+  --thread-h: 96px;
+  --reveal-shift: 48px;
+  --reveal-dur: 0.9s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (min-width: 768px) {
@@ -157,7 +233,7 @@
     --fs-h3: 28px;
     --fs-body: 17px;
     --fs-label: 13px;
-    --fs-button: 14px;
+    --fs-button: 13px;
 
     --section-pad: 120px;
     --header-h: 88px;
@@ -183,7 +259,7 @@ html {
 body {
   margin: 0;
   background: var(--c-bg);
-  color: var(--c-text);
+  color: var(--c-text-body);
   font-family: var(--font-body);
   font-size: var(--fs-body);
   font-weight: var(--fw-body);
@@ -213,20 +289,6 @@ a {
 :focus-visible {
   outline: 2px solid var(--c-accent);
   outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -305,29 +367,86 @@ p {
    -------------------------------------------------------------------------- */
 
 .surface-base {
+  --surface: var(--c-bg);
   background: var(--c-bg);
 }
 
 .surface-deep {
+  --surface: var(--c-deep);
   background: var(--c-deep);
 }
 
 .surface-panel {
+  --surface: var(--c-panel);
   background: var(--c-panel);
 }
 
+/* Testimonial band only. Headings on it go pure white (--c-text-library). */
+.surface-library {
+  --surface: var(--c-library);
+  background: var(--c-library);
+}
+
+/* Soft joins (spec v2 §2): add `.join` next to a surface class and the
+   section's top fades in from the previous section's colour over 240px.
+   `--join-to` additionally fades the bottom out — the testimonial and quote
+   bands set both. Unset ends fall back to the section's own surface. */
+.join {
+  background: linear-gradient(
+    var(--join-from, var(--surface)),
+    var(--surface) var(--join),
+    var(--surface) calc(100% - var(--join)),
+    var(--join-to, var(--surface))
+  );
+}
+
+.join--from-base {
+  --join-from: var(--c-bg);
+}
+
+.join--from-deep {
+  --join-from: var(--c-deep);
+}
+
+.join--from-panel {
+  --join-from: var(--c-panel);
+}
+
+.join--from-library {
+  --join-from: var(--c-library);
+}
+
+.join--to-base {
+  --join-to: var(--c-bg);
+}
+
+.join--to-deep {
+  --join-to: var(--c-deep);
+}
+
+.join--to-panel {
+  --join-to: var(--c-panel);
+}
+
 /* --------------------------------------------------------------------------
-   Buttons — Raleway 14 / 500 / 0.12em / uppercase
+   Buttons — spec v2 §2. Raleway 13 / 600 / 0.16em / uppercase, 52px tall.
+
+   Markup: <a class="btn btn--primary">Label <svg class="btn__arrow">…</svg></a>
+   Both variants use ::before and ::after for decoration, so a button's label
+   and icon must be real children, never generated content.
    -------------------------------------------------------------------------- */
 
 .btn {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  gap: 12px;
+  min-height: 52px;
   padding: 0 32px;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--radius-btn);
   font-family: var(--font-body);
   font-size: var(--fs-button);
   font-weight: var(--fw-button);
@@ -336,30 +455,110 @@ p {
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    background-color 200ms ease,
+    transform 250ms var(--ease-out),
+    box-shadow 250ms ease,
+    background-size 400ms var(--ease-out),
     border-color 200ms ease,
     color 200ms ease;
 }
 
-/* One per screen. */
+.btn__arrow {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  transition: transform 250ms var(--ease-out);
+}
+
+.btn:hover .btn__arrow {
+  transform: translateX(5px);
+}
+
+/* Gold leaf. The one action per screen. */
 .btn--primary {
-  background: var(--c-accent);
-  color: var(--c-bg);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--c-gold-light), var(--c-accent) 48%, var(--c-accent-2));
+  color: var(--c-deep);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 45%),
+    inset 0 -2px 0 rgb(0 0 0 / 18%);
+}
+
+/* Dark inner line, inset 4px — the tooled edge of a gilt panel. */
+.btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  z-index: -1;
+  border: 1px solid rgb(27 28 32 / 30%);
+  border-radius: calc(var(--radius-btn) - 4px);
+  pointer-events: none;
+}
+
+/* Light sweep, parked off the left edge until hover. */
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -60%;
+  z-index: -1;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 40%), transparent);
+  transform: skewX(-20deg);
+  transition: left 600ms var(--ease-out);
+  pointer-events: none;
 }
 
 .btn--primary:hover {
-  background: var(--c-accent-2);
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 45%),
+    inset 0 -2px 0 rgb(0 0 0 / 18%),
+    0 6px 14px rgb(212 175 55 / 10%);
 }
 
+.btn--primary:hover::after {
+  left: 120%;
+}
+
+/* Bookplate. `--outline` is the v1 name, kept so existing markup restyles. */
+.btn--bookplate,
 .btn--outline {
-  background: transparent;
   border-color: var(--c-accent-2);
-  color: var(--c-text);
+  background: linear-gradient(var(--c-hunter), var(--c-hunter)) left / 0% 100% no-repeat;
+  color: var(--c-text-body);
 }
 
+.btn--bookplate::before,
+.btn--bookplate::after,
+.btn--outline::before,
+.btn--outline::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--c-accent);
+  pointer-events: none;
+}
+
+.btn--bookplate::before,
+.btn--outline::before {
+  top: 3px;
+  left: 3px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.btn--bookplate::after,
+.btn--outline::after {
+  right: 3px;
+  bottom: 3px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.btn--bookplate:hover,
 .btn--outline:hover {
+  background-size: 100% 100%;
   border-color: var(--c-accent);
-  color: var(--c-accent);
 }
 
 /* --------------------------------------------------------------------------
@@ -458,4 +657,483 @@ p {
 .has-reveal [data-reveal].is-revealed {
   opacity: 1;
   transform: none;
+}
+
+/* ==========================================================================
+   Design system v2 — vra-build-spec-v2.md §2
+   Everything below is opt-in by class except the grain, which is sitewide.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Film grain — a fixed tile over the whole page. The PNG lives in src/assets
+   so Vite fingerprints it; it is noise, so it does not compress and is not
+   worth inlining.
+   -------------------------------------------------------------------------- */
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: url('../assets/textures/grain.png') 0 0 / 240px 240px repeat;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Gold thread — opens every section after the hero. See GoldThread.astro.
+   -------------------------------------------------------------------------- */
+
+.thread {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: var(--thread-h);
+  margin: 0 auto var(--space-3);
+  background: linear-gradient(transparent, var(--c-accent));
+}
+
+.thread::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  width: 9px;
+  height: 9px;
+  background: var(--c-accent);
+  box-shadow: 0 0 12px var(--c-gold-glow);
+  transform: rotate(45deg);
+}
+
+/* --------------------------------------------------------------------------
+   Chapter eyebrow — "01 ── THE LISTENING ROOM". See Eyebrow.astro.
+   -------------------------------------------------------------------------- */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-label);
+  letter-spacing: var(--ls-label);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--c-text-caption);
+}
+
+.eyebrow__num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--c-accent);
+}
+
+.eyebrow__rule {
+  width: 32px;
+  height: 1px;
+  background: var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Handwriting — hero tagline and About signature only. Size set by caller.
+   -------------------------------------------------------------------------- */
+
+.hand {
+  display: inline-block;
+  font-family: var(--font-hand);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--c-accent);
+  transform: rotate(-2deg);
+  text-shadow: 0 0 12px rgb(212 175 55 / 12%);
+}
+
+.hand--bright {
+  text-shadow:
+    0 0 14px rgb(212 175 55 / 30%),
+    0 0 32px rgb(212 175 55 / 14%);
+}
+
+/* --------------------------------------------------------------------------
+   Card — one treatment everywhere: track list, stage, shelf, quotes, Meet,
+   process, studio spec, estimator, form panel, contact cards.
+   -------------------------------------------------------------------------- */
+
+.card {
+  position: relative;
+  border-radius: var(--radius-card);
+  background: var(--c-bg);
+  color: var(--c-text-card);
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--c-card-edge);
+  transition:
+    transform 350ms var(--ease-out),
+    box-shadow 350ms ease;
+}
+
+.card--panel {
+  background: var(--c-panel);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Chips — genre filters. Selected: hunter fill + 3px gold underline.
+   -------------------------------------------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--c-card-edge);
+  border-radius: var(--radius-chip);
+  background: transparent;
+  color: var(--c-text-card);
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-label);
+  letter-spacing: var(--ls-label);
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.chip:hover {
+  border-color: var(--c-emerald);
+  color: var(--c-text-body);
+}
+
+.chip[aria-pressed='true'],
+.chip--active {
+  border-color: var(--c-emerald);
+  background: var(--c-hunter);
+  color: var(--c-text-body);
+  box-shadow: inset 0 -3px 0 var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Booking badge — "Now booking MARCH productions".
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--c-card-edge);
+  border-radius: var(--radius-chip);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-label);
+  letter-spacing: 0.08em;
+  color: var(--c-text-body);
+}
+
+.badge__month {
+  color: var(--c-accent);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   Star list — accent and genre tags. No boxes; a four-point star before each
+   item, and `nowrap` keeps the star glued to its text.
+   -------------------------------------------------------------------------- */
+
+.star-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1.4;
+}
+
+.star-list > li {
+  white-space: nowrap;
+}
+
+.star-list > li::before {
+  content: '\2726';
+  margin-right: 0.45em;
+  font-size: 0.7em;
+  vertical-align: 0.15em;
+  color: var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Shelf ribbon — a bookmark hanging from the card top.
+
+   <span class="ribbon-wrap"><span class="ribbon">Just published</span></span>
+
+   The drop shadow lives on the wrapper as a `filter` because clip-path (the
+   notch) would clip a box-shadow on the ribbon itself. The parent card must be
+   `position: relative`.
+   -------------------------------------------------------------------------- */
+
+.ribbon-wrap {
+  position: absolute;
+  top: 0;
+  right: 24px;
+  z-index: 2;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 45%)) drop-shadow(0 10px 16px rgb(0 0 0 / 35%));
+  pointer-events: none;
+}
+
+.ribbon {
+  display: block;
+  padding: 18px 9px 26px;
+  background:
+    linear-gradient(rgb(0 0 0 / 35%), transparent 10px),
+    linear-gradient(var(--c-gold-light), var(--c-accent) 55%, var(--c-accent-2));
+  color: var(--c-deep);
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 12px), 0 100%);
+  transform: rotate(1.2deg);
+  transform-origin: top center;
+}
+
+/* "In production". Green as a state colour, ivory on it. */
+.ribbon--green {
+  background:
+    linear-gradient(rgb(0 0 0 / 35%), transparent 10px),
+    linear-gradient(var(--c-emerald), var(--c-hunter));
+  color: var(--c-text-body);
+}
+
+/* --------------------------------------------------------------------------
+   Photo frame — Vikki's photos (hero, Meet, Studio).
+
+   <div class="photo-stage">
+     <div class="photo-frame"><img …></div>
+     <span class="spark" style="top: …; left: …"></span>
+   </div>
+
+   The gold edge is an ::after overlay so it sits above the zooming image; the
+   halo is the frame's own box-shadow, which overflow:hidden doesn't clip.
+   -------------------------------------------------------------------------- */
+
+.photo-stage {
+  position: relative;
+}
+
+.photo-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-photo);
+  animation: halo 7s ease-in-out infinite alternate;
+}
+
+.photo-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--c-accent);
+  pointer-events: none;
+}
+
+.photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: photo-zoom 14s ease-in-out infinite alternate;
+}
+
+.spark {
+  position: absolute;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  background: var(--c-gold-light);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  filter: drop-shadow(0 0 6px var(--c-accent));
+  animation: twinkle 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.spark:nth-of-type(2) {
+  animation-delay: -0.8s;
+}
+
+.spark:nth-of-type(3) {
+  animation-delay: -1.6s;
+}
+
+.spark:nth-of-type(4) {
+  animation-delay: -2.4s;
+}
+
+/* --------------------------------------------------------------------------
+   Dust motes — see Dust.astro. Each mote carries its own --x / --y / --s /
+   --d / --delay / --drift / --o from build-time values.
+   -------------------------------------------------------------------------- */
+
+.dust {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.dust__mote {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 6px var(--c-gold-glow);
+  opacity: 0;
+  animation: dust var(--d) linear var(--delay) infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Reveal — fades a section's main block up 48px on load. Time-based, not
+   scroll-driven: scroll timelines left the last section stuck half-faded.
+   No resting `opacity: 0`, so with animation off the block is simply there.
+   Never put it on the hero's LCP element.
+   -------------------------------------------------------------------------- */
+
+.reveal {
+  animation: reveal var(--reveal-dur) var(--ease-out) both;
+}
+
+.reveal--d1 {
+  animation-delay: 0.15s;
+}
+
+.reveal--d2 {
+  animation-delay: 0.3s;
+}
+
+.reveal--d3 {
+  animation-delay: 0.45s;
+}
+
+/* --------------------------------------------------------------------------
+   Keyframes
+   -------------------------------------------------------------------------- */
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dust {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  15%,
+  80% {
+    opacity: var(--o);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift), -160px);
+  }
+}
+
+@keyframes halo {
+  from {
+    box-shadow:
+      0 0 40px rgb(212 175 55 / 22%),
+      0 0 120px rgb(212 175 55 / 12%),
+      0 40px 90px rgb(0 0 0 / 60%);
+  }
+
+  to {
+    box-shadow:
+      0 0 70px rgb(212 175 55 / 42%),
+      0 0 180px rgb(212 175 55 / 24%),
+      0 40px 90px rgb(0 0 0 / 60%);
+  }
+}
+
+@keyframes photo-zoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.6) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion — every animation and transition off, sitewide. Kept last
+   so nothing above can outrank it. The frame keeps a static glow in place of
+   the breathing halo; motes rest at opacity 0, so their layer goes entirely.
+   The hero video swap to its poster is handled in the hero itself.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .photo-frame {
+    box-shadow:
+      0 0 40px rgb(212 175 55 / 22%),
+      0 0 120px rgb(212 175 55 / 12%),
+      0 40px 90px rgb(0 0 0 / 60%);
+  }
+
+  .dust {
+    display: none;
+  }
 }
