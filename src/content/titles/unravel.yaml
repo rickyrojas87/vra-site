@@ -1,15 +1,15 @@
 title: Unravel
-subtitle: ''
+subtitle: Smother Series, Book 2
 author: Daya Winters
 genre: Thriller
-runtimeHours: 10
+runtimeHours: 9.98
 releaseYear: 2026
 status: published
 coverImage: ./covers/unravel.jpg
 sampleAudio: /audio/demo-unravel.mp3
-samplePublic: false
-audibleUrl: https://www.audible.com/pd/B0HGTB2MQN?source_code=ASSORAP0511160006&share_location=library_overflow
+samplePublic: true
+audibleUrl: https://www.audible.com/pd/Unravel-Audiobook/B0HGTB2MQN
 audibleRating: null
 ratingCount: null
 publisher: ''
-sortOrder: 1
+sortOrder: 7
