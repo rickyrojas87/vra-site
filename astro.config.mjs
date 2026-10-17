@@ -21,6 +21,13 @@ const site = process.env.URL || LOCAL_FALLBACK;
 export default defineConfig({
   site,
   trailingSlash: 'ignore',
+  build: {
+    // Every page's CSS inline in <head>: no render-blocking stylesheet
+    // requests. Measured on Home (mobile Lighthouse): three external sheets
+    // cost ~470ms of simulated render delay ahead of the LCP poster. The CSS
+    // is small enough that losing cross-page caching is the cheaper trade.
+    inlineStylesheets: 'always',
+  },
   integrations: [
     sitemap({
       // /thanks is a post-submit landing page with no standalone search value.

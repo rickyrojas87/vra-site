@@ -17,6 +17,8 @@ nothing to gain.
 |---|---|
 | `cormorant-garamond-latin.woff2` | Cormorant Garamond 300 + 400, latin |
 | `cormorant-garamond-latin-ext.woff2` | Cormorant Garamond 300–400, latin-ext |
+| `cormorant-garamond-italic-latin.woff2` | Cormorant Garamond Italic 300–500, latin |
+| `cormorant-garamond-italic-latin-ext.woff2` | Cormorant Garamond Italic 300–500, latin-ext |
 | `raleway-latin.woff2` | Raleway 400 + 500 + 600, latin |
 | `raleway-latin-ext.woff2` | Raleway 400–600, latin-ext |
 | `la-belle-aurore-latin.woff2` | La Belle Aurore 400, latin |
@@ -27,6 +29,7 @@ if a glyph outside the latin range is actually rendered.
 
 The `@font-face` declarations live in `src/styles/global.css`. The Cormorant
 and Raleway `latin` files are preloaded in `src/layouts/BaseLayout.astro`.
+The italic is not preloaded either: it first appears below the fold.
 La Belle Aurore is **not** preloaded: it appears only in the hero tagline and
 the About signature, and an unpreloaded `@font-face` is fetched only on pages
 that actually render it.

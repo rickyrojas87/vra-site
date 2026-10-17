@@ -7,22 +7,44 @@
  * every waveform is visible, seekable and measurable at zero network cost. The
  * MP3 is requested on first play of that track and never before.
  *
- * Tracks and genre pills both derive from the Titles collection, so the filter
+ * Tracks and genre chips both derive from the Titles collection, so the filter
  * list cannot drift from the data. A title with no peak file — meaning no
  * sample MP3 — is absent from the player entirely.
  */
 import { loadTitles } from '../utils/content';
+import SectionHead from './SectionHead.astro';
 
 /** Demos run minutes, not hours — mm:ss, not the card grid's "3 hr 12 min". */
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 interface Props {
+  /** v1 heading, used only when no `chapter` is given. */
   heading?: string;
   surface?: 'base' | 'deep' | 'panel';
   id?: string;
+  /** v2 section head: chapter number, eyebrow label and title. */
+  chapter?: number;
+  eyebrow?: string;
+  title?: string;
+  /** Home only: the full-width ambient waveform rising from the floor. */
+  ambient?: boolean;
+  /** Extra section classes, e.g. a `.join` modifier. */
+  class?: string;
 }
 
-const { heading = 'Demos', surface = 'deep', id = 'demos' } = Astro.props;
+const {
+  heading = 'Demos',
+  surface = 'deep',
+  id = 'demos',
+  chapter,
+  eyebrow = 'The listening room',
+  title,
+  ambient = false,
+  class: extraClass,
+} = Astro.props;
+
+/** v1 pages still use the scroll reveal; v2 pages fade in on load. */
+const isV2 = chapter !== undefined;
 
 /** Peak envelopes, keyed by MP3 basename. */
 const peakModules = import.meta.glob<{
@@ -62,27 +84,60 @@ const tracks = entries
   })
   .filter((t): t is NonNullable<typeof t> => t !== null);
 
-/** Pills come from the tracks actually in the player, never a hand-written list. */
+/** Chips come from the tracks actually in the player, never a hand-written list. */
 const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string => Boolean(g)))].sort();
+
+/**
+ * Ambient floor waveform: a real envelope (the first track's), bucketed to
+ * `n` bars by peak, so the decoration is the sound of the player above it.
+ * Two sizes are emitted and CSS shows one: 160 bars on desktop, 40 on phones.
+ */
+const envelope = (n: number) => {
+  const src = tracks[0]?.peaks ?? [];
+  if (!src.length) return [];
+  return Array.from({ length: n }, (_, i) => {
+    const from = Math.floor((i / n) * src.length);
+    const to = Math.max(from + 1, Math.floor(((i + 1) / n) * src.length));
+    return Math.max(...src.slice(from, to));
+  });
+};
+const ambientSets = ambient
+  ? [
+      { bars: envelope(160), cls: 'ambient--wide' },
+      { bars: envelope(40), cls: 'ambient--narrow' },
+    ]
+  : [];
 ---
 
-<section class:list={['section', `surface-${surface}`]} id={id} data-reveal>
-  <div class="container stack">
-    <h2 class="label">{heading}</h2>
+<section
+  class:list={['section', 'listening', `surface-${surface}`, extraClass, { 'listening--ambient': ambient }]}
+  id={id}
+  data-reveal={isV2 ? undefined : true}
+>
+  <div class:list={['container', isV2 ? 'reveal' : 'stack']}>
+    {
+      isV2 ? (
+        <SectionHead chapter={chapter} label={eyebrow}>
+          <Fragment set:html={title ?? 'Press play on a <em>story.</em>'} />
+        </SectionHead>
+      ) : (
+        <h2 class="label">{heading}</h2>
+      )
+    }
 
     <div class="player" data-player>
       <div class="player__filters" role="group" aria-label="Filter demos by genre">
-        <button class="pill" type="button" data-genre="all" aria-pressed="true">All</button>
+        <button class="chip" type="button" data-genre="all" aria-pressed="true">All</button>
         {
           genres.map((genre) => (
-            <button class="pill" type="button" data-genre={genre} aria-pressed="false">
+            <button class="chip" type="button" data-genre={genre} aria-pressed="false">
               {genre}
             </button>
           ))
         }
       </div>
 
-      <ul class="player__tracks" data-tracks>
+      <ul class="card player__tracks" data-tracks>
         {
           tracks.map((track) => (
             <li class="player__track" data-track-genre={track.genre ?? ''}>
@@ -95,88 +150,116 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
         }
       </ul>
 
-      <div class="player__stage">
-        <button class="player__toggle" type="button" data-toggle aria-label="Play">
-          <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
-            <path class="player__icon-play" d="M7 4.5v15l13-7.5z" fill="currentColor"></path>
-            <path class="player__icon-pause" d="M6 4.5h4v15H6zm8 0h4v15h-4z" fill="currentColor"></path>
-          </svg>
-        </button>
-
-        <canvas
-          class="player__wave"
-          data-wave
-          role="slider"
-          tabindex="0"
-          aria-label="Seek within the demo"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="0"
-          aria-valuetext="0%"></canvas>
-
-        <p class="player__time">
-          <span data-elapsed>0:00</span><span class="player__sep">/</span><span data-total>0:00</span>
+      <div class="card card--panel player__stage">
+        <p class="player__now">
+          <span class="player__now-label">Now playing</span>
+          <span class="visually-hidden">Selected demo:</span>
+          <span data-now></span>
         </p>
-      </div>
 
-      <p class="player__now">
-        <span class="visually-hidden">Selected demo:</span>
-        <span data-now></span>
-      </p>
+        <div class="player__controls">
+          <button class="player__toggle" type="button" data-toggle aria-label="Play">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
+              <path class="player__icon-play" d="M7 4.5v15l13-7.5z" fill="currentColor"></path>
+              <path class="player__icon-pause" d="M6 4.5h4v15H6zm8 0h4v15h-4z" fill="currentColor"></path>
+            </svg>
+          </button>
+
+          <canvas
+            class="player__wave"
+            data-wave
+            role="slider"
+            tabindex="0"
+            aria-label="Seek within the demo"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-valuetext="0%"></canvas>
+
+          <p class="player__time">
+            <span data-elapsed>0:00</span><span class="player__sep">/</span><span data-total>0:00</span>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
+
+  {
+    ambientSets.map(({ bars, cls }) => (
+      <svg
+        class:list={['ambient', cls]}
+        viewBox={`0 0 ${bars.length * 10} 200`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {/* Emerald at the floor to gold at the crest; ids differ per size.
+            Colours go through `style`: var() isn't valid in an attribute. */}
+        <defs>
+          <linearGradient id={`ambient-${cls}`} x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" style="stop-color: var(--c-emerald)" />
+            <stop offset="1" style="stop-color: var(--c-accent)" />
+          </linearGradient>
+        </defs>
+        {/* One stroked path, not a <rect> per bar: 160 rects were ~20 KB of
+            the page's HTML for a decoration. */}
+        <path
+          d={bars.map((v, i) => `M${i * 10 + 5} 200V${200 - Math.round(16 + v * 184)}`).join('')}
+          stroke={`url(#ambient-${cls})`}
+          stroke-width="6"
+          fill="none"
+        />
+      </svg>
+    ))
+  }
 </section>
 
 <script type="application/json" data-tracks-json set:html={JSON.stringify(tracks)} />
 
 <style>
+  /* v1 layout (Works, until it moves to v2). */
   .stack {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
   }
 
+  .listening {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Home: the floor waveform needs room to rise beneath the player. */
+  .listening--ambient {
+    padding-bottom: 220px;
+  }
+
+  .listening > .container {
+    position: relative;
+    z-index: 1;
+  }
+
   .player {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: var(--space-2);
-    padding: var(--space-2);
-    background: var(--c-panel);
-    border-radius: var(--radius-panel);
-    box-shadow:
-      0 10px 24px rgb(0 0 0 / 45%),
-      0 2px 4px rgb(0 0 0 / 30%),
-      0 0 0 1px var(--c-rule);
   }
 
   .player__filters {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
   }
 
-  .player__filters .pill {
-    background: transparent;
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition:
-      background-color 200ms ease,
-      border-color 200ms ease,
-      color 200ms ease;
-  }
-
-  .player__filters .pill[aria-pressed='true'] {
-    background: var(--c-accent);
-    border-color: var(--c-accent);
-    color: var(--c-bg);
-  }
+  /* --- Track list card ---------------------------------------------------- */
 
   .player__tracks {
     display: grid;
     grid-template-columns: 1fr;
+    align-content: start;
     gap: 2px;
     margin: 0;
-    padding: 0;
+    padding: 10px;
     list-style: none;
   }
 
@@ -190,11 +273,11 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     justify-content: space-between;
     gap: var(--space-2);
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px 14px;
     background: transparent;
     border: 0;
-    border-left: 2px solid transparent;
-    color: var(--c-muted);
+    border-radius: 12px;
+    color: var(--c-text-card);
     cursor: pointer;
     font-family: var(--font-body);
     font-size: 15px;
@@ -202,28 +285,61 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     transition:
       background-color 200ms ease,
       color 200ms ease,
-      border-color 200ms ease;
+      box-shadow 200ms ease;
   }
 
   .track:hover {
-    background: rgb(184 146 90 / 8%);
-    color: var(--c-text);
+    background: color-mix(in srgb, var(--c-hunter) 45%, transparent);
+    color: var(--c-text-body);
   }
 
+  /* Selected: hunter fill, gold edge on the leading side. */
   .track[aria-current='true'] {
-    border-left-color: var(--c-accent);
-    background: rgb(212 175 55 / 10%);
-    color: var(--c-text);
+    background: var(--c-hunter);
+    box-shadow: inset 3px 0 0 var(--c-accent);
+    color: var(--c-text-body);
   }
 
   .track__time {
     flex-shrink: 0;
     font-size: 13px;
     font-variant-numeric: tabular-nums;
-    color: var(--c-muted);
+    color: var(--c-text-caption);
   }
 
+  /* --- Stage card --------------------------------------------------------- */
+
   .player__stage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .player__now {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    font-style: italic;
+    font-weight: 400;
+    line-height: var(--lh-heading);
+    color: var(--c-text-body);
+  }
+
+  .player__now-label {
+    font-family: var(--font-body);
+    font-size: var(--fs-label);
+    font-style: normal;
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-emerald-glow);
+  }
+
+  .player__controls {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -234,19 +350,22 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     padding: 0;
-    background: var(--c-accent);
+    background: linear-gradient(135deg, var(--c-gold-light), var(--c-accent) 48%, var(--c-accent-2));
     border: 0;
     border-radius: 50%;
-    color: var(--c-bg);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 45%),
+      0 6px 14px rgb(212 175 55 / 10%);
+    color: var(--c-deep);
     cursor: pointer;
-    transition: background-color 200ms ease;
+    transition: transform 250ms var(--ease-out);
   }
 
   .player__toggle:hover {
-    background: var(--c-accent-2);
+    transform: scale(1.05);
   }
 
   .player__icon-pause {
@@ -273,7 +392,7 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     flex-shrink: 0;
     font-size: 13px;
     font-variant-numeric: tabular-nums;
-    color: var(--c-muted);
+    color: var(--c-text-caption);
     white-space: nowrap;
   }
 
@@ -282,17 +401,24 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
     opacity: 0.5;
   }
 
-  .player__now {
-    font-family: var(--font-display);
-    font-size: var(--fs-h3);
-    font-weight: var(--fw-h3);
-    letter-spacing: var(--ls-h3);
-    line-height: var(--lh-heading);
-    color: var(--c-text);
+  /* --- Ambient floor waveform -------------------------------------------- */
+
+  .ambient {
+    position: absolute;
+    inset: auto 0 0;
+    width: 100%;
+    height: 200px;
+    opacity: 0.35;
+    mask-image: linear-gradient(to top, #000 30%, transparent);
+    pointer-events: none;
+  }
+
+  .ambient--wide {
+    display: none;
   }
 
   @media (max-width: 599px) {
-    .player__stage {
+    .player__controls {
       flex-wrap: wrap;
     }
 
@@ -304,6 +430,30 @@ const genres = [...new Set(tracks.map((t) => t.genre).filter((g): g is string =>
 
     .player__time {
       margin-left: auto;
+    }
+  }
+
+  @media (min-width: 600px) {
+    .ambient--wide {
+      display: block;
+    }
+
+    .ambient--narrow {
+      display: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .player {
+      grid-template-columns: minmax(260px, 2fr) 3fr;
+    }
+
+    .player__filters {
+      grid-column: 1 / -1;
+    }
+
+    .listening--ambient {
+      padding-bottom: 300px;
     }
   }
 </style>

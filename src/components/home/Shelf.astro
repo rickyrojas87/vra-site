@@ -1,0 +1,224 @@
+---
+/**
+ * Home 02 — On the shelf, "Now and next." (spec v2 §3).
+ *
+ * Four cards, one row. Order and ribbons come from loadShelf(): in-production
+ * titles first, then published newest first; "Just published" on the newest
+ * published title, "In production" on every unreleased one.
+ */
+import { Image } from 'astro:assets';
+import SectionHead from '../SectionHead.astro';
+import Dust from '../Dust.astro';
+import { loadShelf } from '../../utils/catalog';
+import { formatRuntime } from '../../utils/format';
+
+const { items, total } = await loadShelf(4);
+
+const ribbonText = {
+  'just-published': 'Just published',
+  'in-production': 'In production',
+} as const;
+---
+
+{
+  items.length > 0 && (
+    <section class="section surface-panel join join--from-deep shelf" aria-labelledby="shelf-title">
+      <Dust seed={22} />
+      <div class="container reveal">
+        <SectionHead chapter={2} label="On the shelf" id="shelf-title">
+          Now and <em>next.</em>
+        </SectionHead>
+
+        <ul class="shelf__grid">
+          {items.map(({ entry, ribbon }) => {
+            const t = entry.data;
+            const href = t.status === 'published' ? t.audibleUrl : undefined;
+            const Tag = href ? 'a' : 'div';
+            return (
+              <li>
+                <Tag
+                  class="card shelf__card"
+                  {...(href ? { href, target: '_blank', rel: 'noopener' } : {})}
+                >
+                  {ribbon && (
+                    <span class="ribbon-wrap">
+                      <span class:list={['ribbon', { 'ribbon--green': ribbon === 'in-production' }]}>
+                        {ribbonText[ribbon]}
+                      </span>
+                    </span>
+                  )}
+
+                  <span class="shelf__cover">
+                    {t.coverImage ? (
+                      <Image
+                        src={t.coverImage}
+                        alt={`Cover of ${t.title}`}
+                        width={520}
+                        height={520}
+                        widths={[260, 520]}
+                        sizes="(min-width: 900px) 240px, 45vw"
+                        fit="cover"
+                      />
+                    ) : (
+                      <span class="shelf__cover-fallback">{t.title}</span>
+                    )}
+                  </span>
+
+                  <span class="shelf__body">
+                    <span class="shelf__title">{t.title}</span>
+                    {t.author && <span class="shelf__author">{t.author}</span>}
+                    <span class="shelf__meta">
+                      {[t.genre, t.runtimeHours && formatRuntime(t.runtimeHours)]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                    {t.status === 'in-production' ? (
+                      <span class="shelf__status">Coming soon</span>
+                    ) : (
+                      t.audibleRating !== undefined && (
+                        <span class="shelf__rating">
+                          <span aria-hidden="true">&#9733;</span> {t.audibleRating.toFixed(1)}
+                          {t.ratingCount !== undefined && (
+                            <span class="shelf__count">({t.ratingCount})</span>
+                          )}
+                          <span class="visually-hidden"> out of 5 on Audible</span>
+                        </span>
+                      )
+                    )}
+                  </span>
+                </Tag>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div class="shelf__foot">
+          <p class="shelf__count-line">
+            Showing {items.length} of {total} titles
+          </p>
+          <a class="btn btn--bookplate" href="/works">
+            See the full catalog
+            <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .shelf {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shelf > .container {
+    position: relative;
+  }
+
+  .shelf__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .shelf__card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 12px;
+    color: var(--c-text-body);
+  }
+
+  .shelf__cover {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+
+  .shelf__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .shelf__cover-fallback {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--space-1);
+    background: var(--c-panel);
+    font-family: var(--font-display);
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .shelf__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: var(--space-1) 6px 6px;
+  }
+
+  .shelf__title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .shelf__author {
+    font-size: 14px;
+    color: var(--c-text-card);
+  }
+
+  .shelf__meta {
+    font-size: 13px;
+    color: var(--c-text-caption);
+  }
+
+  .shelf__rating {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--c-accent);
+  }
+
+  .shelf__count {
+    margin-left: 4px;
+    color: var(--c-text-caption);
+  }
+
+  .shelf__status {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-emerald-glow);
+  }
+
+  .shelf__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .shelf__count-line {
+    font-size: 14px;
+    color: var(--c-text-caption);
+  }
+
+  @media (min-width: 900px) {
+    .shelf__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-3);
+    }
+  }
+</style>

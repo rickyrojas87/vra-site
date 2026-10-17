@@ -1,0 +1,222 @@
+---
+/**
+ * Home 03 — In their words (spec v2 §3). The library band.
+ *
+ * The chair photograph sits at .55 inside a wrapper that carries the fade
+ * mask; the slow zoom runs on the image INSIDE it, so scaling never drags the
+ * faded edge into view. No overlay tint.
+ *
+ * Each card's key phrase is the testimonial's `highlight` field, matched
+ * verbatim. Avatar is the book's cover when the book is in the catalog,
+ * otherwise the author's initials. Hidden entirely with no testimonials.
+ */
+import { Image } from 'astro:assets';
+import SectionHead from '../SectionHead.astro';
+import Dust from '../Dust.astro';
+import { loadTestimonials, loadTitles } from '../../utils/content';
+import { findTitleFor, initials } from '../../utils/catalog';
+import chair from '../../assets/library-chair.png';
+
+const testimonials = (await loadTestimonials()).slice(0, 3);
+const titles = await loadTitles();
+
+/** Split a quote around its highlight so the phrase can be wrapped in <em>. */
+const split = (quote: string, phrase?: string) => {
+  const at = phrase ? quote.indexOf(phrase) : -1;
+  if (!phrase || at < 0) return { before: quote, phrase: '', after: '' };
+  return { before: quote.slice(0, at), phrase, after: quote.slice(at + phrase.length) };
+};
+
+const cards = testimonials.map((t) => ({
+  ...split(t.data.quote, t.data.highlight),
+  author: t.data.author,
+  bookTitle: t.data.bookTitle,
+  link: t.data.link,
+  cover: findTitleFor(t.data.bookTitle, titles)?.data.coverImage,
+}));
+---
+
+{
+  cards.length > 0 && (
+    <section
+      class="section surface-library join join--from-panel join--to-base words"
+      aria-labelledby="words-title"
+    >
+      <div class="words__bg" aria-hidden="true">
+        <Image
+          src={chair}
+          alt=""
+          width={1600}
+          format="webp"
+          quality={60}
+          sizes="100vw"
+          loading="lazy"
+        />
+      </div>
+      <Dust seed={33} />
+
+      <div class="container reveal">
+        <SectionHead chapter={3} label="In their words" id="words-title">
+          What authors <em>hear.</em>
+        </SectionHead>
+
+        <ul class="words__grid">
+          {cards.map((c) => (
+            <li>
+              <figure class="card words__card">
+                <blockquote class="words__quote">
+                  <p>
+                    {c.before}
+                    {c.phrase && <em>{c.phrase}</em>}
+                    {c.after}
+                  </p>
+                </blockquote>
+                <figcaption class="words__by">
+                  {c.cover ? (
+                    <Image class="words__avatar" src={c.cover} alt="" width={96} height={96} fit="cover" />
+                  ) : (
+                    <span class="words__avatar words__avatar--initials" aria-hidden="true">
+                      {initials(c.author)}
+                    </span>
+                  )}
+                  <span class="words__who">
+                    <span class="words__author">{c.author}</span>
+                    {c.bookTitle &&
+                      (c.link ? (
+                        <a class="words__book" href={c.link} target="_blank" rel="noopener">
+                          {c.bookTitle}
+                        </a>
+                      ) : (
+                        <span class="words__book">{c.bookTitle}</span>
+                      ))}
+                  </span>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .words {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* Fade top and bottom thirds on the WRAPPER; zoom only the image inside. */
+  .words__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    opacity: 0.55;
+    mask-image: linear-gradient(transparent, #000 33%, #000 67%, transparent);
+  }
+
+  .words__bg img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    animation: photo-zoom 24s ease-in-out infinite alternate;
+  }
+
+  .words > .container {
+    position: relative;
+  }
+
+  .words :global(.section-title) {
+    color: var(--c-text-library);
+  }
+
+  .words__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .words__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-2);
+    height: 100%;
+    margin: 0;
+    padding: var(--space-3);
+    background: var(--c-library-glass);
+    backdrop-filter: blur(6px);
+  }
+
+  .words__quote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--c-text-body);
+  }
+
+  .words__quote em {
+    font-style: italic;
+    color: var(--c-accent);
+  }
+
+  .words__by {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--c-rule);
+  }
+
+  .words__avatar {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--c-accent);
+    object-fit: cover;
+  }
+
+  .words__avatar--initials {
+    display: grid;
+    place-items: center;
+    background: var(--c-hunter);
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--c-text-body);
+  }
+
+  .words__who {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .words__author {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--c-text-body);
+  }
+
+  .words__book {
+    font-size: 14px;
+    color: var(--c-text-caption);
+  }
+
+  a.words__book:hover {
+    color: var(--c-accent);
+  }
+
+  @media (min-width: 900px) {
+    .words__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

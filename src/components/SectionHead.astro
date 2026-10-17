@@ -1,0 +1,28 @@
+---
+/**
+ * Opening of every v2 section after the hero: gold thread, chapter eyebrow,
+ * title. The default slot is the title's content, so it can carry an <em>
+ * accent; the `lede` slot is optional.
+ */
+import GoldThread from './GoldThread.astro';
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  chapter: number;
+  label: string;
+  align?: 'center' | 'start';
+  /** Heading id, for aria-labelledby on the section. */
+  id?: string;
+  /** Off when the section draws its own thread, centred above a split row. */
+  thread?: boolean;
+}
+
+const { chapter, label, align = 'center', id, thread = true } = Astro.props;
+---
+
+{thread && <GoldThread />}
+<header class:list={['section-head', { 'section-head--start': align === 'start' }]}>
+  <Eyebrow chapter={chapter} label={label} />
+  <h2 class="section-title" id={id}><slot /></h2>
+  {Astro.slots.has('lede') && <p class="lede"><slot name="lede" /></p>}
+</header>

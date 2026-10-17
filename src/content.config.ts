@@ -129,6 +129,12 @@ const testimonials = defineCollection({
     author: requiredString,
     bookTitle: optional(z.string()),
     link: optional(z.url()),
+    /**
+     * A phrase copied word for word from the quote, set in italic gold on Home.
+     * If it no longer appears in the quote (the quote was edited), the quote
+     * simply renders without emphasis.
+     */
+    highlight: optional(z.string()),
     sortOrder: numberOr(z.number().int(), 0),
   }),
 });
@@ -138,6 +144,8 @@ const settings = defineCollection({
   loader: glob({ pattern: '*.{yaml,yml,json}', base: './src/content/settings' }),
   schema: z.object({
     turnaround: optional(z.string()),
+    /** Months ahead the Home booking badge names. Spec v2 §4; default 2. */
+    bookingLeadMonths: numberOr(z.number().int().min(0).max(12), 2),
     studio: stringList,
     delivery: stringList,
   }),

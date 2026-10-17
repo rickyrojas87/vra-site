@@ -227,6 +227,15 @@ collections:
         hint: >-
           Optional. Their website or the book's page. Must start with https://
 
+      - name: highlight
+        label: Phrase to highlight
+        widget: string
+        required: false
+        hint: >-
+          Optional. A few words copied exactly from the quote above. They appear
+          in gold italics on the Home page. If the words don't match the quote
+          exactly, nothing is highlighted.
+
       - name: sortOrder
         label: Order on the page
         widget: number
@@ -252,6 +261,18 @@ collections:
               How fast you deliver, in your own words. Example: "Roughly one
               finished hour per working day." Leave empty and the line does not
               appear on the site at all.
+
+          - name: bookingLeadMonths
+            label: Booking lead time (months)
+            widget: number
+            value_type: int
+            default: 2
+            min: 0
+            max: 12
+            hint: >-
+              How far ahead you're booking. The Home page badge reads "Now
+              booking" and the month this many months from today. Leave it at 2
+              unless your calendar changes.
 
           - name: studio
             label: Studio equipment

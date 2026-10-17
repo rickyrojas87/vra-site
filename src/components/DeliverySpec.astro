@@ -8,13 +8,22 @@
  */
 import { getEntry } from 'astro:content';
 
+interface Props {
+  /** `card` is the v2 shared card treatment (Home studio); `panel` is v1. */
+  variant?: 'panel' | 'card';
+  /** Spec v2 removes turnaround from Home. */
+  showTurnaround?: boolean;
+}
+
+const { variant = 'panel', showTurnaround = true } = Astro.props;
+
 const entry = await getEntry('settings', 'delivery');
 const studio = entry?.data.studio ?? [];
 const delivery = entry?.data.delivery ?? [];
-const turnaround = entry?.data.turnaround?.trim();
+const turnaround = showTurnaround ? entry?.data.turnaround?.trim() : undefined;
 ---
 
-<div class="panel">
+<div class:list={['panel', { 'card panel--card': variant === 'card' }]}>
   <div class="panel__col">
     <h3 class="label panel__heading">Studio</h3>
     <ul class="panel__list">
@@ -98,6 +107,29 @@ const turnaround = entry?.data.turnaround?.trim();
     color: var(--c-text);
     font-size: var(--fs-body);
     line-height: 1.5;
+  }
+
+  /* v2: the shared card supplies surface, radius and edge. Emerald bullets,
+     ivory copy, gold headings. */
+  .panel--card {
+    border-radius: var(--radius-card);
+    background: var(--c-bg);
+  }
+
+  .panel--card .panel__heading {
+    color: var(--c-accent);
+  }
+
+  .panel--card .panel__list {
+    color: var(--c-text-card);
+  }
+
+  .panel--card .panel__list li::before {
+    top: 0.5em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--c-emerald);
   }
 
   @media (min-width: 768px) {

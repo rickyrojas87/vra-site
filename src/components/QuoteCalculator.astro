@@ -17,23 +17,35 @@ import {
 } from '../data/pricing';
 
 interface Props {
-  /** id of the section holding the intake form, for the handoff scroll. */
+  /**
+   * id of the section holding the intake form, for the handoff scroll. When
+   * the page has no such section (Home), the handoff instead opens /contact
+   * with the estimate in the query string, and the calculator there picks it up.
+   */
   formTarget?: string;
+  /** Pre-fill so the figures show on arrival instead of dashes. */
+  initialWords?: number;
 }
 
-const { formTarget = 'intake' } = Astro.props;
+const { formTarget = 'intake', initialWords } = Astro.props;
+
+/** Slider bounds — spec v2 §3, row 07. The text field accepts any count. */
+const RANGE = { min: 10_000, max: 150_000, step: 1_000 };
 
 const config = {
   services,
   wordsPerHour: WORDS_PER_FINISHED_HOUR,
   formTarget,
+  range: RANGE,
 };
+
+const clampToRange = (n: number) => Math.min(RANGE.max, Math.max(RANGE.min, n));
 
 /** Server-rendered so the rate cell is never blank before the script runs. */
 const defaultService = services.find((s) => s.id === defaultServiceId) ?? services[0];
 ---
 
-<div class="calc" data-calc>
+<div class="card calc" data-calc>
   <div class="calc__controls">
     <div class="calc__field">
       <h3 class="label calc__legend" id="calc-service">Service</h3>
@@ -67,8 +79,24 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
         autocomplete="off"
         placeholder="90,000"
         aria-describedby="calc-note"
+        value={initialWords ? initialWords.toLocaleString('en-US') : undefined}
         data-words
       />
+      {/* Mirrors the text field; either one drives the other. */}
+      <input
+        class="calc__range"
+        type="range"
+        min={RANGE.min}
+        max={RANGE.max}
+        step={RANGE.step}
+        value={clampToRange(initialWords ?? 90_000)}
+        aria-label="Manuscript word count"
+        data-range
+      />
+      <p class="calc__scale" aria-hidden="true">
+        <span>10k words</span>
+        <span>150k words</span>
+      </p>
     </div>
   </div>
 
@@ -103,12 +131,6 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     flex-direction: column;
     gap: var(--space-3);
     padding: var(--space-3);
-    background: var(--c-panel);
-    border-radius: var(--radius-panel);
-    box-shadow:
-      0 10px 24px rgb(0 0 0 / 45%),
-      0 2px 4px rgb(0 0 0 / 30%),
-      0 0 0 1px var(--c-rule);
   }
 
   .calc__controls {
@@ -126,60 +148,62 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
   .calc__legend {
     margin: 0;
     font-family: var(--font-body);
+    color: var(--c-text-caption);
   }
 
-  /* Segmented control, not a dropdown. */
+  /* Segmented control as two boxes. The selected box is hunter with the
+     chip's gold underline: green as state, never as the action. */
   .seg {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2px;
-    padding: 3px;
-    background: rgb(0 0 0 / 22%);
-    border: 1px solid var(--c-rule);
-    border-radius: 4px;
+    gap: 10px;
   }
 
   .seg__btn {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 12px 16px;
+    padding: 14px 16px;
     background: transparent;
-    border: 0;
-    border-radius: 2px;
-    color: var(--c-muted);
+    border: 1px solid var(--c-card-edge);
+    border-radius: 12px;
+    color: var(--c-text-card);
     cursor: pointer;
     font-family: var(--font-body);
     text-align: left;
     transition:
       background-color 200ms ease,
+      border-color 200ms ease,
       color 200ms ease;
   }
 
   .seg__btn:hover {
-    color: var(--c-text);
+    border-color: var(--c-emerald);
+    color: var(--c-text-body);
   }
 
   .seg__btn[aria-pressed='true'] {
-    background: var(--c-accent);
-    color: var(--c-bg);
+    background: var(--c-hunter);
+    border-color: var(--c-emerald);
+    box-shadow: inset 0 -3px 0 var(--c-accent);
+    color: var(--c-text-body);
   }
 
   .seg__name {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.04em;
   }
 
   .seg__meta {
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    opacity: 0.85;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--c-text-caption);
   }
 
   .calc__desc {
     max-width: 68ch;
-    color: var(--c-muted);
+    color: var(--c-text-card);
     font-size: 14px;
     line-height: 1.6;
   }
@@ -189,10 +213,10 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     max-width: 320px;
     min-height: 48px;
     padding: 12px 14px;
-    background: var(--c-bg);
-    border: 1px solid var(--c-rule);
-    border-radius: 2px;
-    color: var(--c-text);
+    background: var(--c-deep);
+    border: 1px solid var(--c-card-edge);
+    border-radius: var(--radius-btn);
+    color: var(--c-text-body);
     font-family: var(--font-body);
     font-size: var(--fs-body);
     font-variant-numeric: tabular-nums;
@@ -200,6 +224,60 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
 
   .calc__input:focus-visible {
     border-color: var(--c-accent);
+  }
+
+  /* Slider: emerald-to-gold fill up to the thumb, via --fill set from JS. */
+  .calc__range {
+    --fill: 57%;
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .calc__range::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background:
+      linear-gradient(90deg, var(--c-emerald), var(--c-accent)) 0 0 / var(--fill) 100% no-repeat,
+      var(--c-card-edge);
+  }
+
+  .calc__range::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background:
+      linear-gradient(90deg, var(--c-emerald), var(--c-accent)) 0 0 / var(--fill) 100% no-repeat,
+      var(--c-card-edge);
+  }
+
+  .calc__range::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    margin-top: -8px;
+    border: 2px solid var(--c-deep);
+    border-radius: 50%;
+    background: var(--c-accent);
+    box-shadow: 0 0 10px var(--c-gold-glow);
+    appearance: none;
+  }
+
+  .calc__range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--c-deep);
+    border-radius: 50%;
+    background: var(--c-accent);
+    box-shadow: 0 0 10px var(--c-gold-glow);
+  }
+
+  .calc__scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--c-text-caption);
   }
 
   .calc__out {
@@ -229,31 +307,33 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     font-weight: var(--fw-label);
     letter-spacing: var(--ls-label);
     text-transform: uppercase;
-    color: var(--c-muted);
+    color: var(--c-text-caption);
   }
 
   .calc__val {
     margin: 0;
-    color: var(--c-muted);
-    font-size: 20px;
+    color: var(--c-text-body);
+    font-family: var(--font-display);
+    font-size: 30px;
     font-variant-numeric: tabular-nums;
+    line-height: 1.1;
   }
 
   .calc__total {
     margin: 0;
     color: var(--c-accent);
     font-family: var(--font-display);
-    font-size: 42px;
-    font-weight: 300;
+    font-size: 48px;
+    font-weight: 400;
     line-height: 1.1;
     font-variant-numeric: tabular-nums;
   }
 
   .calc__note {
     max-width: 68ch;
-    /* Same quiet grey the removed legend used — supporting, not body copy. */
+    /* Quiet grey, which clears AA on every surface it sits on. */
     color: var(--c-quiet);
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
   }
 
@@ -263,7 +343,7 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     margin-top: var(--space-1);
     padding-top: var(--space-1);
     border-top: 1px solid var(--c-rule);
-    color: var(--c-muted);
+    color: var(--c-text-card);
     font-size: 13px;
     line-height: 1.6;
   }
@@ -297,8 +377,12 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
   const configEl = document.querySelector<HTMLScriptElement>('[data-calc-config]');
 
   if (root && configEl) {
-    const config: { services: ServiceOption[]; wordsPerHour: number; formTarget: string } =
-      JSON.parse(configEl.textContent || '{}');
+    const config: {
+      services: ServiceOption[];
+      wordsPerHour: number;
+      formTarget: string;
+      range: { min: number; max: number; step: number };
+    } = JSON.parse(configEl.textContent || '{}');
 
     const input = root.querySelector<HTMLInputElement>('[data-words]')!;
     const out = root.querySelector<HTMLElement>('[data-out]')!;
@@ -307,6 +391,7 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     const totalEl = root.querySelector<HTMLElement>('[data-total]')!;
     const handoff = root.querySelector<HTMLButtonElement>('[data-handoff]')!;
     const segButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-service]')];
+    const range = root.querySelector<HTMLInputElement>('[data-range]');
 
     const group = new Intl.NumberFormat('en-US');
     const usd = new Intl.NumberFormat('en-US', {
@@ -373,9 +458,28 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
       render();
     }
 
+    /** Keep the slider and its fill in step with `words` (clamped to its bounds). */
+    function syncRange() {
+      if (!range) return;
+      if (words > 0) {
+        range.value = String(Math.min(config.range.max, Math.max(config.range.min, words)));
+      }
+      const pct =
+        ((Number(range.value) - config.range.min) / (config.range.max - config.range.min)) * 100;
+      range.style.setProperty('--fill', `${pct}%`);
+    }
+
     input.addEventListener('input', () => {
       words = formatInput();
       render();
+      syncRange();
+    });
+
+    range?.addEventListener('input', () => {
+      words = Number(range.value);
+      input.value = group.format(words);
+      render();
+      syncRange();
     });
 
     for (const button of segButtons) {
@@ -402,6 +506,15 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
 
     handoff.addEventListener('click', () => {
       const section = document.getElementById(config.formTarget);
+
+      // No form on this page (Home): carry the estimate to the contact page,
+      // whose calculator reads it back from the query string on load.
+      if (!section) {
+        const params = new URLSearchParams({ service: service.id });
+        if (words > 0) params.set('words', String(words));
+        window.location.href = `/contact?${params}`;
+        return;
+      }
       const wordField = document.querySelector<HTMLInputElement>('#wordCount');
       const notes = document.querySelector<HTMLTextAreaElement>('#notes');
 
@@ -433,6 +546,16 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
       wordField?.focus({ preventScroll: true });
     });
 
+    // Arrival with an estimate from another page (?words=&service=), else
+    // whatever the server pre-filled.
+    const incoming = new URLSearchParams(window.location.search);
+    const incomingService = config.services.find((s) => s.id === incoming.get('service'));
+    if (incomingService) service = incomingService;
+    const incomingWords = Number(incoming.get('words'));
+    if (incomingWords > 0) input.value = String(incomingWords);
+    if (input.value) words = formatInput();
+
     selectService(service);
+    syncRange();
   }
 </script>

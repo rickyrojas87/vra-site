@@ -1,0 +1,63 @@
+---
+/**
+ * Home 06 — The studio (spec v2 §3). Booth photo in the shared photo frame
+ * (object-position 50% 20%) beside the studio and delivery spec card.
+ */
+import { Image } from 'astro:assets';
+import SectionHead from '../SectionHead.astro';
+import DeliverySpec from '../DeliverySpec.astro';
+import booth from '../../assets/booth.jpg';
+---
+
+<section class="section surface-panel join join--from-deep studio" aria-labelledby="studio-title">
+  <div class="container reveal">
+    <SectionHead chapter={6} label="The studio" id="studio-title">
+      A treated booth, <em>mastered in-house.</em>
+    </SectionHead>
+
+    <div class="studio__row">
+      <div class="photo-stage studio__figure">
+        <div class="photo-frame studio__frame">
+          <Image
+            src={booth}
+            alt="Victoria Rojas recording at a condenser microphone behind a pop filter, headphones on, reading from a tablet"
+            width={900}
+            widths={[450, 900]}
+            sizes="(min-width: 900px) 440px, 86vw"
+            quality={65}
+          />
+        </div>
+      </div>
+      <DeliverySpec variant="card" showTurnaround={false} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .studio__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .studio__figure {
+    justify-self: center;
+    width: min(440px, 100%);
+  }
+
+  .studio__frame {
+    aspect-ratio: 4 / 5;
+  }
+
+  .studio__frame :global(img) {
+    object-position: 50% 20%;
+  }
+
+  @media (min-width: 900px) {
+    .studio__row {
+      grid-template-columns: 2fr 3fr;
+      gap: var(--space-4);
+    }
+  }
+</style>

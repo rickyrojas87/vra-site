@@ -33,7 +33,15 @@ scale in a component.
 **Surfaces alternate.** Three background values (`base`, `deep`, `panel`) run
 down every page and no two consecutive sections may share one. The footer is
 `deep`, so the last band before it must not be. Changing one section's surface
-usually means changing its neighbour's.
+usually means changing its neighbour's. On v2 pages (Home so far) sections
+also fade in from the previous surface with `.join .join--from-*`, so a
+surface change means updating the next section's `join--from-*` too. The Home
+stats strip is the one deliberate exception: a thin band, deep like section 01
+below it.
+
+**v2 pages opt out of the v1 scroll reveal** with `legacyReveal={false}` on
+BaseLayout and use the load-time `.reveal` class. Remove the prop and
+`LegacyReveal.astro` once About, Works and Contact are rebuilt.
 
 ---
 

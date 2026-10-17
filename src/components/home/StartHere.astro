@@ -1,0 +1,80 @@
+---
+/**
+ * Home 07 — Start here (spec v2 §3). Headline beside the estimator, over the
+ * library spines at .4, faded across the left 45% and the top and bottom
+ * thirds. Last band before the footer, so it fades out into deep.
+ */
+import { Image } from 'astro:assets';
+import SectionHead from '../SectionHead.astro';
+import GoldThread from '../GoldThread.astro';
+import Dust from '../Dust.astro';
+import QuoteCalculator from '../QuoteCalculator.astro';
+import spines from '../../assets/library-spines.png';
+---
+
+<section class="section surface-base join join--from-panel join--to-deep start" aria-labelledby="start-title">
+  <div class="start__bg" aria-hidden="true">
+    <Image src={spines} alt="" width={1600} format="webp" quality={60} sizes="100vw" loading="lazy" />
+  </div>
+  <Dust seed={77} />
+
+  <div class="container reveal">
+    <GoldThread />
+    <div class="start__row">
+      <div class="start__intro">
+        <SectionHead chapter={7} label="Start here" align="start" id="start-title" thread={false}>
+          What would your book <em>cost?</em>
+          <Fragment slot="lede">
+            Slide to your manuscript's word count for a starting estimate. Finished hours are
+            words divided by 9,300; every project is confirmed after I read the manuscript.
+          </Fragment>
+        </SectionHead>
+      </div>
+
+      {/* The handoff goes to /contact, where the same calculator picks it up. */}
+      <QuoteCalculator initialWords={80000} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .start {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .start__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.4;
+    /* Left 45% and top/bottom thirds faded: two masks, intersected. */
+    mask-image:
+      linear-gradient(to right, transparent, #000 45%),
+      linear-gradient(transparent, #000 33%, #000 67%, transparent);
+    mask-composite: intersect;
+  }
+
+  .start__bg img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+
+  .start__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .start__row {
+      grid-template-columns: 2fr 3fr;
+      gap: var(--space-4);
+    }
+  }
+</style>

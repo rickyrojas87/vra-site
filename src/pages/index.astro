@@ -1,88 +1,74 @@
 ---
-/** Home — spec section 3. */
-import { loadPublishedTitles } from '../utils/content';
+/**
+ * Home — spec v2 §3 and §4, "The Library".
+ *
+ * Surfaces down the page, each joining the last with a 240px fade:
+ *   hero (video) → stats deep → 01 deep → 02 panel → 03 library (fades in
+ *   and out) → 04 base → 05 deep → 06 panel → 07 base (fades out) → footer deep
+ *
+ * Every section after the hero opens with the gold thread and a chapter
+ * eyebrow, and its main block fades up on load (`.reveal`). This page does
+ * not use the v1 scroll reveal at all (`legacyReveal={false}`).
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
+import StatsStrip from '../components/StatsStrip.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
-import Proof from '../components/Proof.astro';
+import Shelf from '../components/home/Shelf.astro';
+import Testimonials from '../components/home/Testimonials.astro';
+import Meet from '../components/home/Meet.astro';
+import Process from '../components/home/Process.astro';
+import Studio from '../components/home/Studio.astro';
+import StartHere from '../components/home/StartHere.astro';
 import TitleSchema from '../components/TitleSchema.astro';
-import TitleCard from '../components/TitleCard.astro';
-import DeliverySpec from '../components/DeliverySpec.astro';
-import CtaBand from '../components/CtaBand.astro';
+import { loadShelf } from '../utils/catalog';
+import { getHeroPoster } from '../utils/heroPoster';
 
-const selected = (await loadPublishedTitles()).slice(0, 4);
+const { items: shelf } = await loadShelf(4);
+const poster = await getHeroPoster();
 ---
 
 <BaseLayout
   title="Victoria Rojas, Audiobook Narrator, Central Texas"
   description="Audiobook narration from a treated, ACX-compliant studio in Central Texas. Hear demos and request a quote."
+  legacyReveal={false}
 >
-  {/* 1 — Hero. Not revealed: it holds the LCP element. */}
+  {/* The hero poster is the LCP element. Preloaded so the browser finds it
+      before parsing the inlined stylesheet that fills the rest of <head>. */}
+  <Fragment slot="head">
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      imagesrcset={poster.srcSet.attribute}
+      imagesizes={poster.attributes.sizes}
+      fetchpriority="high"
+    />
+  </Fragment>
+
   <Hero />
-
-  {/* 2 — Demo player. The single most important element on the site. */}
-  <WaveformPlayer surface="deep" id="demos" />
-
-  {/* 3 — Selected titles. Panel, so the Proof strip below can sit on base and
-      still read its own #2C2D33 panel against the section behind it. */}
-  <section class="section surface-panel" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Selected titles</h2>
-      <div class="titles-grid">
-        {selected.map((entry) => <TitleCard entry={entry} />)}
-      </div>
-    </div>
-  </section>
-
-  {/* 4 — Proof */}
-  <Proof surface="base" />
-
-  {/* 5 — Delivery spec. Deep, so the #2C2D33 panel reads against it. */}
-  <section class="section surface-deep" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Studio and delivery</h2>
-      <DeliverySpec />
-    </div>
-  </section>
-
-  {/* 6 — CTA band. Base, so it differs from both the panel above and the footer. */}
-  <CtaBand surface="base" />
+  <StatsStrip />
+  <WaveformPlayer surface="deep" id="demos" chapter={1} ambient />
+  <Shelf />
+  <Testimonials />
+  <Meet />
+  <Process />
+  <Studio />
+  <StartHere />
 
   {/* Structured data for the titles this page actually renders. */}
-  <TitleSchema entries={selected} />
+  <TitleSchema entries={shelf.map((item) => item.entry)} />
 </BaseLayout>
 
 <style>
-  /* Hero styles live in Hero.astro. */
-
-  /* Shared section rhythm */
-  .stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  /* 3 — Selected titles */
-  .titles-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--gutter);
-  }
-
-  /* 4 — Proof */
-  .proof {
-    display: flex;
-    justify-content: center;
-  }
-
-  .proof > :global(*) {
-    max-width: 720px;
-  }
-
-  /* auto-fit so 3 titles fill the row as well as 4 do. */
-  @media (min-width: 768px) {
-    .titles-grid {
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
+  /* Everything after the hero and stats strip is below the fold on load at
+     every width. Skipping its rendering until it nears the viewport keeps its
+     images and the italic face from downloading alongside the LCP poster
+     (mobile Lighthouse: ~190 KB moved out of the critical window). The
+     intrinsic size is a placeholder only; `auto` remembers the real height
+     once a section has rendered, so scrolling back never jumps. */
+  :global(main > section:nth-of-type(n + 3)) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1100px;
   }
 </style>

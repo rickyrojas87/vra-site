@@ -1,0 +1,133 @@
+---
+/**
+ * Home 05 — How we work together (spec v2 §3). Six chapter cards: one row on
+ * desktop, three on tablet, one on phones. Italic numeral with a short gold
+ * rule (the last runs full width, gold to green), a per-card progress bar
+ * (17/33/50/67/83/100%), "Chapter N" and finally "The end".
+ */
+import SectionHead from '../SectionHead.astro';
+import { processSteps } from '../../data/process';
+
+const steps = processSteps.map((step, i, all) => ({
+  ...step,
+  n: i + 1,
+  last: i === all.length - 1,
+  progress: Math.round(((i + 1) / all.length) * 100),
+}));
+---
+
+<section class="section surface-deep join join--from-base process" aria-labelledby="process-title">
+  <div class="container reveal">
+    <SectionHead chapter={5} label="How we work together" id="process-title">
+      From manuscript to <em>finished audiobook.</em>
+    </SectionHead>
+
+    <ol class="process__grid">
+      {
+        steps.map((step) => (
+          <li class="card process__card">
+            <span class="process__numeral" aria-hidden="true">
+              {step.n}
+            </span>
+            <span class:list={['process__rule', { 'process__rule--end': step.last }]} aria-hidden="true" />
+            <p class="process__chapter">{step.last ? 'The end' : `Chapter ${step.n}`}</p>
+            <h3 class="process__title">{step.title}</h3>
+            <p class="process__copy">{step.short}</p>
+            <span
+              class="process__bar"
+              role="presentation"
+              style={`--progress:${step.progress}%`}
+            />
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .process__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: var(--space-3) var(--space-2) var(--space-2);
+  }
+
+  .process__numeral {
+    font-family: var(--font-display);
+    font-size: var(--fs-numeral);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 0.9;
+    color: var(--c-accent);
+  }
+
+  .process__rule {
+    width: 32px;
+    height: 1px;
+    background: var(--c-accent);
+  }
+
+  .process__rule--end {
+    width: 100%;
+    background: linear-gradient(90deg, var(--c-accent), var(--c-emerald));
+  }
+
+  .process__chapter {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-text-caption);
+  }
+
+  .process__title {
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--c-text-body);
+  }
+
+  .process__copy {
+    flex: 1;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--c-text-card);
+  }
+
+  .process__bar {
+    display: block;
+    height: 3px;
+    margin-top: var(--space-1);
+    border-radius: 2px;
+    background:
+      linear-gradient(90deg, var(--c-emerald), var(--c-accent)) 0 0 / var(--progress) 100% no-repeat,
+      var(--c-card-edge);
+  }
+
+  @media (min-width: 640px) {
+    .process__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .process__grid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+    }
+
+    .process__card {
+      padding-inline: 18px;
+    }
+  }
+</style>

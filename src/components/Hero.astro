@@ -1,86 +1,165 @@
 ---
 /**
- * Animated hero — spec section 3, row 1 (spec section 8 phase 1).
+ * Home hero — spec v2 §4. A title page over a looping library video.
  *
- * Photo background under three CSS layers, bottom to top:
- *   1. portrait   2. directional scrim   3. vertical bars   4. grain
+ * Video rules, all of them load-bearing for Lighthouse:
+ *   - The <video> ships with NO source and `preload="none"`. The poster is a
+ *     responsive <img> beneath it (640px on phones), not the `poster`
+ *     attribute, which can't vary by viewport. It is the LCP element, so it
+ *     loads eagerly at high priority; the video fades in over it once playing.
+ *     The tagline font is not preloaded for the same reason: it competed with
+ *     the poster on slow connections, and the tagline's fixed box absorbs the
+ *     swap.
+ *   - Sources are attached after `window.load`, so the video never competes
+ *     with first paint or LCP.
+ *   - Under prefers-reduced-motion, or on a connection reporting `saveData`,
+ *     the sources are never attached and the poster is all there is.
+ *   - Only at 900px and wider: the spec's fallback for mobile performance,
+ *     which measurement required (see VIDEO_MIN_WIDTH).
  *
- * The scrim replaces the radial glow and vignette the earlier version used —
- * the photo now does that work, and stacking all four muddied it.
- *
- * Bar values are derived from a seeded sine hash rather than Math.random() so
- * the build is reproducible — the same input always emits the same markup, which
- * keeps diffs and cache keys stable across rebuilds.
+ * Not revealed: the hero holds the LCP element, and fading it in would delay
+ * the largest paint by the length of the animation.
  */
 import { Image } from 'astro:assets';
-/**
- * Landscape 7415x5561 original — chosen over the other three landscape shots
- * because she sits furthest right of centre in it and both edges are quiet
- * (mic stand against acoustic panel on the left, plain panelling on the right).
- * Replaces the old 1200px portrait, which had to be upscaled ~1.6x to fill a
- * desktop hero and cropped 58% of its height away.
- */
+import Dust from './Dust.astro';
+import { loadBookingMonth, loadLatestRelease } from '../utils/catalog';
+import { heroMedia } from '../data/heroMedia';
+/** Standing in the booth — she sits centre-right with quiet edges either side. */
 import heroPhoto from '../assets/portrait-alt.jpg';
+import { getHeroPoster } from '../utils/heroPoster';
 
-const BAR_COUNT = 21;
+const booking = await loadBookingMonth();
+const poster = await getHeroPoster();
+const latest = await loadLatestRelease();
 
-const seeded = (i: number, salt: number) => {
-  const x = Math.sin((i + 1) * salt) * 10000;
-  return x - Math.floor(x);
-};
+/**
+ * Spec v2 §4 fallback, applied: with the video attached on phones, mobile
+ * Lighthouse measured 91 (LCP 3.4s) — the first video frame repainted the
+ * LCP element after load. Below 900px the poster alone is shown.
+ */
+const VIDEO_MIN_WIDTH = 900;
 
-const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
-  /** Resting height as a share of the hero, 30–82%. */
-  height: (30 + seeded(i, 12.9898) * 52).toFixed(1),
-  /** 2–3s, so neighbours drift apart rather than beating in step. */
-  duration: (2 + seeded(i, 78.233)).toFixed(2),
-  /** Negative offset starts every bar mid-cycle: nothing is ever in sync. */
-  delay: (-seeded(i, 39.425) * 3).toFixed(2),
-  /** Floor of the scale cycle, 0.38–0.72. */
-  min: (0.38 + seeded(i, 27.611) * 0.34).toFixed(3),
-}));
+/** Four sparks around the frame, as offsets from the photo stage. */
+const sparks = [
+  { top: '-14px', left: '18%' },
+  { top: '22%', right: '-12px' },
+  { bottom: '30%', left: '-12px' },
+  { bottom: '-12px', right: '24%' },
+];
+
+const toStyle = (o: Record<string, string>) =>
+  Object.entries(o)
+    .map(([k, v]) => `${k}:${v}`)
+    .join(';');
 ---
 
-<section class="hero">
-  <div class="hero__layers">
-    {/* Photo. LCP element, so it loads eagerly at high priority. */}
-    <Image
-      class="hero__photo"
-      src={heroPhoto}
-      alt="Victoria Rojas standing in her recording booth beside a microphone and pop filter"
-      {/* Sits under a 40-94% scrim plus grain, so aggressive compression is
-          invisible here and keeps the LCP inside budget. */}
-      width={1600}
-      height={1200}
-      quality={55}
-      loading="eager"
+<section class="hero" data-hero>
+  <div class="hero__media" aria-hidden="true">
+    {/* Same URLs as the <head> preload; see utils/heroPoster.ts. */}
+    <img
+      class="hero__poster"
+      src={poster.src}
+      srcset={poster.srcSet.attribute}
+      sizes={poster.attributes.sizes}
+      width={poster.attributes.width}
+      height={poster.attributes.height}
+      alt=""
+      decoding="async"
       fetchpriority="high"
     />
-
-    <div class="hero__scrim" aria-hidden="true"></div>
-
-    <div class="hero__bars" aria-hidden="true">
-      {
-        bars.map((bar) => (
-          <span
-            class="hero__bar"
-            style={`--bar-h:${bar.height}%;--bar-dur:${bar.duration}s;--bar-delay:${bar.delay}s;--bar-min:${bar.min}`}
-          />
-        ))
-      }
-    </div>
-
-    <div class="hero__grain" aria-hidden="true"></div>
+    <video
+      class="hero__video"
+      data-hero-video
+      data-min-width={VIDEO_MIN_WIDTH}
+      data-webm={heroMedia.webm}
+      data-mp4={heroMedia.mp4}
+      width="1280"
+      height="720"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      disablepictureinpicture
+      tabindex="-1"></video>
+    <div class="hero__lamp"></div>
+    <div class="hero__green"></div>
+    <div class="hero__scrim"></div>
   </div>
 
+  <Dust seed={11} />
+
   <div class="container hero__inner">
-    <p class="label">Audiobook Narrator</p>
-    <h1 class="hero__title">Victoria Rojas</h1>
-    <span class="hero__divider" aria-hidden="true"></span>
-    <p class="hero__line">Voice. Story. Experience.</p>
-    <div class="hero__actions">
-      <a class="btn btn--primary" href="#demos">Hear demos</a>
-      <a class="btn btn--outline" href="/contact">Request a quote</a>
+    <div class="hero__page">
+      <p class="badge">
+        Now booking
+        <span class="badge__month">{booking.month}{booking.year && ` ${booking.year}`}</span>
+        productions
+      </p>
+
+      <span class="hero__rules" aria-hidden="true"></span>
+
+      <p class="hero__eyebrow">Audiobook narrator</p>
+      <h1 class="hero__title">Victoria Rojas</h1>
+      <p class="hand hand--bright hero__tagline">A voice for every story.</p>
+
+      <span class="hero__rules" aria-hidden="true"></span>
+
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#demos">
+          Hear demos
+          <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+        </a>
+        <a class="btn btn--bookplate" href="/contact">Request a quote</a>
+      </div>
+    </div>
+
+    {/* Eager but default priority: the poster behind the hero is the LCP
+        element, and two high-priority images split the bandwidth. */}
+    <div class="hero__figure photo-stage">
+      <div class="photo-frame hero__frame">
+        <Image
+          src={heroPhoto}
+          alt="Victoria Rojas standing in her recording booth beside a microphone and pop filter, holding a book"
+          width={880}
+          height={1100}
+          widths={[440, 660, 880]}
+          sizes="(min-width: 900px) 440px, min(440px, 86vw)"
+          fit="cover"
+          position="center"
+          quality={50}
+          loading="eager"
+        />
+      </div>
+      {sparks.map((s) => <span class="spark" style={toStyle(s)} aria-hidden="true"></span>)}
+
+      {
+        latest && (
+          <a
+            class="card hero__latest"
+            href={latest.data.audibleUrl ?? '/works'}
+            {...(latest.data.audibleUrl ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {latest.data.coverImage && (
+              <Image
+                class="hero__latest-cover"
+                src={latest.data.coverImage}
+                alt=""
+                width={112}
+                height={112}
+                fit="cover"
+              />
+            )}
+            <span class="hero__latest-text">
+              <span class="hero__latest-label">Latest release</span>
+              <span class="hero__latest-title">{latest.data.title}</span>
+              {latest.data.author && <span class="hero__latest-author">{latest.data.author}</span>}
+            </span>
+          </a>
+        )
+      }
     </div>
   </div>
 </section>
@@ -88,173 +167,280 @@ const bars = Array.from({ length: BAR_COUNT }, (_, i) => ({
 <style>
   .hero {
     position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
-    min-height: 100vh;
-    background: var(--c-deep);
+    min-height: calc(100svh - var(--header-h));
+    padding-block: var(--space-4) calc(var(--space-4) + 40px);
     overflow: hidden;
-    isolation: isolate;
+    background: var(--c-deep);
   }
 
-  .hero__layers {
+  /* --- Media layers ------------------------------------------------------ */
+
+  .hero__media,
+  .hero__media > * {
     position: absolute;
     inset: 0;
-    z-index: 0;
-    pointer-events: none;
   }
 
-  /* 1 — Photo, full bleed.
-     The source is 4:3, so which axis gets cropped depends on the viewport:
-     on a wide desktop hero it fills the width and crops vertically (X does
-     nothing, Y holds her face in frame), and on a narrow tall one it fills the
-     height and crops horizontally (X keeps her off the text). Both are tuned. */
-  .hero__photo {
-    position: absolute;
-    inset: 0;
+  .hero__media {
+    z-index: -1;
+  }
+
+  .hero__poster,
+  .hero__video {
     width: 100%;
     height: 100%;
+    max-width: none;
     object-fit: cover;
-    object-position: 58% 28%;
+    filter: brightness(0.7) saturate(0.95) blur(0.6px);
+    /* blur() bleeds the edge to transparent; overscan hides it. */
+    transform: scale(1.02);
   }
 
-  /* 2 — Directional scrim: text side opaque, face side readable. */
+  /* Hidden until frames are actually playing, so the poster never flashes
+     to black while the video buffers. */
+  .hero__video {
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  .hero__video.is-playing {
+    opacity: 1;
+  }
+
+  /* Warm lamplight, upper left, with an irregular flicker. */
+  .hero__lamp {
+    background: radial-gradient(
+      ellipse 45% 55% at 18% 22%,
+      rgb(230 200 94 / 22%),
+      transparent 70%
+    );
+    mix-blend-mode: screen;
+    animation: lamp-flicker 6s steps(1, end) infinite;
+  }
+
+  /* Library green pooling up from the floor. */
+  .hero__green {
+    background: radial-gradient(ellipse 70% 50% at 50% 105%, rgb(63 140 100 / 28%), transparent 70%);
+  }
+
+  /* Holds the type's contrast over any frame of the video, then hands off to
+     the stats strip's deep surface along the bottom edge. */
   .hero__scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to right,
-      rgb(27 28 32 / 94%) 0%,
-      rgb(27 28 32 / 82%) 45%,
-      rgb(27 28 32 / 40%) 100%
-    );
+    background:
+      linear-gradient(to bottom, transparent 70%, var(--c-deep)),
+      linear-gradient(to right, rgb(18 19 22 / 78%), rgb(18 19 22 / 45%) 60%, rgb(18 19 22 / 30%));
   }
 
-  /* 3 — Vertical bars. */
-  .hero__bars {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: clamp(6px, 1.4vw, 20px);
-    padding-inline: clamp(8px, 3vw, 48px);
-  }
+  /* --- Layout ------------------------------------------------------------- */
 
-  .hero__bar {
-    flex: 1 1 0;
-    height: var(--bar-h);
-    max-width: 26px;
-    /* 16%, down from 20%: atmosphere over the photo, not competition with it. */
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgb(212 175 55 / 16%) 18%,
-      rgb(212 175 55 / 16%) 82%,
-      transparent 100%
-    );
-    transform: scaleY(var(--bar-min));
-    animation: hero-bar var(--bar-dur) ease-in-out var(--bar-delay) infinite alternate;
-  }
-
-  @keyframes hero-bar {
-    from {
-      transform: scaleY(var(--bar-min));
-    }
-    to {
-      transform: scaleY(1);
-    }
-  }
-
-  /* 4 — Grain, over everything.
-     Same feTurbulence, but rasterized once into a 180px tile and repeated rather
-     than filtered across the full viewport. `stitchTiles` makes the seams
-     invisible. Filtering a 1350x940 hero directly costs ~1.3M pixels of CPU noise
-     before first paint and measured ~300ms of FCP; the tile is ~32K pixels. */
-  .hero__grain {
-    position: absolute;
-    inset: 0;
-    opacity: 0.15;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 180px 180px;
-  }
-
-  /* Copy */
   .hero__inner {
     position: relative;
-    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .hero__page {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--space-2);
-    padding-block: var(--space-4);
+    text-align: center;
+  }
+
+  .hero__rules {
+    display: block;
+    width: min(320px, 70%);
+    height: 5px;
+    border-block: 1px solid var(--c-accent);
+    opacity: 0.8;
+  }
+
+  .hero__eyebrow {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--c-text-caption);
   }
 
   .hero__title {
-    font-size: var(--fs-h1);
-    font-weight: var(--fw-h1);
-    letter-spacing: var(--ls-h1);
-    line-height: var(--lh-heading);
+    font-size: var(--fs-hero);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    line-height: 1.05;
     text-transform: uppercase;
-    /* Hero wordmark only — no other heading carries this. */
-    text-shadow: 0 2px 14px rgb(0 0 0 / 70%);
+    color: var(--c-text-body);
   }
 
-  .hero__divider {
-    display: block;
-    width: 44px;
-    height: 1px;
-    background: var(--c-accent);
-    /* Equal breathing room above and below, so it reads as a separator
-       rather than as part of either neighbour. */
-    margin-block: var(--space-1);
-  }
-
-  .hero__line {
-    font-family: var(--font-display);
-    font-size: var(--fs-h3);
-    font-weight: var(--fw-h3);
-    letter-spacing: var(--ls-h3);
-    line-height: var(--lh-heading);
-    color: var(--c-muted);
+  /* Fixed line box: the handwriting face isn't preloaded on every page and its
+     metrics differ from the fallback, so the box, not the font, sets height. */
+  .hero__tagline {
+    height: 1.3em;
+    font-size: var(--fs-tagline);
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+  }
+
+  /* --- Photo -------------------------------------------------------------- */
+
+  .hero__figure {
+    justify-self: center;
+    width: min(440px, 86vw);
+  }
+
+  .hero__frame {
+    aspect-ratio: 4 / 5;
+  }
+
+  .hero__latest {
+    display: flex;
+    align-items: center;
     gap: var(--space-1);
     margin-top: var(--space-2);
+    padding: 12px 20px 12px 12px;
+    border-radius: 16px;
+    color: var(--c-text-body);
   }
 
-  /* Below 900px the scrim turns vertical — dark at the bottom where the copy
-     sits — so the photo keeps its contrast instead of washing out flat. */
-  @media (max-width: 899px) {
-    .hero__scrim {
-      background: linear-gradient(
-        to bottom,
-        rgb(27 28 32 / 40%) 0%,
-        rgb(27 28 32 / 82%) 55%,
-        rgb(27 28 32 / 94%) 100%
-      );
+  .hero__latest-cover {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 6px;
+  }
+
+  .hero__latest-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .hero__latest-label {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-emerald-glow);
+  }
+
+  .hero__latest-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .hero__latest-author {
+    font-size: 14px;
+    color: var(--c-text-card);
+  }
+
+  @media (min-width: 900px) {
+    .hero__inner {
+      grid-template-columns: 1.15fr 1fr;
     }
 
-    /* Copy sits at the bottom on mobile, so bias the crop upward to keep her
-       face clear of it. */
-    .hero__photo {
-      object-position: 55% 20%;
+    .hero__figure {
+      justify-self: end;
     }
 
-    /* Copy follows the dark end of the vertical scrim. */
-    .hero {
-      align-items: flex-end;
+    /* Floats over the frame's lower-left corner on desktop. */
+    .hero__latest {
+      position: absolute;
+      bottom: 28px;
+      left: -72px;
+      z-index: 2;
+      margin: 0;
+      max-width: 300px;
     }
   }
 
-  /* Freeze the bars at their resting heights; every other layer is static. */
-  @media (prefers-reduced-motion: reduce) {
-    .hero__bar {
-      animation: none;
-      transform: scaleY(var(--bar-min));
+  @keyframes lamp-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    37% {
+      opacity: 0.86;
+    }
+
+    41% {
+      opacity: 0.97;
+    }
+
+    63% {
+      opacity: 0.9;
+    }
+
+    66% {
+      opacity: 1;
+    }
+
+    84% {
+      opacity: 0.93;
     }
   }
 </style>
+
+<script>
+  /**
+   * Attaches the hero video's sources after the page has fully loaded. Until
+   * then (and forever, under reduced motion or Save-Data) only the poster
+   * exists, so no video byte competes with first paint.
+   */
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+
+  if (video) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+      ?.saveData;
+    const minWidth = Number(video.dataset.minWidth || 0);
+
+    const attach = () => {
+      if (reduced.matches || saveData || window.innerWidth < minWidth) return;
+
+      for (const [type, src] of [
+        ['video/webm', video.dataset.webm],
+        ['video/mp4', video.dataset.mp4],
+      ]) {
+        if (!src) continue;
+        const source = document.createElement('source');
+        source.type = type!;
+        source.src = src;
+        video.append(source);
+      }
+      video.addEventListener('playing', () => video.classList.add('is-playing'), { once: true });
+      video.load();
+      video.play().catch(() => {
+        /* Autoplay refused: the poster stays, which is the designed fallback. */
+      });
+    };
+
+    if (document.readyState === 'complete') attach();
+    else window.addEventListener('load', attach, { once: true });
+
+    // Turning reduced motion on mid-visit stops the loop and shows the poster.
+    reduced.addEventListener('change', () => {
+      if (reduced.matches) {
+        video.pause();
+        video.classList.remove('is-playing');
+        video.removeAttribute('autoplay');
+        // Drop the sources before load(), or load() would fetch them again.
+        for (const source of video.querySelectorAll('source')) source.remove();
+        video.load();
+      }
+    });
+  }
+</script>

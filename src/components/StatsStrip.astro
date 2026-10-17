@@ -1,0 +1,127 @@
+---
+/**
+ * Stats strip under the hero — spec v2 §3. Every number is computed from the
+ * catalog at build (src/utils/catalog.ts); nothing here is typed by hand.
+ *
+ * A 42s marquee: the list renders twice and the track slides by exactly one
+ * copy, so the loop is seamless. The second copy is aria-hidden; screen
+ * readers get the list once. Under reduced motion the track stops, the copy
+ * goes, and the list wraps instead of clipping.
+ */
+import { loadStats } from '../utils/catalog';
+
+const stats = await loadStats();
+
+const items = [
+  { value: String(stats.published), label: 'Published titles' },
+  stats.averageRating && { value: stats.averageRating, label: 'Average rating' },
+  stats.ratingCount > 0 && { value: String(stats.ratingCount), label: 'Listener ratings' },
+  stats.finishedHours > 0 && { value: String(stats.finishedHours), label: 'Finished hours' },
+  { value: String(stats.accents), label: 'Accents' },
+  { value: 'ACX', label: 'Compliant delivery' },
+  { value: 'In-house', label: 'Editing and mastering' },
+].filter((item): item is { value: string; label: string } => Boolean(item));
+---
+
+<section class="stats surface-deep" aria-label="At a glance">
+  <div class="stats__track">
+    {
+      [false, true].map((copy) => (
+        <ul class="stats__list" aria-hidden={copy ? 'true' : undefined}>
+          {items.map((item) => (
+            <li class="stats__item">
+              <span class="stats__value">{item.value}</span>
+              <span class="stats__label">{item.label}</span>
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .stats {
+    overflow: hidden;
+    padding-block: var(--space-2);
+    border-block: 1px solid var(--c-rule);
+  }
+
+  .stats__track {
+    display: flex;
+    width: max-content;
+    animation: stats-marquee 42s linear infinite;
+  }
+
+  .stats:hover .stats__track {
+    animation-play-state: paused;
+  }
+
+  .stats__list {
+    display: flex;
+    flex: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stats__item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-inline: var(--space-3);
+    white-space: nowrap;
+  }
+
+  /* Gold diamond between items, matching the gold thread's terminal. */
+  .stats__item::after {
+    content: '';
+    align-self: center;
+    width: 6px;
+    height: 6px;
+    margin-left: var(--space-3);
+    background: var(--c-accent);
+    opacity: 0.7;
+    transform: rotate(45deg);
+  }
+
+  .stats__value {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--c-accent);
+  }
+
+  .stats__label {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-text-caption);
+  }
+
+  @keyframes stats-marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stats__track {
+      width: auto;
+      justify-content: center;
+    }
+
+    .stats__list {
+      flex: 1;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: var(--space-1);
+    }
+
+    .stats__list[aria-hidden] {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,30 @@
+---
+/**
+ * v1 scroll reveal observer. Rendered by BaseLayout only while a page still
+ * opts into `legacyReveal`; Astro bundles a component's script only onto pages
+ * that render the component, so v2 pages ship none of this. Delete the file
+ * once About, Works and Contact move to `.reveal`.
+ */
+---
+
+<script>
+  const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+  if (document.documentElement.classList.contains('has-reveal') && targets.length) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
+    );
+
+    for (const target of targets) observer.observe(target);
+  } else {
+    // No observer support, or motion is reduced: show everything outright.
+    document.documentElement.classList.remove('has-reveal');
+  }
+</script>

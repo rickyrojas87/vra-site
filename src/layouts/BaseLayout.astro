@@ -3,6 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import PersonSchema from '../components/PersonSchema.astro';
 import SiteVerification from '../components/SiteVerification.astro';
+import LegacyReveal from '../components/LegacyReveal.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -10,9 +11,16 @@ interface Props {
   description: string;
   /** Keep a page out of the index — used by /thanks. */
   noindex?: boolean;
+  /**
+   * The v1 scroll reveal (`data-reveal` + IntersectionObserver). Pages rebuilt
+   * for spec v2 use the time-based `.reveal` class instead and pass false, so
+   * neither the head script nor the observer ships on them. Remove this prop
+   * once every page is on v2.
+   */
+  legacyReveal?: boolean;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, legacyReveal = true } = Astro.props;
 
 /**
  * Derived from `site` in astro.config.mjs, which itself reads Netlify's build
@@ -82,13 +90,20 @@ const ogImageAlt =
     />
     <link rel="preload" href="/fonts/raleway-latin.woff2" as="font" type="font/woff2" crossorigin />
 
+    {/* Page-specific preloads, e.g. the Home hero poster and tagline font. */}
+    <slot name="head" />
+
     {/* Runs before first paint so revealed sections never flash in at full
         opacity first. Gated on motion preference and on JS existing at all. */}
-    <script is:inline>
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.classList.add('has-reveal');
-      }
-    </script>
+    {
+      legacyReveal && (
+        <script is:inline>
+          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.classList.add('has-reveal');
+          }
+        </script>
+      )
+    }
   </head>
 
   <body>
@@ -99,26 +114,6 @@ const ogImageAlt =
     </main>
     <Footer />
 
-    <script>
-      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
-
-      if (document.documentElement.classList.contains('has-reveal') && targets.length) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) continue;
-              entry.target.classList.add('is-revealed');
-              observer.unobserve(entry.target);
-            }
-          },
-          { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
-        );
-
-        for (const target of targets) observer.observe(target);
-      } else {
-        // No observer support, or motion is reduced: show everything outright.
-        document.documentElement.classList.remove('has-reveal');
-      }
-    </script>
+    {legacyReveal && <LegacyReveal />}
   </body>
 </html>
