@@ -1,0 +1,235 @@
+---
+/**
+ * Starting-estimate card (artboard .est) — Home 07 and Contact 01. One
+ * word-count slider; finished hours at WORDS_PER_FINISHED_HOUR; one box per
+ * service priced from pricing.ts.
+ *
+ * The two artboards differ only in the footnotes:
+ *   home     a disclaimer line under the boxes
+ *   contact  "$N per finished hour" under each figure
+ *
+ * Hand-offs, wired by what is on the page rather than by variant:
+ *   - a link marked [data-est-quote] (Home's "Request a quote") carries the
+ *     count as /contact?words=N
+ *   - ?words=N on arrival (Contact, coming from Home) sets the slider
+ *   - an intake field #wordCount (Contact's form) follows the slider until
+ *     the visitor types in it themselves
+ */
+import { services, WORDS_PER_FINISHED_HOUR } from '../data/pricing';
+
+interface Props {
+  variant?: 'home' | 'contact';
+}
+
+const { variant = 'home' } = Astro.props;
+
+const RANGE = { min: 10_000, max: 150_000, step: 1_000, initial: 72_000 };
+
+const narration = services.find((s) => s.id === 'narration') ?? services[0];
+const full = services.find((s) => s.id === 'full') ?? services[services.length - 1];
+
+const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+const hours = RANGE.initial / WORDS_PER_FINISHED_HOUR;
+
+const config = {
+  wordsPerHour: WORDS_PER_FINISHED_HOUR,
+  narration: narration.rate,
+  full: full.rate,
+  range: RANGE,
+};
+---
+
+<div class="est" data-est>
+  <label for="wc">Manuscript word count</label>
+  <div class="words">
+    <span data-est-words>{RANGE.initial.toLocaleString('en-US')}</span>{' '}
+    <span class="words__unit">words</span>
+  </div>
+  <input
+    id="wc"
+    type="range"
+    min={RANGE.min}
+    max={RANGE.max}
+    step={RANGE.step}
+    value={RANGE.initial}
+    data-est-range
+  />
+  <div class="est-k">About <span data-est-hours>{hours.toFixed(1)}</span> finished hours</div>
+  <div class="est-row">
+    <div class="est-box">
+      <div class="est-k">Narration only</div>
+      <div class="est-v" data-est-narration>{usd(hours * narration.rate)}</div>
+      {variant === 'contact' && <div class="est-k est-rate">${narration.rate} per finished hour</div>}
+    </div>
+    <div class="est-box est-box--green">
+      <div class="est-k">Full production</div>
+      <div class="est-v" data-est-full>{usd(hours * full.rate)}</div>
+      {variant === 'contact' && <div class="est-k est-rate">${full.rate} per finished hour</div>}
+    </div>
+  </div>
+  {
+    variant === 'home' && (
+      <p class="est-note">
+        Starting estimate based on ${narration.rate} and ${full.rate} per finished hour. Final quote
+        after manuscript review.
+      </p>
+    )
+  }
+</div>
+
+<script type="application/json" data-est-config set:html={JSON.stringify(config)} />
+
+<style>
+  .est {
+    padding: 40px;
+    border-radius: var(--radius-card);
+    background: rgb(27 28 32 / 85%);
+    box-shadow:
+      inset 0 0 0 1px rgb(212 175 55 / 35%),
+      var(--shadow-card);
+  }
+
+  .est label {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .words {
+    margin-top: 14px;
+    font-family: var(--font-display);
+    font-size: 48px;
+    line-height: 1;
+    color: var(--c-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .words__unit {
+    font-size: 22px;
+    color: var(--c-muted);
+  }
+
+  /* 44px tall for the thumb's tap target; the margins absorb the extra 16px
+     so the track sits where the artboard's 28px input put it. */
+  .est input[type='range'] {
+    width: 100%;
+    height: 44px;
+    margin: 14px 0 0;
+    accent-color: var(--c-accent);
+  }
+
+  .est-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .est-box {
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--c-panel);
+  }
+
+  .est-box--green {
+    background: var(--c-hunter);
+  }
+
+  .est-box--green .est-k {
+    color: var(--c-text-soft);
+  }
+
+  .est-v {
+    font-family: var(--font-display);
+    font-size: 36px;
+    line-height: 1.1;
+    color: var(--c-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .est-k {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .est-rate {
+    margin-top: 6px;
+  }
+
+  .est-note {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--c-quiet);
+  }
+
+  @media (max-width: 900px) {
+    .est {
+      padding: 28px 22px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .est-row {
+      grid-template-columns: 1fr;
+    }
+
+    .words {
+      font-size: 40px;
+    }
+  }
+</style>
+
+<script>
+  const est = document.querySelector<HTMLElement>('[data-est]');
+  const configEl = document.querySelector<HTMLScriptElement>('[data-est-config]');
+
+  if (est && configEl) {
+    const config: {
+      wordsPerHour: number;
+      narration: number;
+      full: number;
+      range: { min: number; max: number; step: number };
+    } = JSON.parse(configEl.textContent || '{}');
+    const range = est.querySelector<HTMLInputElement>('[data-est-range]')!;
+    const wordsEl = est.querySelector<HTMLElement>('[data-est-words]')!;
+    const hoursEl = est.querySelector<HTMLElement>('[data-est-hours]')!;
+    const narrationEl = est.querySelector<HTMLElement>('[data-est-narration]')!;
+    const fullEl = est.querySelector<HTMLElement>('[data-est-full]')!;
+    const quote = document.querySelector<HTMLAnchorElement>('[data-est-quote]');
+    const formWords = document.querySelector<HTMLInputElement>('#wordCount');
+
+    const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+
+    // The form field follows the slider until the visitor edits it directly;
+    // from then on their own figure wins.
+    let formTouched = false;
+    formWords?.addEventListener('input', () => (formTouched = true));
+
+    const update = () => {
+      const words = Number(range.value);
+      const hours = words / config.wordsPerHour;
+      wordsEl.textContent = words.toLocaleString('en-US');
+      hoursEl.textContent = hours.toFixed(1);
+      narrationEl.textContent = usd(hours * config.narration);
+      fullEl.textContent = usd(hours * config.full);
+      if (quote) quote.href = `/contact?words=${words}`;
+      if (formWords && !formTouched) formWords.value = String(words);
+    };
+
+    // Arriving from Home with ?words=N: start the slider there, snapped to
+    // its step and clamped to its range.
+    const incoming = Number(new URLSearchParams(window.location.search).get('words'));
+    if (incoming > 0) {
+      const { min, max, step } = config.range;
+      range.value = String(Math.min(max, Math.max(min, Math.round(incoming / step) * step)));
+    }
+
+    range.addEventListener('input', update);
+    // Also covers a restored form state (back button) holding another value.
+    update();
+  }
+</script>

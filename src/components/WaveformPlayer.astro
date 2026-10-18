@@ -95,8 +95,8 @@ const tracks = (
       const inProduction = d.status === 'in-production';
       const [stage, thumb] = d.coverImage
         ? await Promise.all([
-            getImage({ src: d.coverImage, width: 168, height: 168, densities: [1, 2], fit: 'cover' }),
-            getImage({ src: d.coverImage, width: 52, height: 52, densities: [1, 2], fit: 'cover' }),
+            getImage({ src: d.coverImage, width: 168, height: 168, densities: [1, 2], fit: 'cover', quality: 85 }),
+            getImage({ src: d.coverImage, width: 52, height: 52, densities: [1, 2], fit: 'cover', quality: 85 }),
           ])
         : [undefined, undefined];
 

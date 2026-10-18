@@ -6,8 +6,9 @@
  * from panel, fades out to deep) → 02 deep (joins from base) → 03 panel
  * (joins from deep) → footer deep.
  *
- * 01 keeps the full QuoteCalculator (the artboard draws the compact Home
- * estimator here). The intake form keeps every field name, type and the
+ * 01 is the estimator card (Estimator.astro, shared with Home 07), with the
+ * per-hour rate under each figure; its word count follows into the form's
+ * #wordCount field. The intake form keeps every field name, type and the
  * required ones; only the layout, labels and button text follow the
  * artboard. Its identity and field names are checked against the generated
  * /__forms.html on every build (scripts/check-forms.mjs).
@@ -18,7 +19,7 @@ import HeroPreloads from '../components/HeroPreloads.astro';
 import { Image } from 'astro:assets';
 import SectionHead from '../components/SectionHead.astro';
 import GoldThread from '../components/GoldThread.astro';
-import QuoteCalculator from '../components/QuoteCalculator.astro';
+import Estimator from '../components/Estimator.astro';
 import { site, professionalLinks } from '../data/site';
 import spines from '../assets/library-spines.png';
 import { genreOptions, dealTypes } from '../data/taxonomy';
@@ -57,7 +58,7 @@ const direct = [
     aria-labelledby="estimate-title"
   >
     <div class="bgfade" aria-hidden="true">
-      <Image class="cta-bg" src={spines} alt="" width={1600} format="webp" quality={60} sizes="100vw" loading="lazy" fetchpriority="low" />
+      <Image class="cta-bg" src={spines} alt="" width={1600} format="webp" quality={85} sizes="100vw" loading="lazy" fetchpriority="low" />
     </div>
     <GoldThread />
     <div class="container cta-grid reveal">
@@ -70,7 +71,7 @@ const direct = [
           final quote comes after I read the manuscript.
         </p>
       </div>
-      <QuoteCalculator formTarget="intake" showRates />
+      <Estimator variant="contact" />
     </div>
   </section>
 

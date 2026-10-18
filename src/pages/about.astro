@@ -57,10 +57,12 @@ const booth = (await loadGallery()).slice(0, 3);
           <Image
             src={portrait}
             alt="Victoria Rojas smiling in a studded armchair beside her headphones"
-            width={1000}
-            widths={[500, 1000]}
-            sizes="(min-width: 901px) 470px, 90vw"
-            quality={65}
+            width={443}
+            height={620}
+            densities={[1, 2]}
+            fit="cover"
+            position="center"
+            quality={85}
             loading="lazy"
             fetchpriority="low"
           />
@@ -144,10 +146,12 @@ const booth = (await loadGallery()).slice(0, 3);
                 <Image
                   src={entry.data.image}
                   alt={entry.data.alt}
-                  width={760}
-                  widths={[380, 760]}
-                  sizes="(min-width: 901px) 360px, 90vw"
-                  quality={65}
+                  width={360}
+                  height={360}
+                  fit="cover"
+                  position="attention"
+                  densities={[1, 2]}
+                  quality={85}
                   loading="lazy"
                   fetchpriority="low"
                 />

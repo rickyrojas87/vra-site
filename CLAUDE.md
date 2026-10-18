@@ -28,7 +28,7 @@ scripts/        sync-audible, generate-peaks, generate-forms-file, check-forms
 public/         audio, fonts, admin, icons, og image
 ```
 
-**No runtime JS dependencies.** The waveform player and quote calculator are
+**No runtime JS dependencies.** The waveform player and the estimator are
 hand-written vanilla JS inlined by Astro. Don't reach for a library.
 
 **Design tokens live only in `src/styles/global.css`.** Colours, type scale and

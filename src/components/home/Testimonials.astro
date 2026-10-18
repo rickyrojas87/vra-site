@@ -49,7 +49,7 @@ const cards = testimonials.map((t) => ({
           alt=""
           width={1600}
           format="webp"
-          quality={60}
+          quality={85}
           sizes="100vw"
           loading="lazy"
           fetchpriority="low"
@@ -76,7 +76,7 @@ const cards = testimonials.map((t) => ({
                 </blockquote>
                 <figcaption class="words__by">
                   {c.cover ? (
-                    <Image class="words__avatar" src={c.cover} alt="" width={96} height={96} fit="cover" />
+                    <Image class="words__avatar" src={c.cover} alt="" width={48} height={48} densities={[1, 2]} fit="cover" quality={85} />
                   ) : (
                     <span class="words__avatar words__avatar--initials" aria-hidden="true">
                       {initials(c.author)}
