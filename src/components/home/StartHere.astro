@@ -1,80 +1,302 @@
 ---
 /**
- * Home 07 — Start here (spec v2 §3). Headline beside the estimator, over the
- * library spines at .4, faded across the left 45% and the top and bottom
- * thirds. Last band before the footer, so it fades out into deep.
+ * Home 07 — Start here (artboard section.cta). Headline and the two actions
+ * beside a compact estimator: one word-count slider, finished hours at
+ * WORDS_PER_FINISHED_HOUR, and a box per service priced from pricing.ts. The
+ * full QuoteCalculator lives on Contact only.
+ *
+ * Library spines behind, inside the .bgfade wrapper that fades the top and
+ * bottom thirds; the image itself also fades in across its left 45%. Last
+ * band before the footer, so it fades out into deep.
+ *
+ * "Request a quote" carries the slider's count to /contact (?words=), where
+ * the full calculator picks it up.
  */
 import { Image } from 'astro:assets';
 import SectionHead from '../SectionHead.astro';
 import GoldThread from '../GoldThread.astro';
 import Dust from '../Dust.astro';
-import QuoteCalculator from '../QuoteCalculator.astro';
+import { services, WORDS_PER_FINISHED_HOUR } from '../../data/pricing';
 import spines from '../../assets/library-spines.png';
+
+const RANGE = { min: 10_000, max: 150_000, step: 1_000, initial: 72_000 };
+
+const narration = services.find((s) => s.id === 'narration') ?? services[0];
+const full = services.find((s) => s.id === 'full') ?? services[services.length - 1];
+
+const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+const hours = RANGE.initial / WORDS_PER_FINISHED_HOUR;
+
+const config = { wordsPerHour: WORDS_PER_FINISHED_HOUR, narration: narration.rate, full: full.rate };
 ---
 
-<section class="section surface-base join join--from-panel join--to-deep start" aria-labelledby="start-title">
-  <div class="start__bg" aria-hidden="true">
-    <Image src={spines} alt="" width={1600} format="webp" quality={60} sizes="100vw" loading="lazy" />
+<section class="section surface-base join join--from-panel join--to-deep cta" aria-labelledby="start-title">
+  <div class="bgfade" aria-hidden="true">
+    <Image class="cta-bg" src={spines} alt="" width={1600} format="webp" quality={60} sizes="100vw" loading="lazy" fetchpriority="low" />
   </div>
+  <GoldThread />
   <Dust seed={77} />
 
-  <div class="container reveal">
-    <GoldThread />
-    <div class="start__row">
-      <div class="start__intro">
-        <SectionHead chapter={7} label="Start here" align="start" id="start-title" thread={false}>
-          What would your book <em>cost?</em>
-          <Fragment slot="lede">
-            Slide to your manuscript's word count for a starting estimate. Finished hours are
-            words divided by 9,300; every project is confirmed after I read the manuscript.
-          </Fragment>
-        </SectionHead>
+  <div class="container cta-grid reveal">
+    <div>
+      <SectionHead chapter={7} label="Start here" id="start-title" class="cta__head">
+        Let&rsquo;s talk about <em>your book.</em>
+      </SectionHead>
+      <p class="cta__copy">
+        Slide to your word count for a starting estimate, then send the details and I&rsquo;ll reply
+        within two business days.
+      </p>
+      <div class="cta__actions">
+        <a class="btn btn--primary" href={`/contact?words=${RANGE.initial}`} data-est-quote>
+          Request a quote
+          <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+        </a>
+        <a class="btn btn--bookplate" href="/works">
+          <svg class="btn__play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M7 4.5v15l13-7.5z"></path>
+          </svg>
+          Hear demos
+        </a>
       </div>
+    </div>
 
-      {/* The handoff goes to /contact, where the same calculator picks it up. */}
-      <QuoteCalculator initialWords={80000} />
+    <div class="est" data-est>
+      <label for="wc">Manuscript word count</label>
+      <div class="words">
+        <span data-est-words>{RANGE.initial.toLocaleString('en-US')}</span>
+        <span class="words__unit">words</span>
+      </div>
+      <input
+        id="wc"
+        type="range"
+        min={RANGE.min}
+        max={RANGE.max}
+        step={RANGE.step}
+        value={RANGE.initial}
+        data-est-range
+      />
+      <div class="est-k">About <span data-est-hours>{hours.toFixed(1)}</span> finished hours</div>
+      <div class="est-row">
+        <div class="est-box">
+          <div class="est-k">Narration only</div>
+          <div class="est-v" data-est-narration>{usd(hours * narration.rate)}</div>
+        </div>
+        <div class="est-box est-box--green">
+          <div class="est-k">Full production</div>
+          <div class="est-v" data-est-full>{usd(hours * full.rate)}</div>
+        </div>
+      </div>
+      <p class="est-note">
+        Starting estimate based on ${narration.rate} and ${full.rate} per finished hour. Final quote after
+        manuscript review.
+      </p>
     </div>
   </div>
 </section>
 
+<script type="application/json" data-est-config set:html={JSON.stringify(config)} />
+
 <style>
-  .start {
-    position: relative;
-    isolation: isolate;
+  .cta {
     overflow: hidden;
+    padding-block: 150px;
   }
 
-  .start__bg {
+  /* Fades top and bottom thirds on the WRAPPER; the image zooms inside it. */
+  .bgfade {
     position: absolute;
     inset: 0;
-    z-index: -1;
-    opacity: 0.4;
-    /* Left 45% and top/bottom thirds faded: two masks, intersected. */
-    mask-image:
-      linear-gradient(to right, transparent, #000 45%),
-      linear-gradient(transparent, #000 33%, #000 67%, transparent);
-    mask-composite: intersect;
+    z-index: 0;
+    overflow: hidden;
+    mask-image: linear-gradient(180deg, transparent 0, #000 34%, #000 66%, transparent 100%);
   }
 
-  .start__bg img {
+  .bgfade :global(.cta-bg) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     max-width: none;
     object-fit: cover;
+    object-position: 70% 50%;
+    opacity: 0.4;
+    mask-image: linear-gradient(90deg, transparent 0, #000 45%);
+    animation: photo-zoom 34s ease-in-out infinite alternate;
   }
 
-  .start__row {
+  .cta-grid {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
     align-items: center;
   }
 
-  @media (min-width: 900px) {
-    .start__row {
-      grid-template-columns: 2fr 3fr;
-      gap: var(--space-4);
+  .cta__head :global(.section-title) {
+    font-size: 64px;
+  }
+
+  .cta__copy {
+    max-width: 460px;
+    margin-top: 22px;
+    color: var(--c-text-soft);
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 34px;
+  }
+
+  .btn__play {
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+
+  /* --- Estimator (artboard .est) ------------------------------------------ */
+
+  .est {
+    padding: 40px;
+    border-radius: var(--radius-card);
+    background: rgb(27 28 32 / 85%);
+    box-shadow:
+      inset 0 0 0 1px rgb(212 175 55 / 35%),
+      var(--shadow-card);
+  }
+
+  .est label {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .words {
+    margin-top: 14px;
+    font-family: var(--font-display);
+    font-size: 48px;
+    line-height: 1;
+    color: var(--c-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .words__unit {
+    font-size: 22px;
+    color: var(--c-muted);
+  }
+
+  .est input[type='range'] {
+    width: 100%;
+    height: 28px;
+    margin: 22px 0 8px;
+    accent-color: var(--c-accent);
+  }
+
+  .est-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .est-box {
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--c-panel);
+  }
+
+  .est-box--green {
+    background: var(--c-hunter);
+  }
+
+  .est-box--green .est-k {
+    color: var(--c-text-soft);
+  }
+
+  .est-v {
+    font-family: var(--font-display);
+    font-size: 36px;
+    line-height: 1.1;
+    color: var(--c-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .est-k {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .est-note {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--c-quiet);
+  }
+
+  @media (max-width: 900px) {
+    .cta {
+      padding-block: 110px 100px;
+    }
+
+    .cta-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta__head :global(.section-title) {
+      font-size: 44px;
+    }
+
+    .est {
+      padding: 28px 22px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .est-row {
+      grid-template-columns: 1fr;
+    }
+
+    .words {
+      font-size: 40px;
     }
   }
 </style>
+
+<script>
+  const est = document.querySelector<HTMLElement>('[data-est]');
+  const configEl = document.querySelector<HTMLScriptElement>('[data-est-config]');
+
+  if (est && configEl) {
+    const config: { wordsPerHour: number; narration: number; full: number } = JSON.parse(
+      configEl.textContent || '{}',
+    );
+    const range = est.querySelector<HTMLInputElement>('[data-est-range]')!;
+    const wordsEl = est.querySelector<HTMLElement>('[data-est-words]')!;
+    const hoursEl = est.querySelector<HTMLElement>('[data-est-hours]')!;
+    const narrationEl = est.querySelector<HTMLElement>('[data-est-narration]')!;
+    const fullEl = est.querySelector<HTMLElement>('[data-est-full]')!;
+    const quote = document.querySelector<HTMLAnchorElement>('[data-est-quote]');
+
+    const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+
+    const update = () => {
+      const words = Number(range.value);
+      const hours = words / config.wordsPerHour;
+      wordsEl.textContent = words.toLocaleString('en-US');
+      hoursEl.textContent = hours.toFixed(1);
+      narrationEl.textContent = usd(hours * config.narration);
+      fullEl.textContent = usd(hours * config.full);
+      if (quote) quote.href = `/contact?words=${words}`;
+    };
+
+    range.addEventListener('input', update);
+    // A restored form state (back button) may hold a different value.
+    update();
+  }
+</script>

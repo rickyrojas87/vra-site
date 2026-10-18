@@ -1,8 +1,8 @@
 ---
 /**
- * Short hero for About, Works and Contact (spec v2 §5): the Home title page
- * without the video, the booking badge or the photo. The library poster sits
- * still behind it, under the same lamp, green glow and scrim, with dust.
+ * Short hero for About, Works and Contact (artboard section.hero.hero-short):
+ * a centred title page over the still library poster — gold rules, the page
+ * name and a handwritten line. No video, badge, photo or buttons.
  *
  * The poster is the same responsive image as Home's (utils/heroPoster.ts), so
  * a visitor arriving from Home already has it cached. Pair it with
@@ -15,15 +15,12 @@ import Dust from './Dust.astro';
 import { getHeroPoster } from '../utils/heroPoster';
 
 interface Props {
-  eyebrow: string;
   title: string;
   /** Handwritten line under the title, in La Belle Aurore. */
   subline: string;
-  /** Optional plain line under the closing rules. */
-  lede?: string;
 }
 
-const { eyebrow, title, subline, lede } = Astro.props;
+const { title, subline } = Astro.props;
 const poster = await getHeroPoster();
 ---
 
@@ -40,20 +37,20 @@ const poster = await getHeroPoster();
       decoding="async"
       fetchpriority="high"
     />
-    <div class="page-hero__lamp"></div>
+    <div class="page-hero__glow"></div>
+    <div class="page-hero__glow-green"></div>
     <div class="page-hero__scrim"></div>
   </div>
 
   <Dust seed={title.length * 7} count={18} />
 
   <div class="container page-hero__page">
-    <span class="page-hero__rules" aria-hidden="true"></span>
-    <p class="page-hero__eyebrow">{eyebrow}</p>
+    <div class="rule rule-a rule-a--first" aria-hidden="true"></div>
+    <div class="rule rule-b" aria-hidden="true"></div>
     <h1 class="page-hero__title">{title}</h1>
-    <p class="hand hand--bright page-hero__subline">{subline}</p>
-    <span class="page-hero__rules" aria-hidden="true"></span>
-    {lede && <p class="lede page-hero__lede">{lede}</p>}
-    <slot />
+    <p class="hand page-hero__subline">{subline}</p>
+    <div class="rule rule-b rule-b--closing" aria-hidden="true"></div>
+    <div class="rule rule-a" aria-hidden="true"></div>
   </div>
 </section>
 
@@ -61,10 +58,7 @@ const poster = await getHeroPoster();
   .page-hero {
     position: relative;
     isolation: isolate;
-    display: flex;
-    align-items: center;
-    min-height: min(560px, 70svh);
-    padding-block: var(--space-4) calc(var(--space-4) + 24px);
+    padding-bottom: 70px;
     overflow: hidden;
     background: var(--c-deep);
   }
@@ -84,70 +78,112 @@ const poster = await getHeroPoster();
     height: 100%;
     max-width: none;
     object-fit: cover;
-    filter: brightness(0.6) saturate(0.95) blur(0.6px);
-    transform: scale(1.02);
+    filter: brightness(0.62) saturate(0.95) blur(0.8px);
+    transform: scale(1.03);
   }
 
-  /* Still lamplight: the flicker belongs to the Home video. */
-  .page-hero__lamp {
-    background:
-      radial-gradient(ellipse 45% 60% at 20% 20%, rgb(230 200 94 / 18%), transparent 70%),
-      radial-gradient(ellipse 70% 50% at 50% 105%, rgb(63 140 100 / 24%), transparent 70%);
+  /* Warm lamplight upper left, flickering (artboard .glow). */
+  .page-hero__glow {
+    background: radial-gradient(ellipse 55% 60% at 24% 30%, rgb(255 168 76 / 18%), rgb(255 168 76 / 0%) 60%);
     mix-blend-mode: screen;
+    animation: lamp-flicker 5.5s ease-in-out infinite;
   }
 
-  /* Holds contrast for the type, then hands off to the deep section below. */
+  .page-hero__glow-green {
+    background: radial-gradient(ellipse 50% 55% at 82% 72%, rgb(31 77 58 / 55%), rgb(31 77 58 / 0%) 70%);
+  }
+
+  /* Artboard .scrim: dark at the left, and down into the page at the foot. */
   .page-hero__scrim {
     background:
-      linear-gradient(to bottom, transparent 55%, var(--c-deep)),
-      radial-gradient(ellipse 60% 70% at 50% 50%, rgb(18 19 22 / 70%), rgb(18 19 22 / 40%));
+      linear-gradient(90deg, rgb(18 15 12 / 94%) 0%, rgb(18 15 12 / 72%) 42%, rgb(18 15 12 / 28%) 100%),
+      linear-gradient(180deg, rgb(18 15 12 / 55%) 0%, rgb(18 15 12 / 0%) 22%, rgb(34 35 40 / 0%) 70%, var(--c-bg) 100%);
   }
 
   .page-hero__page {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
+    z-index: 4;
+    padding-block: 56px 10px;
     text-align: center;
   }
 
-  .page-hero__rules {
-    display: block;
-    width: min(280px, 60%);
-    height: 5px;
-    border-block: 1px solid var(--c-accent);
-    opacity: 0.8;
+  .rule {
+    height: 1px;
+    margin: 0 auto;
   }
 
-  .page-hero__eyebrow {
-    font-size: var(--fs-label);
-    font-weight: var(--fw-label);
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--c-text-caption);
+  .rule-a {
+    width: 100%;
+    margin-top: 5px;
+    background: linear-gradient(90deg, transparent, var(--c-accent), transparent);
+  }
+
+  .rule-a--first {
+    margin-top: 0;
+  }
+
+  .rule-b {
+    width: 60%;
+    background: linear-gradient(90deg, transparent, rgb(212 175 55 / 50%), transparent);
+  }
+
+  .rule-b--closing {
+    margin-top: 26px;
   }
 
   .page-hero__title {
-    font-size: var(--fs-page-title);
+    margin: 26px 0 0;
+    font-family: var(--font-display);
+    font-size: 64px;
     font-weight: 400;
-    letter-spacing: 0.1em;
-    line-height: 1.05;
+    letter-spacing: 0.12em;
+    line-height: 1;
     text-transform: uppercase;
     color: var(--c-text-body);
   }
 
-  /* Fixed, full-width line box. The face is `font-display: optional`, so it
-     never swaps in late; the fixed box keeps the fallback, if it is ever
-     used, from changing the hero's height. */
+  /* `font-display: optional` and inlined (HeroPreloads): the face is either
+     there at first paint or never swapped in, so this line cannot shift. */
   .page-hero__subline {
-    display: block;
-    align-self: stretch;
-    height: 1.3em;
-    font-size: var(--fs-subline);
+    margin-top: 22px;
+    font-size: 40px;
+    line-height: 1.1;
+    text-shadow: 0 0 24px rgb(212 175 55 / 35%);
   }
 
-  .page-hero__lede {
-    margin-top: var(--space-1);
+  @keyframes lamp-flicker {
+    0%,
+    100% {
+      opacity: 0.9;
+    }
+
+    22% {
+      opacity: 1;
+    }
+
+    38% {
+      opacity: 0.82;
+    }
+
+    55% {
+      opacity: 0.97;
+    }
+
+    71% {
+      opacity: 0.86;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .page-hero__title {
+      font-size: 46px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .page-hero__title {
+      line-height: 1.02;
+      letter-spacing: 0.08em;
+    }
   }
 </style>

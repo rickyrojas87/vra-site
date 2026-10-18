@@ -106,7 +106,8 @@ Click **Studio & delivery**. You can edit:
   working day." Leave it empty and the line simply doesn't appear.
 - **Studio equipment** — one line per item, drag to reorder
 - **Delivery specifications** — only change these if your actual delivery
-  standards change
+  standards change. The Home page shows the first four lines; About shows
+  them all.
 
 ---
 

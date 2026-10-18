@@ -9,6 +9,7 @@
  * steps the section renders nothing; index.astro adjusts the next join.
  */
 import SectionHead from '../SectionHead.astro';
+import GoldThread from '../GoldThread.astro';
 import { loadProcessSteps } from '../../utils/content';
 
 const steps = await loadProcessSteps();
@@ -17,9 +18,10 @@ const steps = await loadProcessSteps();
 {
   steps.length > 0 && (
     <section class="section surface-deep join join--from-base process" aria-labelledby="process-title">
+      <GoldThread />
       <div class="container reveal">
         <SectionHead chapter={5} label="How we work together" id="process-title">
-          From manuscript to <em>finished audiobook.</em>
+          From manuscript to <em>Audible</em>, in six chapters.
         </SectionHead>
 
         <ol class="process__grid">
@@ -52,7 +54,7 @@ const steps = await loadProcessSteps();
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-2);
-    margin: 0;
+    margin: 64px 0 0;
     padding: 0;
     list-style: none;
   }

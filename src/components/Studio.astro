@@ -1,93 +1,210 @@
 ---
 /**
- * The studio — Home 06 and About 03 (spec v2 §3, §5). A photo of Vikki in the
- * shared photo frame beside the studio and delivery spec card. Home uses the
- * booth shot at object-position 50% 20%; About passes its own photo so the
- * two pages don't repeat one another.
+ * The studio — Home 06 and About 03 (artboard section.studio). The booth photo
+ * card beside the spec card, which carries the section's own eyebrow and
+ * title over two lists, Equipment and Delivery.
+ *
+ * Both lists come from settings/delivery.yaml (CMS: "Studio & delivery"). The
+ * Home artboard shows four delivery lines and About all five, hence
+ * `deliveryLimit`.
  */
 import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
+import { getEntry } from 'astro:content';
 import SectionHead from './SectionHead.astro';
-import DeliverySpec from './DeliverySpec.astro';
+import GoldThread from './GoldThread.astro';
 import booth from '../assets/booth.jpg';
 
 type Surface = 'base' | 'deep' | 'panel';
 
 interface Props {
-  chapter?: number;
-  surface?: Surface;
+  chapter: number;
   /** The previous section's surface, for the soft join. */
   joinFrom?: Surface;
-  photo?: ImageMetadata;
-  alt?: string;
-  /** object-position for the photo inside its 4:5 frame. */
-  position?: string;
+  deliveryLimit?: number;
 }
 
-const {
-  chapter = 6,
-  surface = 'panel',
-  joinFrom = 'deep',
-  photo = booth,
-  alt = 'Victoria Rojas recording at a condenser microphone behind a pop filter, headphones on, reading from a tablet',
-  position = '50% 20%',
-} = Astro.props;
+const { chapter, joinFrom = 'deep', deliveryLimit } = Astro.props;
 
+const settings = await getEntry('settings', 'delivery');
+const equipment = settings?.data.studio ?? [];
+const delivery = (settings?.data.delivery ?? []).slice(0, deliveryLimit);
 const titleId = `studio-title-${chapter}`;
 ---
 
 <section
-  class:list={['section', `surface-${surface}`, 'join', `join--from-${joinFrom}`, 'studio']}
+  class:list={['section', 'surface-panel', 'join', `join--from-${joinFrom}`, 'studio']}
   aria-labelledby={titleId}
 >
-  <div class="container reveal">
-    <SectionHead chapter={chapter} label="The studio" id={titleId}>
-      A treated booth, <em>mastered in-house.</em>
-    </SectionHead>
+  <GoldThread />
+  <div class="container studio-grid reveal">
+    <div class="photo-frame studio-img">
+      <Image
+        src={booth}
+        alt="Victoria Rojas's treated recording booth"
+        width={960}
+        widths={[480, 960]}
+        sizes="(min-width: 901px) 470px, 100vw"
+        quality={65}
+        loading="lazy"
+        fetchpriority="low"
+      />
+    </div>
 
-    <div class="studio__row">
-      <div class="photo-stage studio__figure">
-        <div class="photo-frame studio__frame" style={`--photo-position:${position}`}>
-          <Image
-            src={photo}
-            alt={alt}
-            width={900}
-            widths={[450, 900]}
-            sizes="(min-width: 900px) 440px, 86vw"
-            quality={65}
-          />
-        </div>
+    <div class="spec">
+      <SectionHead chapter={chapter} label="The studio" id={titleId} class="spec__head">
+        Broadcast quality, <em>every chapter.</em>
+      </SectionHead>
+      <div class="spec-cols">
+        {
+          equipment.length > 0 && (
+            <div>
+              <h3 class="spec__label">Equipment</h3>
+              <ul>
+                {equipment.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+        {
+          delivery.length > 0 && (
+            <div>
+              <h3 class="spec__label">Delivery</h3>
+              <ul>
+                {delivery.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
       </div>
-      <DeliverySpec variant="card" showTurnaround={false} />
     </div>
   </div>
 </section>
 
 <style>
-  .studio__row {
+  .studio-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
-    align-items: center;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 48px;
+    align-items: stretch;
   }
 
-  .studio__figure {
-    justify-self: center;
-    width: min(440px, 100%);
+  /* .photo-frame (global) supplies the radius, gold edge, halo and zoom. */
+  .studio-img {
+    min-height: 520px;
+    transition: transform 0.35s ease;
   }
 
-  .studio__frame {
-    aspect-ratio: 4 / 5;
+  .studio-img:hover {
+    transform: translateY(-6px);
   }
 
-  .studio__frame :global(img) {
-    object-position: var(--photo-position);
+  .studio-img :global(img) {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    object-position: 50% 20%;
   }
 
-  @media (min-width: 900px) {
-    .studio__row {
-      grid-template-columns: 2fr 3fr;
-      gap: var(--space-4);
+  .spec {
+    padding: 44px;
+    border-radius: var(--radius-card);
+    background: var(--c-bg);
+    box-shadow:
+      var(--shadow-card),
+      inset 0 0 0 1px var(--c-card-edge);
+    transition:
+      transform 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+
+  .spec:hover {
+    transform: translateY(-6px);
+    box-shadow:
+      0 40px 80px rgb(0 0 0 / 50%),
+      inset 0 0 0 1px var(--c-accent);
+  }
+
+  .spec :global(.section-title) {
+    font-size: 46px;
+  }
+
+  .spec-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    margin-top: 28px;
+  }
+
+  .spec__label {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: var(--fw-label);
+    letter-spacing: 0.2em;
+    line-height: var(--lh-body);
+    text-transform: uppercase;
+    color: var(--c-accent);
+  }
+
+  .spec ul {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .spec li {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgb(184 146 90 / 18%);
+    font-size: 15px;
+    color: var(--c-text-soft);
+  }
+
+  .spec li::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-top: 10px;
+    border-radius: 50%;
+    background: var(--c-emerald);
+  }
+
+  @media (max-width: 900px) {
+    .studio-grid {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .studio-img {
+      align-self: start;
+      width: 100%;
+      height: auto;
+      min-height: 440px;
+      aspect-ratio: 3 / 4;
+    }
+
+    .spec {
+      padding: 30px 24px;
+    }
+
+    .spec :global(.section-title) {
+      font-size: 38px;
+    }
+
+    .spec-cols {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .spec-cols {
+      gap: 20px;
     }
   }
 </style>

@@ -23,8 +23,15 @@ import { Image } from 'astro:assets';
 import Dust from './Dust.astro';
 import { loadBookingMonth, loadLatestRelease } from '../utils/catalog';
 import { heroMedia } from '../data/heroMedia';
-/** Standing in the booth — she sits centre-right with quiet edges either side. */
-import heroPhoto from '../assets/portrait-alt.jpg';
+/**
+ * Laughing at the microphone: the artboard's hero photo, which is the
+ * landscape main.jpg shown in a 440x600 frame at object-position 52% 18%.
+ * That crop is deterministic (full height, 52% of the way across), so
+ * hero-main.jpg IS that crop, pre-cut from main.jpg, and the page serves a
+ * file the size of the frame rather than the whole landscape at 1600px.
+ * Regenerate from main.jpg if the photo changes (11:15, x = (W - H*11/15) * .52).
+ */
+import heroPhoto from '../assets/hero-main.jpg';
 import { getHeroPoster } from '../utils/heroPoster';
 
 const booking = await loadBookingMonth();
@@ -115,21 +122,21 @@ const toStyle = (o: Record<string, string>) =>
       </div>
     </div>
 
-    {/* Eager but default priority: the poster behind the hero is the LCP
-        element, and two high-priority images split the bandwidth. */}
+    {/* Eager, so it is there on desktop where it sits beside the title, but
+        low priority: the poster behind it is the LCP element and must win
+        the connection. */}
     <div class="hero__figure photo-stage">
       <div class="photo-frame hero__frame">
         <Image
           src={heroPhoto}
-          alt="Victoria Rojas standing in her recording booth beside a microphone and pop filter, holding a book"
+          alt="Victoria Rojas laughing at the microphone in her recording booth"
           width={880}
-          height={1100}
-          widths={[440, 660, 880]}
-          sizes="(min-width: 900px) 440px, min(440px, 86vw)"
-          fit="cover"
-          position="center"
-          quality={50}
+          height={1200}
+          widths={[440, 660, 880, 1098]}
+          sizes="(min-width: 901px) 440px, min(440px, 86vw)"
+          quality={55}
           loading="eager"
+          fetchpriority="low"
         />
       </div>
       {sparks.map((s) => <span class="spark" style={toStyle(s)} aria-hidden="true"></span>)}
@@ -299,8 +306,9 @@ const toStyle = (o: Record<string, string>) =>
     width: min(440px, 86vw);
   }
 
+  /* Artboard .hero-photo: 440 x 600. */
   .hero__frame {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 11 / 15;
   }
 
   .hero__latest {

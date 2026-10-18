@@ -1,15 +1,16 @@
 ---
 /**
- * Works — spec v2 §5.
+ * Works — the approved artboard, docs/design/Works.html.
  *
- * Surfaces: hero (poster, fades to deep) → 01 deep → 02 panel → 03 base →
- * CTA panel (fades out) → footer deep. Without in-production titles 03 goes
- * and the CTA turns base, so no two neighbours ever share a surface.
+ * Surfaces, as drawn: hero (poster) → 01 room (deep, green glow) → 02 panel
+ * (joins from deep) → 03 deep (joins from base) → closing band base (joins
+ * from panel, fades out) → footer deep.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import HeroPreloads from '../components/HeroPreloads.astro';
 import SectionHead from '../components/SectionHead.astro';
+import GoldThread from '../components/GoldThread.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
 import BookCard from '../components/BookCard.astro';
 import CtaBand from '../components/CtaBand.astro';
@@ -21,6 +22,11 @@ import { loadPublishedNewestFirst } from '../utils/catalog';
 const published = await loadPublishedNewestFirst();
 const inProduction = await loadInProductionTitles();
 const newestId = published[0]?.id;
+
+/** "Eight titles on Audible." — spelled out through twenty, digits after. */
+const WORDS = 'Zero One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Thirteen Fourteen Fifteen Sixteen Seventeen Eighteen Nineteen Twenty'.split(' ');
+const count = WORDS[published.length] ?? String(published.length);
+const titlesWord = published.length === 1 ? 'title' : 'titles';
 ---
 
 <BaseLayout
@@ -29,27 +35,28 @@ const newestId = published[0]?.id;
 >
   <HeroPreloads slot="head" />
 
-  <PageHero eyebrow="Demos and catalog" title="Works" subline="Pull up a chair." />
+  <PageHero title="Works" subline="every book on the shelf" />
 
   {/* 01 — The listening room, every demo */}
-  <WaveformPlayer surface="deep" id="demos" chapter={1} />
+  <WaveformPlayer id="demos" chapter={1} details={false} class="room--works" />
 
   {/* 02 — Published */}
-  <section class="section surface-panel join join--from-deep shelf" aria-labelledby="published-title">
+  <section class="section surface-panel join join--from-deep catalog-sec" id="published" aria-labelledby="published-title">
+    <GoldThread />
     <Dust seed={22} />
-    <div class="container reveal">
+    <div class="container catalog-sec__wrap">
       <SectionHead chapter={2} label="Published" id="published-title">
-        On the <em>shelf.</em>
+        {`${count} ${titlesWord} on `}<em>Audible.</em>
       </SectionHead>
       {
         published.length > 0 ? (
-          <ul class="grid">
+          <ul class="catalog reveal">
             {published.map((entry) => (
               <li>
                 <BookCard
                   entry={entry}
                   ribbon={entry.id === newestId ? 'just-published' : null}
-                  linkLabel
+                  variant="catalog"
                 />
               </li>
             ))}
@@ -64,15 +71,16 @@ const newestId = published[0]?.id;
   {/* 03 — In production */}
   {
     inProduction.length > 0 && (
-      <section class="section surface-base join join--from-panel" aria-labelledby="production-title">
-        <div class="container reveal">
+      <section class="section surface-deep join join--from-base" id="production" aria-labelledby="production-title">
+        <GoldThread />
+        <div class="container">
           <SectionHead chapter={3} label="In production" id="production-title">
             Coming <em>soon.</em>
           </SectionHead>
-          <ul class="grid">
+          <ul class="catalog reveal">
             {inProduction.map((entry) => (
               <li>
-                <BookCard entry={entry} ribbon="in-production" />
+                <BookCard entry={entry} ribbon="in-production" variant="catalog" />
               </li>
             ))}
           </ul>
@@ -81,13 +89,7 @@ const newestId = published[0]?.id;
     )
   }
 
-  {
-    inProduction.length > 0 ? (
-      <CtaBand surface="panel" joinFrom="base" />
-    ) : (
-      <CtaBand surface="base" joinFrom="panel" />
-    )
-  }
+  <CtaBand joinFrom="panel" />
 
   {/* Published titles only: in-production entries have no author, runtime or
       date, and a name-only node is not worth emitting. */}
@@ -95,33 +97,46 @@ const newestId = published[0]?.id;
 </BaseLayout>
 
 <style>
-  .shelf {
-    position: relative;
+  /* Artboard: the Works room opens 120px down rather than 140px. */
+  :global(.room.room--works) {
+    padding-top: 120px;
+  }
+
+  .catalog-sec {
     overflow: hidden;
+    padding-block: 120px 100px;
   }
 
-  .shelf > .container {
+  .catalog-sec__wrap {
     position: relative;
   }
 
-  .grid {
+  .catalog {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-2);
-    margin: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 56px 0 0;
     padding: 0;
     list-style: none;
   }
 
   .empty {
-    margin-inline: auto;
-    text-align: center;
+    margin-top: 56px;
   }
 
-  @media (min-width: 900px) {
-    .grid {
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-3);
+  @media (max-width: 900px) {
+    .catalog-sec {
+      padding-block: 110px 100px;
+    }
+
+    .catalog {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .catalog {
+      grid-template-columns: 1fr;
     }
   }
 </style>

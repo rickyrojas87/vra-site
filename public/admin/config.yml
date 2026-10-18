@@ -286,7 +286,8 @@ collections:
             field: { name: item, label: Specification, widget: string }
             hint: >-
               The technical standards you deliver to. Only change these if your
-              actual delivery specs change.
+              actual delivery specs change. The Home page shows the first four
+              lines; the About page shows them all.
 
   # ── How we work together ──────────────────────────────────────────────────
   - name: process

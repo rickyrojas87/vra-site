@@ -1,15 +1,13 @@
 turnaround: ''
 bookingLeadMonths: 2
 studio:
-  - Rode NT1 Signature Series Mic with Shure A15 HP Filter
-  - SSL 2 MKII Audio Interface
-  - Adobe Audition - iZotope RX 11 Standard, edited and mastered in-house
+  - Rode NT1 Signature Series with Shure A15 HP filter
+  - SSL 2 MKII audio interface
+  - Adobe Audition and iZotope RX 11
   - Treated, isolated recording booth
 delivery:
   - ACX compliant
-  - RMS -23 to -18 dB
-  - Peak -3 dB
+  - RMS -23 to -18 dB, peak -3 dB
   - Noise floor under -60 dB
   - 192 kbps MP3, 44.1 kHz, mono
   - Room tone headers and footers
-  - Punch and roll recording

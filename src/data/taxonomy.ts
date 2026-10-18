@@ -1,7 +1,9 @@
 /** Shared vocabularies. */
 
 /**
- * Genres Vikki narrates — About section 4 pill row.
+ * Genres Vikki narrates — the About "Genres" list, in the approved artboard's
+ * order (docs/design/About.html): the five she has published in, then the
+ * rest of her range. A published genre missing from here is still shown.
  *
  * Deliberately NOT the same list as `genreOptions` below. This one describes her
  * range; that one is the client-facing intake dropdown enumerated in spec
@@ -9,21 +11,16 @@
  * Editing one should not silently change the other.
  */
 export const genres = [
-  'Romance',
-  'Fiction',
-  'Mystery',
   'Thriller',
-  'Suspense',
-  'Comedy',
+  'Romance',
   'Fantasy',
+  'Comedy',
+  'Memoir',
+  'Mystery',
   'Science Fiction',
   'Horror',
   'Historical Fiction',
-  'Nonfiction',
-  'Memoir',
-  'Biography',
   'Young Adult',
-  "Children's Fiction",
   'True Crime',
   'Self-Help',
 ] as const;
@@ -52,16 +49,13 @@ export const dealTypes = [
   'Not sure yet',
 ] as const;
 
-/**
- * About section 3 — rendered as a 3-column grid of accent names, never a comma
- * list. Superseded by the voice range matrix element in phase 2.
- */
+/** Accents and dialects, in the approved artboards' order (Home and About). */
 export const accents: string[] = [
   'Spanish',
-  'US Boston',
-  'US Southern',
-  'US New York',
   'US Standard American',
+  'US Southern',
+  'US Boston',
+  'US New York',
   'US Miami',
   'British Standard',
   'Australian',

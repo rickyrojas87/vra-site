@@ -3,8 +3,11 @@
 Static Astro site for Victoria Rojas, audiobook narrator. Deployed on Netlify,
 content edited by a non-technical user through Sveltia CMS at `/admin`.
 
-`vra-build-spec.md` is the design spec. `docs/operations.md` holds domain,
-hosting and billing facts. This file holds the things that will bite you.
+`docs/design/` holds the approved artboards (read its README first): their
+markup, CSS values, spacing and copy are what the pages match, one to one.
+`vra-build-spec.md` and `vra-build-spec-v2.md` describe intent where the
+artboards are silent. `docs/operations.md` holds domain, hosting and billing
+facts. This file holds the things that will bite you.
 
 ---
 
@@ -50,6 +53,23 @@ render it from `utils/heroPoster.ts`, and each page puts
 `<HeroPreloads slot="head" />` in BaseLayout's head slot. Keep the `<img>` and
 the preload on that one helper or the poster downloads twice.
 
+**Every other image is `fetchpriority="low"`** (and lazy unless it sits
+beside the title on desktop, like the Home hero photo). Lighthouse's mobile
+simulation shares one slow connection between everything requested early, so
+a near-fold portrait or background at default priority pushes the poster's
+paint back 0.3–0.5 s and costs two points. Keep new images low priority.
+
+**Sections after a hero use `content-visibility: auto`** — Home's rule in
+index.astro (after the stats strip), the inner pages' in global.css
+(`.page-hero ~ section`). Below-fold layout then stays out of the first
+paint. Side effect: full-page screenshots of the built site show those
+sections blank; that is a capture artefact, not a bug — scroll to them.
+
+**Home's hero photo is a pre-cut crop.** `src/assets/hero-main.jpg` is
+`main.jpg` cropped to the frame's 11:15 at the artboard's 52% focal point, so
+the page serves a frame-sized file instead of the 1600px landscape. The
+command is in Hero.astro; redo it if main.jpg changes.
+
 ---
 
 ## Content collections
@@ -59,7 +79,7 @@ the preload on that one helper or the poster downloads twice.
 | `titles` | one YAML per audiobook, covers in `covers/` | BookCard, WaveformPlayer, StatsStrip, Hero, TitleSchema |
 | `gallery` | one YAML per photo, `image` relative to `../../assets` | About 04, first three |
 | `testimonials` | one YAML per quote | home/Testimonials |
-| `settings` | `settings/delivery.yaml` only | DeliverySpec, booking badge |
+| `settings` | `settings/delivery.yaml` only | Studio (Equipment and Delivery lists; Home shows the first four delivery lines), booking badge |
 | `process` | `settings/process.yaml`, one `steps` list | home/Process (short), About 02 (long) |
 
 **Always load through `src/utils/content.ts`**, never `getCollection` directly.
@@ -184,6 +204,15 @@ default branch.
   `src/assets/logos/` ship `fill="#D4AF37"` on the root `<svg>`; the header and
   footer override it to `var(--c-text)`. The `-ivory` and `-dark` variants are
   for print and other non-CSS uses — don't wire them into a component.
+- **A family's latin and latin-ext `@font-face` rules must carry identical
+  `font-weight` and `font-style` descriptors.** Chrome only merges faces into
+  one unicode-range-segmented font when the descriptors match exactly;
+  otherwise it picks the closest group by weight and never consults the
+  other. With `300` / `400` latin faces beside a `300 400` latin-ext face,
+  every weight-300 Cormorant heading rendered in Georgia for months, and no
+  tool flagged it. Each family now has one face per subset over the variable
+  file's full axis. Check `CSS.getPlatformFontsForNode` (or DevTools'
+  rendered-fonts panel), not `document.fonts`, when a face looks wrong.
 - **The handwriting face is `font-display: optional`, inlined, and loaded by
   script.** A swap moved the centred hero line (CLS), so it must be ready at
   first paint or not used at all. Its Basic Latin subset is inlined by

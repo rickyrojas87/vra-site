@@ -39,12 +39,12 @@ const hasProcess = (await loadProcessSteps()).length > 0;
 
   <Hero />
   <StatsStrip />
-  <WaveformPlayer surface="deep" id="demos" chapter={1} ambient />
+  <WaveformPlayer id="demos" chapter={1} />
   <Shelf />
   <Testimonials />
   <Meet />
   <Process />
-  <Studio joinFrom={hasProcess ? 'deep' : 'base'} />
+  <Studio chapter={6} deliveryLimit={4} joinFrom={hasProcess ? 'deep' : 'base'} />
   <StartHere />
 
   {/* Structured data for the titles this page actually renders. */}

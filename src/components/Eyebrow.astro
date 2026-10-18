@@ -1,11 +1,12 @@
 ---
 /**
- * Section eyebrow with a gold chapter number: "01 ── The listening room"
- * (spec v2 §2). Styles in global.css (`.eyebrow`).
+ * Section eyebrow with a gold chapter number: "01 | The listening room"
+ * (artboard .label + .no). Styles in global.css (`.eyebrow`). Without a
+ * chapter (the closing call-to-action band) it is the label alone.
  */
 interface Props {
   /** Chapter number, 1–7. Rendered two-digit. */
-  chapter: number;
+  chapter?: number;
   label: string;
 }
 
@@ -13,7 +14,5 @@ const { chapter, label } = Astro.props;
 ---
 
 <p class="eyebrow">
-  <span class="eyebrow__num">{String(chapter).padStart(2, '0')}</span>
-  <span class="eyebrow__rule" aria-hidden="true"></span>
-  <span>{label}</span>
+  {chapter !== undefined && <span class="eyebrow__num">{String(chapter).padStart(2, '0')}</span>}{label}
 </p>

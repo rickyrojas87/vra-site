@@ -7,6 +7,7 @@
  * published title, "In production" on every unreleased one.
  */
 import SectionHead from '../SectionHead.astro';
+import GoldThread from '../GoldThread.astro';
 import Dust from '../Dust.astro';
 import BookCard from '../BookCard.astro';
 import { loadShelf } from '../../utils/catalog';
@@ -17,9 +18,10 @@ const { items, total } = await loadShelf(4);
 {
   items.length > 0 && (
     <section class="section surface-panel join join--from-deep shelf" aria-labelledby="shelf-title">
+      <GoldThread />
       <Dust seed={22} />
       <div class="container reveal">
-        <SectionHead chapter={2} label="On the shelf" id="shelf-title">
+        <SectionHead chapter={2} label="On the shelf" id="shelf-title" align="center">
           Now and <em>next.</em>
         </SectionHead>
 
@@ -49,8 +51,14 @@ const { items, total } = await loadShelf(4);
 
 <style>
   .shelf {
-    position: relative;
     overflow: hidden;
+    padding-block: 120px 100px;
+  }
+
+  @media (max-width: 900px) {
+    .shelf {
+      padding-block: 110px 100px;
+    }
   }
 
   .shelf > .container {
@@ -59,9 +67,9 @@ const { items, total } = await loadShelf(4);
 
   .shelf__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-2);
-    margin: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 56px 0 0;
     padding: 0;
     list-style: none;
   }
@@ -79,10 +87,15 @@ const { items, total } = await loadShelf(4);
     color: var(--c-text-caption);
   }
 
-  @media (min-width: 900px) {
+  @media (max-width: 900px) {
     .shelf__grid {
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-3);
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .shelf__grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

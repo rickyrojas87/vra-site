@@ -1,28 +1,55 @@
 ---
 /**
- * Book card — Home shelf (02) and the Works catalog. Cover, title, author,
- * genre and runtime, then either the Audible rating or "Coming soon".
+ * Book card (artboard .book) — Home shelf and the Works catalog. The cover
+ * stands tilted in a green pool; title, author and genre, one meta line, and
+ * the call to action pinned to the foot.
+ *
+ * The two artboards word the meta line differently:
+ *   shelf   (Home)   "4.3 ★ · 10.9 hrs"             / "Coming soon to Audible"
+ *   catalog (Works)  "10.9 hrs · 4.3 ★ (4 ratings)" / "In production · Coming soon"
  *
  * A published title with an Audible link makes the whole card the link; an
- * in-production title is a plain block. The optional ribbon hangs from the
- * card top (styles in global.css).
+ * in-production title is a plain block.
  */
 import { Image } from 'astro:assets';
-import { formatRuntime } from '../utils/format';
 import type { ShelfItem } from '../utils/catalog';
 import type { Title } from '../utils/content';
 
 interface Props {
   entry: Title;
   ribbon?: ShelfItem['ribbon'];
-  /** Show a visible "Listen on Audible" line (Works) under the rating. */
-  linkLabel?: boolean;
+  variant?: 'shelf' | 'catalog';
 }
 
-const { entry, ribbon = null, linkLabel = false } = Astro.props;
+const { entry, ribbon = null, variant = 'shelf' } = Astro.props;
 const t = entry.data;
-const href = t.status === 'published' ? t.audibleUrl : undefined;
+const wip = t.status === 'in-production';
+const href = wip ? undefined : t.audibleUrl;
 const Tag = href ? 'a' : 'div';
+
+/** 10.93 -> "10.9 hrs", 9.98 -> "10 hrs". */
+const hrs = t.runtimeHours ? `${Number(t.runtimeHours.toFixed(1))} hrs` : undefined;
+const stars = t.audibleRating !== undefined ? `${t.audibleRating.toFixed(1)} ★` : undefined;
+const count = t.ratingCount ? ` (${t.ratingCount} rating${t.ratingCount === 1 ? '' : 's'})` : '';
+
+const genreLine = [
+  t.author,
+  [t.genre, variant === 'catalog' && t.seriesNumber ? `Book ${t.seriesNumber}` : undefined]
+    .filter(Boolean)
+    .join(', '),
+]
+  .filter(Boolean)
+  .join(' · ');
+
+const metaLine = wip
+  ? variant === 'catalog'
+    ? 'In production · Coming soon'
+    : 'Coming soon to Audible'
+  : variant === 'catalog'
+    ? [hrs, stars ? `${stars}${count}` : 'Not yet rated'].filter(Boolean).join(' · ')
+    : [stars, hrs].filter(Boolean).join('  ·  ');
+
+const cta = wip ? 'Coming soon' : href ? 'Listen on Audible ↗' : undefined;
 
 const ribbonText = {
   'just-published': 'Just published',
@@ -30,159 +57,162 @@ const ribbonText = {
 } as const;
 ---
 
-<Tag class="card book" {...(href ? { href, target: '_blank', rel: 'noopener' } : {})}>
-  {
-    ribbon && (
-      <span class="ribbon-wrap">
-        <span class:list={['ribbon', { 'ribbon--green': ribbon === 'in-production' }]}>
-          {ribbonText[ribbon]}
+<Tag
+  class:list={['book', { wip }]}
+  {...(href ? { href, target: '_blank', rel: 'noopener' } : {})}
+>
+  <div class="book-art">
+    {
+      ribbon && (
+        <span class="ribbon-wrap">
+          <span class:list={['ribbon', { 'ribbon--green': ribbon === 'in-production' }]}>
+            {ribbonText[ribbon]}
+          </span>
         </span>
-      </span>
-    )
-  }
-
-  <span class="book__cover">
+      )
+    }
     {
       t.coverImage ? (
         <Image
+          class="book-cover"
           src={t.coverImage}
           alt={`Cover of ${t.title}`}
-          width={520}
-          height={520}
-          widths={[260, 520]}
-          sizes="(min-width: 900px) 240px, 45vw"
+          width={180}
+          height={180}
+          densities={[1, 2]}
           fit="cover"
+          loading="lazy"
+          fetchpriority="low"
         />
       ) : (
-        <span class="book__cover-fallback">{t.title}</span>
+        <span class="book-cover book-cover--blank">{t.title}</span>
       )
     }
-  </span>
-
-  <span class="book__body">
-    <span class="book__title">{t.title}</span>
-    {t.author && <span class="book__author">{t.author}</span>}
-    <span class="book__meta">
-      {[t.genre, t.runtimeHours && formatRuntime(t.runtimeHours)].filter(Boolean).join(' · ')}
-    </span>
-    {
-      t.status === 'in-production' ? (
-        <span class="book__status">Coming soon</span>
-      ) : (
-        t.audibleRating !== undefined && (
-          <span class="book__rating">
-            <span aria-hidden="true">&#9733;</span> {t.audibleRating.toFixed(1)}
-            {t.ratingCount !== undefined && <span class="book__count">({t.ratingCount})</span>}
-            <span class="visually-hidden"> out of 5 on Audible</span>
-          </span>
-        )
-      )
-    }
-    {
-      linkLabel && href && (
-        <span class="book__link">
-          Listen on Audible
-          <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" />
-          </svg>
-        </span>
-      )
-    }
-  </span>
+  </div>
+  <div class="book-body">
+    <div class="book-t">{t.title}</div>
+    {genreLine && <div class="book-m">{genreLine}</div>}
+    {metaLine && <div class="book-m">{metaLine}</div>}
+    {cta && <div class="book-link">{cta}</div>}
+  </div>
 </Tag>
 
 <style>
   .book {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 12px;
-    color: var(--c-text-body);
-  }
-
-  .book__cover {
-    display: block;
-    aspect-ratio: 1;
     overflow: hidden;
-    border-radius: 14px;
+    border-radius: var(--radius-card);
+    background: var(--c-bg);
+    box-shadow:
+      var(--shadow-card),
+      inset 0 0 0 1px var(--c-card-edge);
+    color: var(--c-text);
+    text-decoration: none;
+    transition:
+      transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.45s;
   }
 
-  .book__cover img {
-    width: 100%;
-    height: 100%;
+  .book:hover {
+    transform: translateY(-10px);
+    color: var(--c-text);
+    box-shadow:
+      0 40px 80px rgb(0 0 0 / 50%),
+      inset 0 0 0 1px var(--c-accent);
+  }
+
+  .book-art {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 250px;
+    overflow: hidden;
+    perspective: 900px;
+    background: radial-gradient(
+      ellipse 70% 80% at 50% 45%,
+      var(--c-hunter-light) 0%,
+      var(--c-hunter) 45%,
+      var(--c-hunter-deep) 100%
+    );
+    border-bottom: 1px solid rgb(212 175 55 / 25%);
+  }
+
+  .book-cover {
+    position: relative;
+    width: 180px;
+    height: 180px;
     object-fit: cover;
+    border-radius: 8px;
+    box-shadow: -14px 22px 40px rgb(0 0 0 / 60%);
+    transform: rotateY(12deg) rotateX(2deg);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .book__cover-fallback {
+  .book-cover--blank {
     display: grid;
     place-items: center;
-    height: 100%;
-    padding: var(--space-1);
+    padding: 16px;
     background: var(--c-panel);
     font-family: var(--font-display);
     font-size: 22px;
     text-align: center;
   }
 
-  .book__body {
+  .book:hover .book-cover {
+    transform: rotateY(0) scale(1.05);
+  }
+
+  .book-body {
     display: flex;
     flex: 1;
     flex-direction: column;
     gap: 4px;
-    padding: var(--space-1) 6px 6px;
+    padding: 20px 22px 22px;
   }
 
-  .book__title {
+  .book-t {
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 24px;
     line-height: 1.15;
   }
 
-  .book__author {
-    font-size: 14px;
-    color: var(--c-text-card);
-  }
-
-  .book__meta {
+  .book-m {
     font-size: 13px;
-    color: var(--c-text-caption);
+    letter-spacing: 0.04em;
+    color: var(--c-muted);
+    white-space: pre-wrap;
   }
 
-  .book__rating {
-    margin-top: 4px;
-    font-size: 14px;
+  .book-link {
+    margin-top: auto;
+    padding-top: 14px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     color: var(--c-accent);
   }
 
-  .book__count {
-    margin-left: 4px;
-    color: var(--c-text-caption);
+  .book.wip .book-cover {
+    filter: saturate(0.6) brightness(0.75);
   }
 
-  .book__status {
-    margin-top: 4px;
-    font-size: 13px;
-    font-weight: var(--fw-label);
-    letter-spacing: var(--ls-label);
-    text-transform: uppercase;
+  .book.wip .book-link {
     color: var(--c-emerald-glow);
   }
 
-  /* Pinned to the card foot so the links line up along a row. */
-  .book__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: var(--space-1);
-    font-size: var(--fs-label);
-    font-weight: var(--fw-button);
-    letter-spacing: var(--ls-button);
-    text-transform: uppercase;
-    color: var(--c-accent);
+  /* Ribbon sits a touch higher and further in than the global default. */
+  .ribbon-wrap {
+    top: -2px;
+    right: 28px;
   }
 
-  .book:hover .btn__arrow {
-    transform: translateX(5px);
+  @media (max-width: 560px) {
+    .book-art {
+      height: 220px;
+    }
   }
 </style>
