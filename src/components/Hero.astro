@@ -113,13 +113,18 @@ const miniBarDelays = ['0s', '.2s', '.4s', '.1s', '.3s'];
         <div class="rule rule-b hero__rule-close" aria-hidden="true"></div>
         <div class="rule rule-a" aria-hidden="true"></div>
         <div class="hero__actions">
-          <a class="btn btn--primary" href="#demos">
+          <a class="btn btn--primary" href="/works">
+            <svg class="btn__play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M7 4.5v15l13-7.5z"></path>
+            </svg>
             Hear demos
+          </a>
+          <a class="btn btn--bookplate" href="/contact">
+            Request a quote
             <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
               <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
             </svg>
           </a>
-          <a class="btn btn--bookplate" href="/contact">Request a quote</a>
         </div>
       </div>
 
@@ -294,6 +299,12 @@ const miniBarDelays = ['0s', '.2s', '.4s', '.1s', '.3s'];
     justify-content: center;
     gap: 14px;
     margin-top: 36px;
+  }
+
+  .btn__play {
+    width: 14px;
+    height: 14px;
+    flex: none;
   }
 
   /* --- Photo -------------------------------------------------------------- */
