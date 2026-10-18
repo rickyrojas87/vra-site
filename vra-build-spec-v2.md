@@ -1,6 +1,6 @@
 # Victoria Rojas Audio: Build Spec v2 (The Library redesign)
 
-Approved rendering: Claude Design canvas "Victoria Rojas Audio Redesign", boards Home, About, Works, Contact. This document is the contract for the build. Where the rendering and this document disagree, this document wins.
+Approved rendering: Claude Design canvas "Victoria Rojas Audio Redesign", boards Home, About, Works, Contact, exported to `docs/design/` in the repo (Main.html, About.html, Works.html, Contact.html, shared-style.css, README.md with the blob-to-asset map). The exported HTML and CSS are the source of truth for layout, spacing, colour, copy and animation values; this document records the decisions behind them. Where the two disagree on a value, the design files win; where this document states a rule the design cannot show (data sources, automation, CMS), this document wins.
 
 Decisions here are locked. Anything not listed is unchanged from v1 (`vra-build-spec.md`).
 
@@ -134,7 +134,24 @@ Derived at build from the merged data: published count, average rating (mean of 
 - Sveltia: Vikki edits a title and a testimonial on the branch and the build succeeds.
 - Vikki approves the branch deploy. Merge to `main`. Confirm the weekly workflow ran once.
 
-## 9. Open items
+## 9. Build log
+
+| Commit | Session | What landed |
+|---|---|---|
+| 688e510 | 1 | Design system tokens, fonts, cards, buttons, grain, thread |
+| 2e2b18d | 2 | Home |
+| d699feb | 3 | About, Works, Contact; locked process copy; marquee pause |
+| 6deed94 | 4 | process.yaml CMS collection, Audible sync, weekly rebuild workflow, font CLS fix |
+| 1ddea9a | | Design artboards exported to docs/design |
+| 89c29c6 | 5 | Home and inner pages matched to artboards (player, estimator, headings, hero photo); Cormorant weight-300 fallback bug fixed |
+| cdec7b7 | 6 | Hero, Meet, process card detail (nav, rules, pill, sparks, release card, signature, ghost numerals) |
+| c462814 | 6 | Signature centering, hero buttons |
+
+Lesson recorded: give Claude Code the exported design HTML, not only the spec. Sessions 2 and 3 filled gaps with old components because they only had prose.
+
+Remaining before merge: phone pass at 390px, Vikki's review of the branch deploy, Netlify build hook `weekly-refresh` and GitHub secret `NETLIFY_BUILD_HOOK` (both done), merge to main, verify first weekly run.
+
+## 10. Open items
 
 - Custom audition policy and royalty-share policy: not on the site until Vikki writes them.
 - Per-page Open Graph images: still one shared image.
