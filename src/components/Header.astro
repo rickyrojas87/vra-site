@@ -1,5 +1,13 @@
 ---
-/** Spec section 2. Sticky, 88px desktop / 64px mobile. No Instagram icon — it lives in the Footer. */
+/**
+ * Site header (artboard .nav): a plain row inside each page's hero, over the
+ * video or poster — not sticky, no background, no border. Rendered by
+ * Hero.astro, PageHero.astro and the Thanks page, not by BaseLayout, so it
+ * sits inside the hero's container exactly as drawn.
+ *
+ * The artboard simply hides the links under 900px; this keeps a toggle and a
+ * drawer there so the pages stay reachable on phones.
+ */
 import logoHorizontal from '../assets/logos/logo-horizontal.svg?raw';
 import { decorativeSvg } from '../utils/logo';
 
@@ -16,15 +24,37 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 ---
 
-<header class="header">
-  <div class="header__inner">
-    <a class="wordmark" href="/" aria-label="Victoria Rojas"><Fragment set:html={logo} /></a>
+<header class="nav">
+  <a class="wordmark" href="/" aria-label="Victoria Rojas Audio, home"><Fragment set:html={logo} /></a>
 
-    <nav class="nav" aria-label="Primary">
+  <nav class="nav-links" aria-label="Main">
+    {
+      nav.map((item) => (
+        <a
+          class:list={{ on: isActive(item.href) }}
+          href={item.href}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <a class="btn btn--bookplate nav__cta" href="/contact">Request a quote</a>
+
+  <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
+    <span class="visually-hidden">Menu</span>
+    <span class="nav__toggle-bar" aria-hidden="true"></span>
+    <span class="nav__toggle-bar" aria-hidden="true"></span>
+  </button>
+
+  <div class="nav__drawer" id="mobile-nav" hidden>
+    <nav class="nav__drawer-links" aria-label="Main, mobile">
       {
         nav.map((item) => (
           <a
-            class:list={['nav__link', { 'is-active': isActive(item.href) }]}
+            class:list={{ on: isActive(item.href) }}
             href={item.href}
             aria-current={isActive(item.href) ? 'page' : undefined}
           >
@@ -33,176 +63,135 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
         ))
       }
     </nav>
-
-    <a class="btn btn--outline header__cta" href="/contact">Request a quote</a>
-
-    <button class="header__toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
-      <span class="visually-hidden">Menu</span>
-      <span class="header__toggle-bar" aria-hidden="true"></span>
-      <span class="header__toggle-bar" aria-hidden="true"></span>
-    </button>
-  </div>
-
-  <div class="header__drawer" id="mobile-nav" hidden>
-    <nav class="drawer__nav" aria-label="Primary, mobile">
-      {
-        nav.map((item) => (
-          <a
-            class:list={['nav__link', { 'is-active': isActive(item.href) }]}
-            href={item.href}
-            aria-current={isActive(item.href) ? 'page' : undefined}
-          >
-            {item.label}
-          </a>
-        ))
-      }
-    </nav>
-    <a class="btn btn--outline" href="/contact">Request a quote</a>
+    <a class="btn btn--bookplate" href="/contact">Request a quote</a>
   </div>
 </header>
 
 <style>
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--c-header-bg);
-    border-bottom: 1px solid var(--c-rule);
-    backdrop-filter: blur(10px);
-  }
-
-  .header__inner {
+  .nav {
+    position: relative;
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-2);
-    width: 100%;
-    max-width: var(--max-width);
-    height: var(--header-h);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
+    gap: 24px;
+    padding: 22px 0;
   }
 
-  /* The lockup, never a photo. 32px in the 64px bar, 44px in the 88px one —
-     both leave 16px of clear space above and below, and neither changes
-     --header-h. Width follows from the 2265x571 viewBox: 127px and 175px, both
-     narrower than the 210px text wordmark this replaced, so the nav gained
-     room rather than losing it. */
   .wordmark {
     display: flex;
     flex-shrink: 0;
     align-items: center;
-    --logo-h: 32px;
   }
 
   /* Injected markup carries no scope attribute, hence :global. The file's own
-     fill="#D4AF37" is a presentation attribute, so this rule wins over it and
-     every path inherits — one place controls the colour. */
+     fill="#D4AF37" is a presentation attribute, so this rule wins over it. */
   .wordmark :global(svg) {
     display: block;
-    height: var(--logo-h);
     width: auto;
+    height: 44px;
     fill: var(--c-text);
     transition: fill 200ms ease;
   }
 
-  /* Bronze, matching .nav__link:hover. Gold here would read as a second
-     active state next to the CTA border. */
   .wordmark:hover :global(svg) {
-    fill: var(--c-accent-2);
+    fill: var(--c-accent);
   }
 
-  .nav {
-    display: none;
-    gap: var(--space-3);
+  .nav-links {
+    display: flex;
+    gap: 34px;
   }
 
-  .nav__link {
+  .nav-links a,
+  .nav__drawer-links a {
     font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--c-muted);
     transition: color 200ms ease;
   }
 
-  .nav__link:hover {
-    color: var(--c-accent-2);
-  }
-
-  .nav__link.is-active {
+  .nav-links a:hover,
+  .nav-links a.on,
+  .nav__drawer-links a:hover,
+  .nav__drawer-links a.on {
     color: var(--c-accent);
   }
 
-  .header__cta {
-    display: none;
-    min-height: 40px;
-    padding: 0 22px;
+  .nav__cta {
+    min-height: 44px;
+    padding: 0 20px;
+    font-size: 12px;
   }
 
-  .header__toggle {
-    display: flex;
+  .nav__toggle {
+    display: none;
     flex-direction: column;
     justify-content: center;
     gap: 6px;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     background: none;
     border: 0;
     cursor: pointer;
   }
 
-  .header__toggle-bar {
+  .nav__toggle-bar {
     display: block;
     width: 24px;
     height: 1px;
+    margin-inline: auto;
     background: var(--c-text);
   }
 
-  .header__drawer {
+  /* Drops over the hero from under the row; the hero content stays put. */
+  .nav__drawer {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 6;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-2);
-    padding: var(--space-2) var(--gutter) var(--space-3);
-    border-top: 1px solid var(--c-rule);
-    background: var(--c-bg);
+    padding: var(--space-2) var(--space-2) var(--space-3);
+    border-radius: 16px;
+    background: var(--c-deep);
+    box-shadow:
+      0 20px 50px rgb(0 0 0 / 50%),
+      inset 0 0 0 1px rgb(184 146 90 / 35%);
   }
 
-  .header__drawer[hidden] {
+  .nav__drawer[hidden] {
     display: none;
   }
 
-  .drawer__nav {
+  .nav__drawer-links {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
   }
 
-  /* Follows --header-h, which steps up at 768px — not the 900px nav
-     breakpoint. Keyed to 900 the lockup would sit at 32px inside an 88px bar
-     for that whole band. */
-  @media (min-width: 768px) {
-    .wordmark {
-      --logo-h: 44px;
-    }
-  }
-
-  @media (min-width: 900px) {
-    .nav,
-    .header__cta {
-      display: flex;
+  @media (max-width: 900px) {
+    .nav {
+      padding: 16px 0;
     }
 
-    .header__toggle,
-    .header__drawer {
+    .nav-links,
+    .nav__cta {
       display: none;
+    }
+
+    .nav__toggle {
+      display: flex;
     }
   }
 </style>
 
 <script>
-  const toggle = document.querySelector<HTMLButtonElement>('.header__toggle');
+  const toggle = document.querySelector<HTMLButtonElement>('.nav__toggle');
   const drawer = document.querySelector<HTMLElement>('#mobile-nav');
 
   toggle?.addEventListener('click', () => {

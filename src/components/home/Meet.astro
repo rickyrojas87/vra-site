@@ -1,13 +1,14 @@
 ---
 /**
  * Home 04 — Meet your narrator (artboard section.meet). One panel: portrait
- * left; eyebrow, title, the two short paragraphs (bioShort), signature and
- * "Read my story" right. Accents row below the panel.
+ * left; eyebrow, title, the two short paragraphs (bioShort), signature,
+ * accents and "Read my story" right.
  */
 import { Image } from 'astro:assets';
 import SectionHead from '../SectionHead.astro';
 import GoldThread from '../GoldThread.astro';
 import Dust from '../Dust.astro';
+import Spark from '../Spark.astro';
 import { bioShort } from '../../data/bio';
 import { accents } from '../../data/taxonomy';
 import portrait from '../../assets/portrait.jpg';
@@ -18,44 +19,49 @@ import portrait from '../../assets/portrait.jpg';
   <Dust seed={44} />
   <div class="container meet__wrap">
     <div class="meet-grid reveal">
-      <div class="photo-stage meet-photo">
-        <div class="photo-frame meet__frame">
+      <div class="photo meet-photo">
+        <div class="photo-frame frame">
           <Image
             src={portrait}
             alt="Victoria Rojas smiling in a studded armchair beside her headphones"
-            width={840}
-            widths={[420, 840]}
-            sizes="(min-width: 901px) 420px, 90vw"
-            quality={65}
+            width={420}
+            height={560}
+            densities={[1, 2]}
+            quality={85}
             loading="lazy"
             fetchpriority="low"
           />
         </div>
-        <span class="spark" style="top:-12px;left:30px" aria-hidden="true"></span>
-        <span class="spark spark--small" style="bottom:60px;right:-20px" aria-hidden="true"></span>
+        <Spark style="top:-12px;left:30px" />
+        <Spark style="bottom:60px;right:-20px;width:13px;height:13px;animation-delay:1.5s" />
       </div>
 
-      <div class="meet__copy">
+      <div>
         <SectionHead chapter={4} label="Meet your narrator" id="meet-title">
           Stories play in my mind <em>like a film.</em>
         </SectionHead>
         <p class="meet__p1">{bioShort[0]}</p>
         <p class="meet__p2">{bioShort[1]}</p>
-        <p class="hand meet__signature">Victoria</p>
-        <a class="btn btn--bookplate meet__cta" href="/about">
-          Read my story
-          <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
-          </svg>
-        </a>
+        <p class="sig">
+          <svg viewBox="0 0 72 22" preserveAspectRatio="none" aria-hidden="true">
+            <path
+              d="M1.5 14.5 C 10 7, 22 5.5, 36 9.2 C 48 12.3, 58 11.6, 70.5 6.4 C 60 13.6, 47 16.2, 35 13.2 C 23 10.2, 11 11.4, 1.5 14.5 Z"
+              fill="currentColor"></path>
+          </svg>Victoria
+        </p>
+        <h3 class="eyebrow meet__accents-label">Accents and dialects</h3>
+        <ul class="star-list accents">
+          {accents.map((accent) => <li>{accent}</li>)}
+        </ul>
+        <div class="meet__cta">
+          <a class="btn btn--bookplate" href="/about">
+            Read my story
+            <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+            </svg>
+          </a>
+        </div>
       </div>
-    </div>
-
-    <div class="meet__accents">
-      <h3 class="eyebrow meet__accents-label">Accents and dialects</h3>
-      <ul class="star-list">
-        {accents.map((accent) => <li>{accent}</li>)}
-      </ul>
     </div>
   </div>
 </section>
@@ -88,25 +94,14 @@ import portrait from '../../assets/portrait.jpg';
     margin: 30px;
   }
 
-  .meet__frame {
-    height: 100%;
+  .meet-photo .frame {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
   }
 
-  .meet__frame :global(img) {
+  .meet-photo :global(img) {
     object-position: 50% 25%;
-  }
-
-  .spark--small {
-    width: 13px;
-    height: 13px;
-    animation-delay: 1.5s;
-  }
-
-  /* Column, so the signature and button keep their own lines. */
-  .meet__copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .meet__p1 {
@@ -119,27 +114,17 @@ import portrait from '../../assets/portrait.jpg';
     color: var(--c-text-soft-2);
   }
 
-  .meet__signature {
-    margin-top: 30px;
-    font-size: 44px;
+  /* The signature centres itself; here it sits with the copy. */
+  .meet-grid .sig {
+    justify-content: flex-start;
+  }
+
+  .meet__accents-label {
+    margin-top: 36px;
   }
 
   .meet__cta {
     margin-top: 36px;
-  }
-
-  .meet__accents {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
-    text-align: center;
-  }
-
-  .meet__accents .star-list {
-    justify-content: center;
-    color: var(--c-text-body);
   }
 
   @media (max-width: 900px) {

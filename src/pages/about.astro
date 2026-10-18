@@ -52,7 +52,8 @@ const booth = (await loadGallery()).slice(0, 3);
       </SectionHead>
 
       <div class="bio reveal">
-        <div class="photo-frame bio__photo">
+        <div class="photo bio__photo">
+          <div class="photo-frame frame">
           <Image
             src={portrait}
             alt="Victoria Rojas smiling in a studded armchair beside her headphones"
@@ -63,6 +64,7 @@ const booth = (await loadGallery()).slice(0, 3);
             loading="lazy"
             fetchpriority="low"
           />
+          </div>
         </div>
         <div class="bio__copy">
           {bio.map((paragraph) => <p>{paragraph}</p>)}
@@ -179,6 +181,12 @@ const booth = (await loadGallery()).slice(0, 3);
     margin: 30px 30px 0 0;
   }
 
+  .bio__photo .frame {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
   .bio__photo :global(img) {
     object-position: 50% 25%;
   }
@@ -187,29 +195,6 @@ const booth = (await loadGallery()).slice(0, 3);
     margin: 0 0 18px;
     font-size: 17px;
     color: var(--c-text-soft);
-  }
-
-  /* Signature with its gold flourish (artboard .sig). */
-  .sig {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin: 30px 0 0;
-    font-family: var(--font-hand);
-    font-size: 54px;
-    line-height: 1;
-    color: var(--c-accent);
-    transform: rotate(-2deg);
-    text-shadow: 0 0 12px rgb(212 175 55 / 12%);
-  }
-
-  .sig svg {
-    width: 32px;
-    height: 10px;
-    flex: none;
-    margin-top: -2px;
-    filter: drop-shadow(0 0 4px rgb(212 175 55 / 15%));
   }
 
   .lists2 {
@@ -234,7 +219,6 @@ const booth = (await loadGallery()).slice(0, 3);
 
   .lists2 .star-list {
     margin-top: 28px;
-    color: var(--c-text);
   }
 
   /* 02 — Process, long form (artboard .chapters / .chap) */
@@ -268,28 +252,6 @@ const booth = (await loadGallery()).slice(0, 3);
     box-shadow:
       0 40px 80px rgb(0 0 0 / 50%),
       inset 0 0 0 1px var(--c-accent);
-  }
-
-  .num {
-    position: relative;
-    z-index: 1;
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--fs-numeral);
-    font-style: italic;
-    font-weight: 300;
-    line-height: 0.9;
-    color: var(--c-accent);
-    text-shadow: 0 0 24px rgb(212 175 55 / 35%);
-  }
-
-  .num::after {
-    content: '';
-    display: block;
-    width: 36px;
-    height: 1px;
-    margin-top: 10px;
-    background: linear-gradient(90deg, var(--c-accent), rgb(212 175 55 / 0%));
   }
 
   .chap h3 {
@@ -364,10 +326,6 @@ const booth = (await loadGallery()).slice(0, 3);
   }
 
   @media (max-width: 560px) {
-    .sig {
-      font-size: 36px;
-    }
-
     .lists2 .star-list {
       gap: 6px 20px;
     }

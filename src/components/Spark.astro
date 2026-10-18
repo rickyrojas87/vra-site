@@ -1,0 +1,16 @@
+---
+/**
+ * A twinkling four-point gold spark (artboard .spark). Absolutely positioned
+ * by the caller's `style` (offsets, and width/height or animation-delay when
+ * they differ from the 18px default). Styles in global.css.
+ */
+interface Props {
+  style: string;
+}
+
+const { style } = Astro.props;
+---
+
+<svg class="spark" style={style} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <path d="M12 0l2.5 9.5L24 12l-9.5 2.5L12 24l-2.5-9.5L0 12l9.5-2.5z"></path>
+</svg>

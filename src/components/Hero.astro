@@ -1,18 +1,20 @@
 ---
 /**
- * Home hero — spec v2 §4. A title page over a looping library video.
+ * Home hero — artboard section.hero: the nav row, then a title page beside
+ * the photo, over the looping library video.
  *
  * Video rules, all of them load-bearing for Lighthouse:
  *   - The <video> ships with NO source and `preload="none"`. The poster is a
  *     responsive <img> beneath it (640px on phones), not the `poster`
  *     attribute, which can't vary by viewport. It is the LCP element, so it
  *     loads eagerly at high priority; the video fades in over it once playing.
- *     The tagline font is preloaded beside it (HeroPreloads.astro) and is
+ *     The tagline font is inlined beside it (HeroPreloads.astro) and is
  *     `font-display: optional`, so it never swaps in after first paint.
  *   - Sources are attached after `window.load`, so the video never competes
  *     with first paint or LCP.
  *   - Under prefers-reduced-motion, or on a connection reporting `saveData`,
- *     the sources are never attached and the poster is all there is.
+ *     the sources are never attached and the poster is all there is. The
+ *     global reduced-motion rule stops every other hero animation.
  *   - Only at 900px and wider: the spec's fallback for mobile performance,
  *     which measurement required (see VIDEO_MIN_WIDTH).
  *
@@ -20,7 +22,9 @@
  * the largest paint by the length of the animation.
  */
 import { Image } from 'astro:assets';
+import Header from './Header.astro';
 import Dust from './Dust.astro';
+import Spark from './Spark.astro';
 import { loadBookingMonth, loadLatestRelease } from '../utils/catalog';
 import { heroMedia } from '../data/heroMedia';
 /**
@@ -45,21 +49,18 @@ const latest = await loadLatestRelease();
  */
 const VIDEO_MIN_WIDTH = 900;
 
-/** Four sparks around the frame, as offsets from the photo stage. */
+/** Four sparks around the photo (artboard), offsets from .hero-photo. */
 const sparks = [
-  { top: '-14px', left: '18%' },
-  { top: '22%', right: '-12px' },
-  { bottom: '30%', left: '-12px' },
-  { bottom: '-12px', right: '24%' },
+  'top:-14px;right:26px',
+  'top:38px;right:-22px;width:12px;height:12px;animation-delay:1.1s',
+  'top:150px;left:-24px;width:14px;height:14px;animation-delay:2.2s',
+  'bottom:120px;right:-18px;width:22px;height:22px;animation-delay:.6s',
 ];
 
-const toStyle = (o: Record<string, string>) =>
-  Object.entries(o)
-    .map(([k, v]) => `${k}:${v}`)
-    .join(';');
+const miniBarDelays = ['0s', '.2s', '.4s', '.1s', '.3s'];
 ---
 
-<section class="hero" data-hero>
+<section class="hero" data-hero aria-label="Introduction">
   <div class="hero__media" aria-hidden="true">
     {/* Same URLs as the <head> preload; see utils/heroPoster.ts. */}
     <img
@@ -88,96 +89,101 @@ const toStyle = (o: Record<string, string>) =>
       preload="none"
       disablepictureinpicture
       tabindex="-1"></video>
-    <div class="hero__lamp"></div>
-    <div class="hero__green"></div>
-    <div class="hero__scrim"></div>
+    <div class="glow"></div>
+    <div class="glow-green"></div>
+    <div class="scrim"></div>
   </div>
 
   <Dust seed={11} />
 
-  <div class="container hero__inner">
-    <div class="hero__page">
-      <p class="badge">
-        Now booking
-        <span class="badge__month">{booking.month}{booking.year && ` ${booking.year}`}</span>
-        productions
-      </p>
+  <div class="container">
+    <Header />
 
-      <span class="hero__rules" aria-hidden="true"></span>
-
-      <p class="hero__eyebrow">Audiobook narrator</p>
-      <h1 class="hero__title">Victoria Rojas</h1>
-      <p class="hand hand--bright hero__tagline">A voice for every story.</p>
-
-      <span class="hero__rules" aria-hidden="true"></span>
-
-      <div class="hero__actions">
-        <a class="btn btn--primary" href="#demos">
-          Hear demos
-          <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
-          </svg>
-        </a>
-        <a class="btn btn--bookplate" href="/contact">Request a quote</a>
-      </div>
-    </div>
-
-    {/* Eager, so it is there on desktop where it sits beside the title, but
-        low priority: the poster behind it is the LCP element and must win
-        the connection. */}
-    <div class="hero__figure photo-stage">
-      <div class="photo-frame hero__frame">
-        <Image
-          src={heroPhoto}
-          alt="Victoria Rojas laughing at the microphone in her recording booth"
-          width={880}
-          height={1200}
-          widths={[440, 660, 880, 1098]}
-          sizes="(min-width: 901px) 440px, min(440px, 86vw)"
-          quality={55}
-          loading="eager"
-          fetchpriority="low"
-        />
-      </div>
-      {sparks.map((s) => <span class="spark" style={toStyle(s)} aria-hidden="true"></span>)}
-
-      {
-        latest && (
-          <a
-            class="card hero__latest"
-            href={latest.data.audibleUrl ?? '/works'}
-            {...(latest.data.audibleUrl ? { target: '_blank', rel: 'noopener' } : {})}
-          >
-            {latest.data.coverImage && (
-              <Image
-                class="hero__latest-cover"
-                src={latest.data.coverImage}
-                alt=""
-                width={112}
-                height={112}
-                fit="cover"
-              />
-            )}
-            <span class="hero__latest-text">
-              <span class="hero__latest-label">Latest release</span>
-              <span class="hero__latest-title">{latest.data.title}</span>
-              {latest.data.author && <span class="hero__latest-author">{latest.data.author}</span>}
-            </span>
+    <div class="hero-grid">
+      <div class="title-page">
+        <p class="pill">
+          <span class="dot" aria-hidden="true"></span>
+          <span>Now booking <span class="pill-month">{booking.month}{booking.year && ` ${booking.year}`}</span> productions</span>
+        </p>
+        <div class="rule rule-a rule-a--first" aria-hidden="true"></div>
+        <div class="rule rule-b" aria-hidden="true"></div>
+        <p class="eyebrow hero__eyebrow">Audiobook Narrator</p>
+        <h1 class="hero__title">Victoria<br />Rojas</h1>
+        <p class="hand hand--bright hero__tagline">A voice for every story.</p>
+        <div class="rule rule-b hero__rule-close" aria-hidden="true"></div>
+        <div class="rule rule-a" aria-hidden="true"></div>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#demos">
+            Hear demos
+            <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+            </svg>
           </a>
-        )
-      }
+          <a class="btn btn--bookplate" href="/contact">Request a quote</a>
+        </div>
+      </div>
+
+      <div class="photo hero-photo">
+        {/* Eager, so it is there on desktop where it sits beside the title,
+            but low priority: the poster behind it is the LCP element and
+            must win the connection. 2x for the 440px frame = 880px. */}
+        <div class="photo-frame frame">
+          <Image
+            src={heroPhoto}
+            alt="Victoria Rojas laughing at the microphone in her recording booth"
+            width={440}
+            height={600}
+            densities={[1, 2]}
+            quality={85}
+            loading="eager"
+            fetchpriority="low"
+          />
+        </div>
+        {sparks.map((style) => <Spark style={style} />)}
+
+        {
+          latest && (
+            <a
+              class="np"
+              href={latest.data.audibleUrl ?? '/works'}
+              {...(latest.data.audibleUrl ? { target: '_blank', rel: 'noopener' } : {})}
+            >
+              {latest.data.coverImage && (
+                <Image
+                  src={latest.data.coverImage}
+                  alt=""
+                  width={54}
+                  height={54}
+                  densities={[1, 2]}
+                  fit="cover"
+                  fetchpriority="low"
+                />
+              )}
+              <span class="np__text">
+                <span class="np__label">Latest release</span>
+                <span class="np__title">{latest.data.title}</span>
+                {latest.data.author && <span class="np__author">{latest.data.author}</span>}
+              </span>
+              <span class="mini-bars" aria-hidden="true">
+                {miniBarDelays.map((d) => (
+                  <span style={`animation-delay:${d}`} />
+                ))}
+              </span>
+            </a>
+          )
+        }
+      </div>
     </div>
   </div>
+
+  <div class="scroll-cue" aria-hidden="true">Scroll</div>
 </section>
 
 <style>
   .hero {
     position: relative;
     isolation: isolate;
-    display: flex;
-    align-items: center;
-    min-height: calc(100svh - var(--header-h));
-    padding-block: var(--space-4) calc(var(--space-4) + 40px);
+    min-height: 940px;
     overflow: hidden;
     background: var(--c-deep);
   }
@@ -216,188 +222,270 @@ const toStyle = (o: Record<string, string>) =>
     opacity: 1;
   }
 
-  /* Warm lamplight, upper left, with an irregular flicker. */
-  .hero__lamp {
-    background: radial-gradient(
-      ellipse 45% 55% at 18% 22%,
-      rgb(230 200 94 / 22%),
-      transparent 70%
-    );
+  /* Warm lamplight, upper left, flickering (artboard .glow). */
+  .glow {
+    background: radial-gradient(ellipse 55% 60% at 24% 30%, rgb(255 168 76 / 18%), rgb(255 168 76 / 0%) 60%);
     mix-blend-mode: screen;
-    animation: lamp-flicker 6s steps(1, end) infinite;
+    animation: flicker 5.5s ease-in-out infinite;
   }
 
-  /* Library green pooling up from the floor. */
-  .hero__green {
-    background: radial-gradient(ellipse 70% 50% at 50% 105%, rgb(63 140 100 / 28%), transparent 70%);
+  .glow-green {
+    background: radial-gradient(ellipse 50% 55% at 82% 72%, rgb(31 77 58 / 55%), rgb(31 77 58 / 0%) 70%);
   }
 
   /* Holds the type's contrast over any frame of the video, then hands off to
-     the stats strip's deep surface along the bottom edge. */
-  .hero__scrim {
+     the page surface along the bottom edge (artboard .scrim). */
+  .scrim {
     background:
-      linear-gradient(to bottom, transparent 70%, var(--c-deep)),
-      linear-gradient(to right, rgb(18 19 22 / 78%), rgb(18 19 22 / 45%) 60%, rgb(18 19 22 / 30%));
+      linear-gradient(90deg, rgb(18 15 12 / 94%) 0%, rgb(18 15 12 / 72%) 42%, rgb(18 15 12 / 28%) 100%),
+      linear-gradient(180deg, rgb(18 15 12 / 55%) 0%, rgb(18 15 12 / 0%) 22%, rgb(34 35 40 / 0%) 70%, var(--c-bg) 100%);
   }
 
-  /* --- Layout ------------------------------------------------------------- */
+  /* --- Title page --------------------------------------------------------- */
 
-  .hero__inner {
+  .hero-grid {
     position: relative;
+    z-index: 4;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: 56px;
     align-items: center;
+    padding: 64px 0 140px;
   }
 
-  .hero__page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
+  .title-page {
     text-align: center;
   }
 
-  .hero__rules {
-    display: block;
-    width: min(320px, 70%);
-    height: 5px;
-    border-block: 1px solid var(--c-accent);
-    opacity: 0.8;
+  .title-page .pill {
+    margin-bottom: 28px;
   }
 
   .hero__eyebrow {
-    font-size: var(--fs-label);
-    font-weight: var(--fw-label);
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--c-text-caption);
+    margin-top: 30px;
+    color: var(--c-accent);
   }
 
   .hero__title {
-    font-size: var(--fs-hero);
+    margin: 18px 0 0;
+    font-family: var(--font-display);
+    font-size: 80px;
     font-weight: 400;
     letter-spacing: 0.12em;
-    line-height: 1.05;
+    line-height: 1;
     text-transform: uppercase;
     color: var(--c-text-body);
   }
 
-  /* Fixed line box: if the handwriting face misses first paint, the fallback
-     stays (font-display: optional), and its metrics differ, so the box, not
-     the font, sets height. */
   .hero__tagline {
-    height: 1.3em;
+    margin-top: 22px;
     font-size: var(--fs-tagline);
+    line-height: 1.1;
+    text-shadow: 0 0 24px rgb(212 175 55 / 35%);
+  }
+
+  .hero__rule-close {
+    margin-top: 30px;
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--space-1);
-    margin-top: var(--space-1);
+    gap: 14px;
+    margin-top: 36px;
   }
 
   /* --- Photo -------------------------------------------------------------- */
 
-  .hero__figure {
-    justify-self: center;
-    width: min(440px, 86vw);
+  .hero-photo {
+    justify-self: end;
+    width: 440px;
+    height: 600px;
   }
 
-  /* Artboard .hero-photo: 440 x 600. */
-  .hero__frame {
-    aspect-ratio: 11 / 15;
+  .hero-photo .frame {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
   }
 
-  .hero__latest {
+  /* Latest release card, overhanging the photo's left edge (artboard .np). */
+  .np {
+    position: absolute;
+    bottom: 54px;
+    left: -90px;
+    z-index: 2;
     display: flex;
     align-items: center;
-    gap: var(--space-1);
-    margin-top: var(--space-2);
-    padding: 12px 20px 12px 12px;
+    gap: 14px;
+    padding: 12px 18px 12px 12px;
     border-radius: 16px;
+    background: rgb(27 28 32 / 82%);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 20px 50px rgb(0 0 0 / 50%),
+      inset 0 0 0 1px rgb(184 146 90 / 35%);
     color: var(--c-text-body);
+    animation: bob 6s ease-in-out infinite;
   }
 
-  .hero__latest-cover {
-    width: 56px;
-    height: 56px;
+  .np :global(img) {
+    display: block;
     flex: none;
-    border-radius: 6px;
+    width: 54px;
+    height: 54px;
+    border-radius: 8px;
+    object-fit: cover;
   }
 
-  .hero__latest-text {
+  .np__text {
     display: flex;
     flex-direction: column;
-    gap: 2px;
     min-width: 0;
   }
 
-  .hero__latest-label {
-    font-size: var(--fs-label);
+  .np__label {
+    font-size: 10px;
     font-weight: var(--fw-label);
-    letter-spacing: var(--ls-label);
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--c-emerald-glow);
   }
 
-  .hero__latest-title {
+  .np__title {
     font-family: var(--font-display);
-    font-size: 22px;
-    line-height: 1.15;
+    font-size: 20px;
+    line-height: 1.1;
   }
 
-  .hero__latest-author {
-    font-size: 14px;
-    color: var(--c-text-card);
+  .np__author {
+    font-size: 12px;
+    color: var(--c-muted);
   }
 
-  @media (min-width: 900px) {
-    .hero__inner {
-      grid-template-columns: 1.15fr 1fr;
-    }
-
-    .hero__figure {
-      justify-self: end;
-    }
-
-    /* Floats over the frame's lower-left corner on desktop. */
-    .hero__latest {
-      position: absolute;
-      bottom: 28px;
-      left: -72px;
-      z-index: 2;
-      margin: 0;
-      max-width: 300px;
-    }
+  .mini-bars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 22px;
   }
 
-  @keyframes lamp-flicker {
+  .mini-bars span {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--c-accent);
+    animation: eq 1.1s ease-in-out infinite;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    z-index: 4;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+    transform: translateX(-50%);
+  }
+
+  @keyframes flicker {
     0%,
     100% {
-      opacity: 1;
-    }
-
-    37% {
-      opacity: 0.86;
-    }
-
-    41% {
-      opacity: 0.97;
-    }
-
-    63% {
       opacity: 0.9;
     }
 
-    66% {
+    22% {
       opacity: 1;
     }
 
-    84% {
-      opacity: 0.93;
+    38% {
+      opacity: 0.82;
+    }
+
+    55% {
+      opacity: 0.97;
+    }
+
+    71% {
+      opacity: 0.86;
+    }
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes eq {
+    0%,
+    100% {
+      height: 5px;
+    }
+
+    50% {
+      height: 22px;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      min-height: 0;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+      padding: 40px 0 90px;
+    }
+
+    .hero__title {
+      font-size: 56px;
+      letter-spacing: 0.1em;
+    }
+
+    .hero-photo {
+      justify-self: center;
+      width: min(440px, 100%);
+      height: auto;
+      max-height: 600px;
+      aspect-ratio: 11 / 15;
+    }
+
+    .np {
+      bottom: 24px;
+      left: -20px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .hero__title {
+      font-size: 44px;
+      letter-spacing: 0.08em;
+      line-height: 1.02;
+    }
+
+    .hero-photo {
+      width: 100%;
+    }
+
+    .np {
+      bottom: 16px;
+      left: -4px;
+      gap: 10px;
+      padding: 10px 14px 10px 10px;
+    }
+
+    .np :global(img) {
+      width: 44px;
+      height: 44px;
     }
   }
 </style>

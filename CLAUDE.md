@@ -48,6 +48,12 @@ deep like section 01 below it.
 **Sections fade up on load with `.reveal`** (time-based, global.css). The v1
 scroll reveal (`data-reveal`) is gone; don't reintroduce an observer.
 
+**The header lives inside each hero, not in BaseLayout.** `Header.astro` is
+the artboard's `.nav` row over the video or poster: rendered by `Hero.astro`,
+`PageHero.astro` and the Thanks page as the first child of their container.
+It is not sticky and has no background, so nothing reserves space for it; a
+new page without a hero must render `<Header />` itself.
+
 **Every hero's LCP image is the library poster.** `PageHero` and Home's `Hero`
 render it from `utils/heroPoster.ts`, and each page puts
 `<HeroPreloads slot="head" />` in BaseLayout's head slot. Keep the `<img>` and

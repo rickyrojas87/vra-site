@@ -11,6 +11,7 @@
  * Not revealed, for the same reason as the Home hero: it holds the LCP
  * element.
  */
+import Header from './Header.astro';
 import Dust from './Dust.astro';
 import { getHeroPoster } from '../utils/heroPoster';
 
@@ -44,13 +45,16 @@ const poster = await getHeroPoster();
 
   <Dust seed={title.length * 7} count={18} />
 
-  <div class="container page-hero__page">
-    <div class="rule rule-a rule-a--first" aria-hidden="true"></div>
-    <div class="rule rule-b" aria-hidden="true"></div>
-    <h1 class="page-hero__title">{title}</h1>
-    <p class="hand page-hero__subline">{subline}</p>
-    <div class="rule rule-b rule-b--closing" aria-hidden="true"></div>
-    <div class="rule rule-a" aria-hidden="true"></div>
+  <div class="container">
+    <Header />
+    <div class="page-hero__page">
+      <div class="rule rule-a rule-a--first" aria-hidden="true"></div>
+      <div class="rule rule-b" aria-hidden="true"></div>
+      <h1 class="page-hero__title">{title}</h1>
+      <p class="hand page-hero__subline">{subline}</p>
+      <div class="rule rule-b rule-b--closing" aria-hidden="true"></div>
+      <div class="rule rule-a" aria-hidden="true"></div>
+    </div>
   </div>
 </section>
 
@@ -105,26 +109,6 @@ const poster = await getHeroPoster();
     z-index: 4;
     padding-block: 56px 10px;
     text-align: center;
-  }
-
-  .rule {
-    height: 1px;
-    margin: 0 auto;
-  }
-
-  .rule-a {
-    width: 100%;
-    margin-top: 5px;
-    background: linear-gradient(90deg, transparent, var(--c-accent), transparent);
-  }
-
-  .rule-a--first {
-    margin-top: 0;
-  }
-
-  .rule-b {
-    width: 60%;
-    background: linear-gradient(90deg, transparent, rgb(212 175 55 / 50%), transparent);
   }
 
   .rule-b--closing {

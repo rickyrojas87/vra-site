@@ -7,6 +7,7 @@
  * compete with the pages that do.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
 import { site } from '../data/site';
 ---
 
@@ -15,7 +16,10 @@ import { site } from '../data/site';
   description="Your project details are in. Victoria replies within two business days."
   noindex
 >
-  <section class="section surface-base">
+  <section class="section surface-base thanks-sec">
+    <div class="container">
+      <Header />
+    </div>
     <div class="container thanks">
       <p class="label">Request received</p>
       <h1>Thank you.</h1>
@@ -24,7 +28,7 @@ import { site } from '../data/site';
         within two business days &mdash; usually sooner.
       </p>
       <p class="thanks__meta">
-        Something urgent, or a detail you forgot? Reply straight to
+        Something urgent, or a detail you forgot? Reply straight to{' '}
         <a class="thanks__email" href={`mailto:${site.email}`}>{site.email}</a>.
       </p>
       <div class="thanks__actions">
@@ -36,7 +40,13 @@ import { site } from '../data/site';
 </BaseLayout>
 
 <style>
+  /* The header is the first thing in the section, so no band above it. */
+  .thanks-sec {
+    padding-top: 0;
+  }
+
   .thanks {
+    padding-top: 56px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

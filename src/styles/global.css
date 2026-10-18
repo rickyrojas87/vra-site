@@ -254,7 +254,6 @@
   --space-4: 64px;
 
   /* --- Chrome ------------------------------------------------------------ */
-  --header-h: 64px; /* mobile */
   --radius-panel: 12px;
 
   /* --- Shape and motion (spec v2 §2) ------------------------------------- */
@@ -294,7 +293,6 @@
     --fs-button: 13px;
 
     --section-pad: 120px;
-    --header-h: 88px;
   }
 }
 
@@ -310,8 +308,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Anchor targets clear the sticky header */
-  scroll-padding-top: var(--header-h);
 }
 
 body {
@@ -891,27 +887,120 @@ body::after {
 }
 
 /* --------------------------------------------------------------------------
-   Booking badge — "Now booking MARCH productions".
+   Booking pill — "● Now booking MARCH productions" (artboard .pill).
    -------------------------------------------------------------------------- */
 
-.badge {
+.pill {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-height: 36px;
-  padding: 0 16px;
-  border: 1px solid var(--c-card-edge);
+  margin: 0;
+  padding: 9px 16px;
   border-radius: var(--radius-chip);
-  font-size: var(--fs-label);
-  font-weight: var(--fw-label);
+  background: rgb(23 58 44 / 70%);
+  box-shadow: inset 0 0 0 1px rgb(63 140 100 / 55%);
+  font-size: 13px;
   letter-spacing: 0.08em;
-  color: var(--c-text-body);
+  color: var(--c-text-soft);
 }
 
-.badge__month {
-  color: var(--c-accent);
+.pill-month {
+  margin: 0 2px;
+  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c-emerald-glow);
+  box-shadow: 0 0 0 0 rgb(79 179 131 / 70%);
+  animation: pulse 2.2s infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Hero rules — two 1px lines, a full-width gold fade and a 60% half-tone
+   (artboard .rule). Opening pair: a then b, touching. Closing pair: b, then
+   a 5px below; the caller sets the closing pair's margin-top.
+   -------------------------------------------------------------------------- */
+
+.rule {
+  height: 1px;
+  margin: 0 auto;
+}
+
+.rule-a {
+  width: 100%;
+  margin-top: 5px;
+  background: linear-gradient(90deg, transparent, var(--c-accent), transparent);
+}
+
+.rule-a--first {
+  margin-top: 0;
+}
+
+.rule-b {
+  width: 60%;
+  background: linear-gradient(90deg, transparent, rgb(212 175 55 / 50%), transparent);
+}
+
+/* --------------------------------------------------------------------------
+   Chapter numeral — italic 60, glowing, with a short gold rule beneath
+   (artboard .num). Process cards and the About chapters. The last process
+   card widens the rule to a gold-to-emerald line.
+   -------------------------------------------------------------------------- */
+
+.num {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-numeral);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 0.9;
+  color: var(--c-accent);
+  text-shadow: 0 0 24px rgb(212 175 55 / 35%);
+}
+
+.num::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 1px;
+  margin-top: 10px;
+  background: linear-gradient(90deg, var(--c-accent), rgb(212 175 55 / 0%));
+}
+
+/* --------------------------------------------------------------------------
+   Signature — La Belle Aurore with the gold dash before the name (artboard
+   .sig). Centred by default; Meet aligns it with its copy.
+   -------------------------------------------------------------------------- */
+
+.sig {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0 0;
+  font-family: var(--font-hand);
+  font-size: 54px;
+  line-height: 1;
+  color: var(--c-accent);
+  transform: rotate(-2deg);
+  text-shadow: 0 0 12px rgb(212 175 55 / 12%);
+}
+
+.sig svg {
+  width: 32px;
+  height: 10px;
+  flex: none;
+  margin-top: -2px;
+  filter: drop-shadow(0 0 4px rgb(212 175 55 / 15%));
 }
 
 /* --------------------------------------------------------------------------
@@ -926,21 +1015,28 @@ body::after {
   margin: 0;
   padding: 0;
   list-style: none;
-  font-family: var(--font-display);
-  font-size: 21px;
-  line-height: 1.4;
 }
 
 .star-list > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 21px;
+  color: var(--c-text);
   white-space: nowrap;
 }
 
 .star-list > li::before {
   content: '\2726';
-  margin-right: 0.45em;
-  font-size: 0.7em;
-  vertical-align: 0.15em;
+  flex: none;
+  font-size: 11px;
   color: var(--c-accent);
+}
+
+/* Directly under a label (artboard .accents). */
+.accents {
+  margin-top: 28px;
 }
 
 /* --------------------------------------------------------------------------
@@ -990,18 +1086,16 @@ body::after {
 }
 
 /* --------------------------------------------------------------------------
-   Photo frame — Vikki's photos (hero, Meet, Studio).
+   Photo frame — Vikki's photos (artboard .photo .frame). The gold ring is the
+   first layer of the breathing halo; the image inside breathes too.
 
-   <div class="photo-stage">
-     <div class="photo-frame"><img …></div>
-     <span class="spark" style="top: …; left: …"></span>
+   <div class="photo hero-photo">              (position: relative; sized)
+     <div class="photo-frame frame"><img …></div>
+     <Spark style="top: …; left: …" />
    </div>
-
-   The gold edge is an ::after overlay so it sits above the zooming image; the
-   halo is the frame's own box-shadow, which overflow:hidden doesn't clip.
    -------------------------------------------------------------------------- */
 
-.photo-stage {
+.photo {
   position: relative;
 }
 
@@ -1012,44 +1106,25 @@ body::after {
   animation: halo 7s ease-in-out infinite alternate;
 }
 
-.photo-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px var(--c-accent);
-  pointer-events: none;
-}
-
 .photo-frame img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  animation: photo-zoom 14s ease-in-out infinite alternate;
+  animation: breathe 14s ease-in-out infinite alternate;
 }
 
+/* Four-point spark, an inline SVG (Spark.astro). Size, offsets and delay
+   come from the caller's style attribute. */
 .spark {
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   width: 18px;
   height: 18px;
-  background: var(--c-gold-light);
-  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-  filter: drop-shadow(0 0 6px var(--c-accent));
-  animation: twinkle 3.2s ease-in-out infinite;
+  color: var(--c-spark);
+  filter: drop-shadow(0 0 6px rgb(245 223 160 / 90%));
+  animation: twinkle 3.4s ease-in-out infinite;
   pointer-events: none;
-}
-
-.spark:nth-of-type(2) {
-  animation-delay: -0.8s;
-}
-
-.spark:nth-of-type(3) {
-  animation-delay: -1.6s;
-}
-
-.spark:nth-of-type(4) {
-  animation-delay: -2.4s;
 }
 
 /* --------------------------------------------------------------------------
@@ -1136,6 +1211,7 @@ body::after {
 @keyframes halo {
   from {
     box-shadow:
+      0 0 0 1px rgb(212 175 55 / 50%),
       0 0 40px rgb(212 175 55 / 22%),
       0 0 120px rgb(212 175 55 / 12%),
       0 40px 90px rgb(0 0 0 / 60%);
@@ -1143,32 +1219,47 @@ body::after {
 
   to {
     box-shadow:
+      0 0 0 1px rgb(212 175 55 / 80%),
       0 0 70px rgb(212 175 55 / 42%),
       0 0 180px rgb(212 175 55 / 24%),
       0 40px 90px rgb(0 0 0 / 60%);
   }
 }
 
-@keyframes photo-zoom {
+@keyframes breathe {
   from {
-    transform: scale(1);
+    transform: scale(1.03);
   }
 
   to {
-    transform: scale(1.06);
+    transform: scale(1.1);
   }
 }
 
 @keyframes twinkle {
   0%,
   100% {
-    opacity: 0.25;
-    transform: scale(0.6) rotate(0deg);
+    opacity: 0.1;
+    transform: scale(0.45) rotate(0deg);
   }
 
   50% {
     opacity: 1;
-    transform: scale(1) rotate(45deg);
+    transform: scale(1) rotate(25deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(79 179 131 / 70%);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgb(79 179 131 / 0%);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(79 179 131 / 0%);
   }
 }
 
@@ -1193,6 +1284,7 @@ body::after {
 
   .photo-frame {
     box-shadow:
+      0 0 0 1px rgb(212 175 55 / 50%),
       0 0 40px rgb(212 175 55 / 22%),
       0 0 120px rgb(212 175 55 / 12%),
       0 40px 90px rgb(0 0 0 / 60%);
