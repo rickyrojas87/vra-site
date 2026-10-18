@@ -1,63 +1,93 @@
 ---
-/** Works — spec section 5. */
-import { loadPublishedTitles, loadInProductionTitles } from '../utils/content';
+/**
+ * Works — spec v2 §5.
+ *
+ * Surfaces: hero (poster, fades to deep) → 01 deep → 02 panel → 03 base →
+ * CTA panel (fades out) → footer deep. Without in-production titles 03 goes
+ * and the CTA turns base, so no two neighbours ever share a surface.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHeader from '../components/PageHeader.astro';
-import TitleCard from '../components/TitleCard.astro';
+import PageHero from '../components/PageHero.astro';
+import PosterPreload from '../components/PosterPreload.astro';
+import SectionHead from '../components/SectionHead.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
+import BookCard from '../components/BookCard.astro';
 import CtaBand from '../components/CtaBand.astro';
+import Dust from '../components/Dust.astro';
 import TitleSchema from '../components/TitleSchema.astro';
+import { loadInProductionTitles } from '../utils/content';
+import { loadPublishedNewestFirst } from '../utils/catalog';
 
-const published = await loadPublishedTitles();
+const published = await loadPublishedNewestFirst();
 const inProduction = await loadInProductionTitles();
+const newestId = published[0]?.id;
 ---
 
 <BaseLayout
   title="Audiobook Narration Demos and Published Titles"
   description="Narration demos across genres and character types, plus published audiobook titles and works currently in production."
 >
-  {/* 1 — Title */}
-  <PageHeader title="Works" />
+  <PosterPreload slot="head" />
 
-  {/* 2 — Demos */}
-  <WaveformPlayer surface="deep" id="demos" />
+  <PageHero eyebrow="Demos and catalog" title="Works" subline="Pull up a chair." />
 
-  {/* 3 — Published titles */}
-  <section class="section surface-base" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Published titles</h2>
+  {/* 01 — The listening room, every demo */}
+  <WaveformPlayer surface="deep" id="demos" chapter={1} />
+
+  {/* 02 — Published */}
+  <section class="section surface-panel join join--from-deep shelf" aria-labelledby="published-title">
+    <Dust seed={22} />
+    <div class="container reveal">
+      <SectionHead chapter={2} label="Published" id="published-title">
+        On the <em>shelf.</em>
+      </SectionHead>
       {
         published.length > 0 ? (
-          <div class="titles-grid">
+          <ul class="grid">
             {published.map((entry) => (
-              <TitleCard entry={entry} showMeta />
+              <li>
+                <BookCard
+                  entry={entry}
+                  ribbon={entry.id === newestId ? 'just-published' : null}
+                  linkLabel
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
-          <p class="muted">No published titles yet.</p>
+          <p class="lede empty">No published titles yet.</p>
         )
       }
     </div>
   </section>
 
-  {/* 4 — In production */}
+  {/* 03 — In production */}
   {
     inProduction.length > 0 && (
-      <section class="section surface-panel" data-reveal>
-        <div class="container stack">
-          <h2 class="label">In production</h2>
-          <div class="titles-grid">
+      <section class="section surface-base join join--from-panel" aria-labelledby="production-title">
+        <div class="container reveal">
+          <SectionHead chapter={3} label="In production" id="production-title">
+            Coming <em>soon.</em>
+          </SectionHead>
+          <ul class="grid">
             {inProduction.map((entry) => (
-              <TitleCard entry={entry} showMeta />
+              <li>
+                <BookCard entry={entry} ribbon="in-production" />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
     )
   }
 
-  {/* 5 — CTA band */}
-  <CtaBand />
+  {
+    inProduction.length > 0 ? (
+      <CtaBand surface="panel" joinFrom="base" />
+    ) : (
+      <CtaBand surface="base" joinFrom="panel" />
+    )
+  }
 
   {/* Published titles only: in-production entries have no author, runtime or
       date, and a name-only node is not worth emitting. */}
@@ -65,74 +95,33 @@ const inProduction = await loadInProductionTitles();
 </BaseLayout>
 
 <style>
-  .stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+  .shelf {
+    position: relative;
+    overflow: hidden;
   }
 
-  /* 2 — Demos */
-  .demos {
+  .shelf > .container {
+    position: relative;
+  }
+
+  .grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .demo {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-2);
-    background: var(--c-panel);
-    border-radius: var(--radius-panel);
+  .empty {
+    margin-inline: auto;
+    text-align: center;
   }
 
-  .demo__head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-1);
-  }
-
-  .demo__title {
-    font-family: var(--font-display);
-    font-size: var(--fs-h3);
-    font-weight: var(--fw-h3);
-    letter-spacing: var(--ls-h3);
-    line-height: var(--lh-heading);
-    color: var(--c-text);
-  }
-
-  .demo__flag {
-    flex-shrink: 0;
-    font-size: var(--fs-label);
-    font-weight: var(--fw-label);
-    letter-spacing: var(--ls-label);
-    text-transform: uppercase;
-    color: var(--c-muted);
-  }
-
-  .demo__audio {
-    width: 100%;
-  }
-
-  .demos__note {
-    font-size: 13px;
-  }
-
-  /* 3 across desktop, 1 across mobile. */
-  .titles-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--gutter);
-  }
-
-  @media (min-width: 768px) {
-    .titles-grid {
-      grid-template-columns: repeat(3, 1fr);
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-3);
     }
   }
 </style>

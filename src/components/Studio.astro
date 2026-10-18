@@ -1,0 +1,93 @@
+---
+/**
+ * The studio — Home 06 and About 03 (spec v2 §3, §5). A photo of Vikki in the
+ * shared photo frame beside the studio and delivery spec card. Home uses the
+ * booth shot at object-position 50% 20%; About passes its own photo so the
+ * two pages don't repeat one another.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import SectionHead from './SectionHead.astro';
+import DeliverySpec from './DeliverySpec.astro';
+import booth from '../assets/booth.jpg';
+
+type Surface = 'base' | 'deep' | 'panel';
+
+interface Props {
+  chapter?: number;
+  surface?: Surface;
+  /** The previous section's surface, for the soft join. */
+  joinFrom?: Surface;
+  photo?: ImageMetadata;
+  alt?: string;
+  /** object-position for the photo inside its 4:5 frame. */
+  position?: string;
+}
+
+const {
+  chapter = 6,
+  surface = 'panel',
+  joinFrom = 'deep',
+  photo = booth,
+  alt = 'Victoria Rojas recording at a condenser microphone behind a pop filter, headphones on, reading from a tablet',
+  position = '50% 20%',
+} = Astro.props;
+
+const titleId = `studio-title-${chapter}`;
+---
+
+<section
+  class:list={['section', `surface-${surface}`, 'join', `join--from-${joinFrom}`, 'studio']}
+  aria-labelledby={titleId}
+>
+  <div class="container reveal">
+    <SectionHead chapter={chapter} label="The studio" id={titleId}>
+      A treated booth, <em>mastered in-house.</em>
+    </SectionHead>
+
+    <div class="studio__row">
+      <div class="photo-stage studio__figure">
+        <div class="photo-frame studio__frame" style={`--photo-position:${position}`}>
+          <Image
+            src={photo}
+            alt={alt}
+            width={900}
+            widths={[450, 900]}
+            sizes="(min-width: 900px) 440px, 86vw"
+            quality={65}
+          />
+        </div>
+      </div>
+      <DeliverySpec variant="card" showTurnaround={false} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .studio__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .studio__figure {
+    justify-self: center;
+    width: min(440px, 100%);
+  }
+
+  .studio__frame {
+    aspect-ratio: 4 / 5;
+  }
+
+  .studio__frame :global(img) {
+    object-position: var(--photo-position);
+  }
+
+  @media (min-width: 900px) {
+    .studio__row {
+      grid-template-columns: 2fr 3fr;
+      gap: var(--space-4);
+    }
+  }
+</style>

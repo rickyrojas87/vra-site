@@ -6,14 +6,7 @@
  * (17/33/50/67/83/100%), "Chapter N" and finally "The end".
  */
 import SectionHead from '../SectionHead.astro';
-import { processSteps } from '../../data/process';
-
-const steps = processSteps.map((step, i, all) => ({
-  ...step,
-  n: i + 1,
-  last: i === all.length - 1,
-  progress: Math.round(((i + 1) / all.length) * 100),
-}));
+import { processChapters as steps } from '../../data/process';
 ---
 
 <section class="section surface-deep join join--from-base process" aria-labelledby="process-title">
@@ -32,7 +25,7 @@ const steps = processSteps.map((step, i, all) => ({
             <span class:list={['process__rule', { 'process__rule--end': step.last }]} aria-hidden="true" />
             <p class="process__chapter">{step.last ? 'The end' : `Chapter ${step.n}`}</p>
             <h3 class="process__title">{step.title}</h3>
-            <p class="process__copy">{step.short}</p>
+            <p class="process__copy">{step.copy}</p>
             <span
               class="process__bar"
               role="presentation"

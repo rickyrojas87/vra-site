@@ -71,12 +71,13 @@ Change the **Order on the page** number. Lower numbers appear first.
    "Victoria at the microphone with headphones on" is right.
    "Photo 3" or "IMG_4471" is not. This is what blind visitors hear, and it's
    what Google reads.
-5. Set the **Order in the collage**
+5. Set the **Order on the page**
 6. **Save**
 
-**The collage needs at least four photos to appear at all.** With three or
-fewer, that whole section of the About page stays hidden — that's deliberate,
-because a partial row looks broken. Add a fourth and it appears.
+**The About page shows three photos in a row: the three with the lowest
+order numbers.** With fewer than three, that whole section stays hidden —
+that's deliberate, because a partial row looks broken. Extra photos are kept
+but not shown; change the order numbers to choose which three appear.
 
 ---
 

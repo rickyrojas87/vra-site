@@ -25,9 +25,11 @@ interface Props {
   formTarget?: string;
   /** Pre-fill so the figures show on arrival instead of dashes. */
   initialWords?: number;
+  /** Contact (spec v2 §5): the rate each figure is worked from, under it. */
+  showRates?: boolean;
 }
 
-const { formTarget = 'intake', initialWords } = Astro.props;
+const { formTarget = 'intake', initialWords, showRates = false } = Astro.props;
 
 /** Slider bounds — spec v2 §3, row 07. The text field accepts any count. */
 const RANGE = { min: 10_000, max: 150_000, step: 1_000 };
@@ -106,6 +108,13 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
       <div class="calc__figure">
         <dt class="calc__key">Estimated finished hours</dt>
         <dd class="calc__val" data-hours>&mdash;</dd>
+        {
+          showRates && (
+            <dd class="calc__rate">
+              {WORDS_PER_FINISHED_HOUR.toLocaleString('en-US')} words per finished hour
+            </dd>
+          )
+        }
       </div>
       {/* No standalone Rate figure: as an output it read like a fixed price.
           The per-finished-hour numbers stay inside the toggle segments, where
@@ -113,6 +122,13 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
       <div class="calc__figure calc__figure--total">
         <dt class="calc__key">Starting estimate</dt>
         <dd class="calc__total" data-total aria-live="polite">&mdash;</dd>
+        {
+          showRates && (
+            <dd class="calc__rate">
+              at <span data-rate>${defaultService.rate}</span> per finished hour
+            </dd>
+          )
+        }
       </div>
     </dl>
 
@@ -329,6 +345,12 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     font-variant-numeric: tabular-nums;
   }
 
+  .calc__rate {
+    margin: 0;
+    font-size: 13px;
+    color: var(--c-text-caption);
+  }
+
   .calc__note {
     max-width: 68ch;
     /* Quiet grey, which clears AA on every surface it sits on. */
@@ -392,6 +414,7 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
     const handoff = root.querySelector<HTMLButtonElement>('[data-handoff]')!;
     const segButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-service]')];
     const range = root.querySelector<HTMLInputElement>('[data-range]');
+    const rateEl = root.querySelector<HTMLElement>('[data-rate]');
 
     const group = new Intl.NumberFormat('en-US');
     const usd = new Intl.NumberFormat('en-US', {
@@ -455,6 +478,7 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
         b.setAttribute('aria-pressed', String(b.dataset.service === next.id));
       }
       descEl.textContent = next.description;
+      if (rateEl) rateEl.textContent = usd.format(next.rate);
       render();
     }
 

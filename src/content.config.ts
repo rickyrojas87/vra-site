@@ -107,8 +107,9 @@ const titles = defineCollection({
 });
 
 /**
- * Gallery — the About collage. One file per photo so the CMS can add, remove
- * and reorder without anyone editing an array by hand.
+ * Gallery — About 04 "In the booth", the first three photos by sortOrder.
+ * One file per photo so the CMS can add, remove and reorder without anyone
+ * editing an array by hand.
  */
 const gallery = defineCollection({
   loader: glob({ pattern: '*.{yaml,yml,json}', base: './src/content/gallery' }),

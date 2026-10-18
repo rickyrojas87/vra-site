@@ -1,19 +1,31 @@
 ---
-/** About — spec section 4. Two images maximum on this page: portrait and booth. */
+/**
+ * About — spec v2 §5.
+ *
+ * Surfaces: hero (poster, fades to deep) → 01 deep → 02 panel → 03 base →
+ * 04 deep → CTA panel (fades out) → footer deep. Each section after 01 joins
+ * the last with the 240px fade.
+ */
 import { Image } from 'astro:assets';
-import { loadPublishedTitles } from '../utils/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHeader from '../components/PageHeader.astro';
-import DeliverySpec from '../components/DeliverySpec.astro';
-import Gallery from '../components/Gallery.astro';
+import PageHero from '../components/PageHero.astro';
+import PosterPreload from '../components/PosterPreload.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Studio from '../components/Studio.astro';
 import CtaBand from '../components/CtaBand.astro';
+import Dust from '../components/Dust.astro';
+import { loadGallery, loadPublishedTitles } from '../utils/content';
 import { genres, accents } from '../data/taxonomy';
 import { bio } from '../data/bio';
+import { processChapters } from '../data/process';
+import portrait from '../assets/portrait.jpg';
+/* Laughing mid-take: Home's studio section already uses the booth shot. */
+import studioPhoto from '../assets/main.jpg';
 
 /**
  * Which genres she has actually published in, read straight off the catalog so
  * the emphasis can never drift from reality. Add a title with a new genre and
- * that pill lights up on the next build with no edit here.
+ * it moves into "Narrated" on the next build with no edit here.
  *
  * The rendered list is the union of the taxonomy and the catalog: a genre that
  * exists on a published title but is missing from taxonomy.ts still appears,
@@ -29,269 +41,335 @@ const allGenres = [...new Set([...genres, ...publishedGenres])];
 const narrated = allGenres.filter((g) => publishedGenres.has(g)).sort();
 /** Everything else, in taxonomy order. */
 const availableFor = allGenres.filter((g) => !publishedGenres.has(g));
-import portrait from '../assets/portrait.jpg';
-/* Studio slot. Stronger frame for a studio context than the booth shot, which
-   moved into the collage. */
-import studio from '../assets/main.jpg';
 
+/** "In the booth": the first three gallery photos, in CMS order. */
+const booth = (await loadGallery()).slice(0, 3);
 ---
 
 <BaseLayout
   title="About Victoria Rojas, Female Audiobook Narrator"
   description="Audiobook narrator based in Central Texas, recording and mastering in a treated home studio to professional delivery standards."
 >
-  {/* 1 — Title */}
-  <PageHeader title="About" />
+  <PosterPreload slot="head" />
 
-  {/* 2 — Bio, 5/7 split */}
-  <section class="section surface-deep" data-reveal>
-    <div class="container bio">
-      <div class="bio__portrait">
-        {/* Fills the column height so both columns end on the same line. */}
-        <Image
-          class="photo"
-          src={portrait}
-          alt="Victoria Rojas seated in her studio beside a pair of over-ear headphones, acoustic panelling behind her"
-          width={900}
-          height={1125}
-        />
+  <PageHero eyebrow="Audiobook narrator" title="About" subline="Pleased to meet you." />
+
+  {/* 01 — Meet Victoria */}
+  <section class="section surface-deep meet" aria-labelledby="meet-title">
+    <Dust seed={44} />
+    <div class="container reveal">
+      <SectionHead chapter={1} label="Meet Victoria" id="meet-title">
+        The voice behind the <em>story.</em>
+      </SectionHead>
+
+      <div class="card card--panel meet__panel">
+        <div class="meet__figure photo-stage">
+          <div class="photo-frame meet__frame">
+            <Image
+              src={portrait}
+              alt="Victoria Rojas seated in her studio, smiling, with a pair of over-ear headphones beside her"
+              width={800}
+              height={1000}
+              widths={[400, 800]}
+              sizes="(min-width: 900px) 400px, 86vw"
+              fit="cover"
+              position="center"
+              quality={65}
+            />
+          </div>
+          <span class="spark" style="top:-12px;right:22%" aria-hidden="true"></span>
+          <span class="spark" style="bottom:18%;left:-12px" aria-hidden="true"></span>
+        </div>
+
+        <div class="meet__copy">
+          {bio.map((paragraph) => <p>{paragraph}</p>)}
+          <p class="hand meet__signature">Victoria</p>
+        </div>
       </div>
 
-      <div class="bio__copy">
-        {bio.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
-    </div>
-  </section>
+      {/* Accents and dialects | Genres */}
+      <div class="range">
+        <div class="card card--panel range__card">
+          <h3 class="eyebrow">Accents and dialects</h3>
+          <ul class="star-list">
+            {accents.map((accent) => <li>{accent}</li>)}
+          </ul>
+        </div>
 
-  {/* 3 + 4 — Range and Genres, one block. Both are short lists; two full-height
-      bands spent a screen each on a dozen words. */}
-  <section class="section surface-base" data-reveal>
-    <div class="container rg">
-      <div class="rg__col">
-        <div class="rg__group">
-          <h2 class="label">Range</h2>
-          <p class="rg__intro">Accents and dialects performed in character work.</p>
+        <div class="card card--panel range__card">
+          <h3 class="eyebrow">Genres</h3>
+          <div class="range__group">
+            <h4 class="range__sub">Narrated</h4>
+            <ul class="star-list">
+              {narrated.map((genre) => <li>{genre}</li>)}
+            </ul>
+          </div>
           {
-            accents.length > 0 ? (
-              <ul class="tags">
-                {accents.map((accent) => (
-                  <li class="tag">{accent}</li>
-                ))}
-              </ul>
-            ) : (
-              <p class="muted">Accents to be confirmed.</p>
+            availableFor.length > 0 && (
+              <div class="range__group">
+                <h4 class="range__sub">Also available for</h4>
+                <ul class="star-list range__list--quiet">
+                  {availableFor.map((genre) => <li>{genre}</li>)}
+                </ul>
+              </div>
             )
           }
         </div>
       </div>
-
-      {/* No "Genres" header above these two: it would sit in the same label
-          token directly above "Narrated" and read as a duplicate. The group
-          labels carry it, and genre names are self-evident in context. */}
-      <div class="rg__col">
-        <div class="rg__group">
-          <h2 class="label">Narrated</h2>
-          <ul class="tags">
-            {narrated.map((genre) => <li class="tag tag--pill is-published">{genre}</li>)}
-          </ul>
-        </div>
-
-        <div class="rg__group">
-          <h2 class="label">Also available for</h2>
-          <ul class="tags">
-            {availableFor.map((genre) => <li class="tag tag--pill">{genre}</li>)}
-          </ul>
-        </div>
-      </div>
     </div>
   </section>
 
-  {/* 5 — Studio. Same panel as Home section 5, reused not rewritten. */}
-  <section class="section surface-deep" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Studio and delivery</h2>
-      {/* Booth beside the panel, both stretched to the same height. */}
-      <div class="studio">
-        <figure class="studio__photo">
-          <Image
-            class="photo"
-            src={studio}
-            alt="Victoria Rojas laughing mid-take at the microphone, headphones on and a script tablet in her hand"
-            width={1120}
-          />
-        </figure>
-        <DeliverySpec />
-      </div>
+  {/* 02 — How we work together, long form */}
+  <section class="section surface-panel join join--from-deep" aria-labelledby="process-title">
+    <div class="container reveal">
+      <SectionHead chapter={2} label="How we work together" id="process-title">
+        From manuscript to <em>finished audiobook.</em>
+      </SectionHead>
+
+      <ol class="steps">
+        {
+          processChapters.map((step) => (
+            <li class="card steps__card">
+              <span class="steps__numeral" aria-hidden="true">
+                {step.n}
+              </span>
+              <div class="steps__body">
+                <p class="steps__chapter">{step.last ? 'The end' : `Chapter ${step.n}`}</p>
+                <h3 class="steps__title">{step.title}</h3>
+                <p class="steps__copy">{step.copy}</p>
+                <span class="steps__bar" role="presentation" style={`--progress:${step.progress}%`} />
+              </div>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
-  {/* Self-hides until there are at least four images. */}
-  <Gallery surface="panel" />
+  {/* 03 — The studio */}
+  <Studio
+    chapter={3}
+    surface="base"
+    joinFrom="panel"
+    photo={studioPhoto}
+    alt="Victoria Rojas laughing mid-take at the microphone, headphones on and a script tablet in her hand"
+    position="50% 30%"
+  />
 
-  {/* 6 — CTA band */}
-  <CtaBand />
+  {/* 04 — In the booth. CMS-managed photos; hidden until there are three. */}
+  {
+    booth.length === 3 && (
+      <section class="section surface-deep join join--from-base" aria-labelledby="booth-title">
+        <div class="container reveal">
+          <SectionHead chapter={4} label="In the booth" id="booth-title">
+            Behind the <em>microphone.</em>
+          </SectionHead>
+
+          <ul class="booth">
+            {booth.map((entry) => (
+              <li class="photo-frame booth__frame">
+                <Image
+                  src={entry.data.image}
+                  alt={entry.data.alt}
+                  width={720}
+                  height={900}
+                  widths={[360, 720]}
+                  sizes="(min-width: 700px) 340px, 86vw"
+                  fit="cover"
+                  position="center"
+                  quality={65}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <CtaBand joinFrom={booth.length === 3 ? 'deep' : 'base'} />
 </BaseLayout>
 
 <style>
-  .stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+  /* 01 — Meet Victoria */
+  /* `clip`, not `hidden`: hidden would make the section a scroll container
+     and the sticky portrait below would never stick. */
+  .meet {
+    position: relative;
+    overflow: clip;
   }
 
-  /* 2 — Bio */
-  .bio {
+  .meet > .container {
+    position: relative;
+  }
+
+  .meet__panel {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-3);
+    padding: var(--space-3);
   }
 
-  /* The image is taken out of flow so it can't contribute to the grid row
-     height — the copy column alone sets it, and the photo crops to match.
-     With `height: 100%` alone the img's intrinsic size still influences row
-     sizing and the columns drift apart again. */
-  .bio__portrait {
-    position: relative;
-    min-height: 320px;
+  .meet__figure {
+    justify-self: center;
+    width: min(400px, 100%);
   }
 
-  .bio__portrait :global(img) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 25%;
+  .meet__frame {
+    aspect-ratio: 4 / 5;
   }
 
-  /* 5 — Booth beside the delivery panel, equal height. */
-  .studio {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--gutter);
-    align-items: stretch;
-  }
-
-  /* Same treatment: the delivery panel sets the height, the booth crops to it. */
-  .studio__photo {
-    position: relative;
-    margin: 0;
-    min-height: 320px;
-  }
-
-  .studio__photo :global(img) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 30%;
-  }
-
-  .bio__copy {
+  .meet__copy {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--c-text);
+    color: var(--c-text-card);
   }
 
-  /* 3 + 4 — Range and Genres */
-  .rg {
+  .meet__signature {
+    align-self: flex-start;
+    font-size: 44px;
+  }
+
+  .range {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
   }
 
-  /* 40px between groups, 16px from a label to its own content — so the two
-     genre groups read as siblings rather than one continuous list. */
-  .rg__col {
+  .range__card {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-3);
+    color: var(--c-text-body);
   }
 
-  .rg__group {
+  .range__group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: 10px;
   }
 
-  .rg__col .label {
-    margin: 0;
+  .range__sub {
     font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: var(--fw-label);
+    letter-spacing: 0.04em;
+    color: var(--c-text-caption);
   }
 
-  .rg__intro {
-    max-width: 60ch;
-    color: var(--c-muted);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
+  .range__list--quiet {
+    color: var(--c-text-card);
   }
 
-  .tags {
+  /* 02 — Process, stacked */
+  .steps {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps__card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+    padding: var(--space-3);
+  }
+
+  .steps__numeral {
+    font-family: var(--font-display);
+    font-size: var(--fs-numeral);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 0.9;
+    color: var(--c-accent);
+  }
+
+  .steps__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .steps__chapter {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--c-text-caption);
+  }
+
+  .steps__title {
+    font-size: var(--fs-h3);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--c-text-body);
+  }
+
+  .steps__copy {
+    color: var(--c-text-card);
+  }
+
+  .steps__bar {
+    display: block;
+    height: 3px;
+    margin-top: var(--space-1);
+    border-radius: 2px;
+    background:
+      linear-gradient(90deg, var(--c-emerald), var(--c-accent)) 0 0 / var(--progress) 100% no-repeat,
+      var(--c-card-edge);
+  }
+
+  /* 04 — In the booth */
+  .booth {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  /* Inline tags, wrapping naturally — no grid, so no orphan rows.
-     Sized against this page's 17px body copy, not a mockup. font-family and
-     weight are declared rather than inherited so a future change to the list
-     elements can't quietly drop them to the UA default. */
-  .tag {
-    padding: 7px 14px;
-    border: 1px solid rgb(184 146 90 / 55%);
-    border-radius: 3px;
-    color: var(--c-text);
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+  .booth__frame {
+    aspect-ratio: 4 / 5;
   }
 
-  .tag--pill {
-    border-radius: 20px;
-    color: var(--c-muted);
+  @media (min-width: 640px) {
+    .steps__card {
+      grid-template-columns: 88px 1fr;
+      gap: var(--space-3);
+    }
   }
-
-  /* Filled = she has a published title in this genre. Driven by the catalog. */
-  .tag--pill.is-published {
-    background: var(--c-accent);
-    border-color: var(--c-accent);
-    color: var(--c-bg);
-  }
-
 
   @media (min-width: 700px) {
-    .rg {
-      grid-template-columns: 1fr 1.35fr;
+    .range {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .booth {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
     }
   }
 
-  /* Same 768px boundary the global type scale uses for its desktop step. */
-  @media (min-width: 768px) {
-    .tag {
-      font-size: 14px;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .bio {
-      grid-template-columns: 5fr 7fr;
-      gap: var(--gutter);
-      /* Both columns end on the same line. */
-      align-items: stretch;
+  @media (min-width: 900px) {
+    .meet__panel {
+      grid-template-columns: 2fr 3fr;
+      align-items: start;
+      gap: var(--space-4);
+      padding: var(--space-4);
     }
 
-    .studio {
-      grid-template-columns: 1fr 1.5fr;
+    /* The full bio runs taller than the portrait; keep the photo in view. */
+    .meet__figure {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-3));
     }
   }
 </style>

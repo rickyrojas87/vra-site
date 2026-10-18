@@ -204,6 +204,8 @@
   --fs-hero: clamp(44px, 7vw, 80px); /* Home hero name, 80px at desktop */
   --fs-tagline: clamp(34px, 5vw, 48px); /* La Belle Aurore hero tagline */
   --fs-numeral: 60px; /* italic chapter numerals */
+  --fs-page-title: clamp(38px, 6vw, 64px); /* About, Works, Contact short hero */
+  --fs-subline: clamp(28px, 4vw, 40px); /* their handwritten subline */
   --fs-h1: 40px;
   --fs-h2: 28px;
   --fs-h3: 22px;
@@ -591,45 +593,13 @@ p {
   border-color: var(--c-accent);
 }
 
-/* --------------------------------------------------------------------------
-   Pills — shared by genre tags (About 4, Works 2, Home 2)
-   -------------------------------------------------------------------------- */
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 18px;
-  border: 1px solid var(--c-accent-2);
-  border-radius: 999px;
-  color: var(--c-muted);
+/* Compact control, e.g. the stats strip's pause. Not for page actions, which
+   keep the 52px height. 40px still clears the 24px target-size minimum. */
+.btn--small {
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
   font-size: var(--fs-label);
-  font-weight: var(--fw-label);
-  letter-spacing: var(--ls-label);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.pill[aria-pressed='true'],
-.pill--active {
-  border-color: var(--c-accent);
-  color: var(--c-accent);
-}
-
-/* --------------------------------------------------------------------------
-   Photos
-
-   Shared treatment for photography — portrait, booth, gallery. NOT cover art,
-   which carries its own frame and hover elevation in TitleCard.
-   The ring is a second box-shadow layer rather than a border so it can't affect
-   layout or fight `object-fit`.
-   -------------------------------------------------------------------------- */
-
-.photo {
-  border-radius: 4px;
-  box-shadow:
-    0 12px 28px rgb(0 0 0 / 50%),
-    0 0 0 1px var(--c-rule);
 }
 
 /* --------------------------------------------------------------------------
@@ -663,30 +633,6 @@ p {
 
 .skip-link:focus {
   top: 12px;
-}
-
-/* --------------------------------------------------------------------------
-   Scroll reveals
-
-   The hidden state is gated on `.has-reveal`, which the inline head script adds
-   only when JS runs and motion is allowed. Without JS, or with reduced motion,
-   content renders at full opacity and never depends on the observer firing.
-
-   The hero is deliberately excluded: it holds the LCP element, and starting it
-   at opacity 0 would defer the largest paint until the observer callback.
-   -------------------------------------------------------------------------- */
-
-.has-reveal [data-reveal] {
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 400ms ease-out,
-    transform 400ms ease-out;
-}
-
-.has-reveal [data-reveal].is-revealed {
-  opacity: 1;
-  transform: none;
 }
 
 /* ==========================================================================

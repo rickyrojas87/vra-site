@@ -1,0 +1,19 @@
+---
+/**
+ * <head> preload for the library poster, the LCP image of every v2 hero.
+ * Use as <PosterPreload slot="head" />. Same URLs as the <img>, via
+ * utils/heroPoster.ts, so the file is never fetched twice.
+ */
+import { getHeroPoster } from '../utils/heroPoster';
+
+const poster = await getHeroPoster();
+---
+
+<link
+  rel="preload"
+  as="image"
+  type="image/webp"
+  imagesrcset={poster.srcSet.attribute}
+  imagesizes={poster.attributes.sizes}
+  fetchpriority="high"
+/>

@@ -1,47 +1,47 @@
 /**
- * How we work together — Home section 05 (spec v2 §3).
+ * How we work together — Home 05 (cards) and About 02 (stacked, long form).
  *
- * DRAFT COPY, NOT VIKKI'S WORDING. No process copy existed anywhere in the
- * repo, so these six are placeholders written to the spec's 23–26 word length.
- * Spec v2 §6 moves this list into `settings/process.yaml` (title, short copy
- * for Home, long copy for About) so Vikki can edit it from the CMS; until then
- * it lives here. Replace the wording with hers before launch.
+ * Vikki's wording, verbatim. There is one version of each step: she supplied
+ * no separate short and long copy, so Home and About render the same text.
+ * Spec v2 §6 moves this list into `settings/process.yaml` so she can edit it
+ * from the CMS; until then it lives here.
  */
 export interface ProcessStep {
   title: string;
-  /** Home card copy, 23–26 words. */
-  short: string;
+  copy: string;
 }
 
 export const processSteps: ProcessStep[] = [
   {
-    title: 'First conversation',
-    short:
-      'You tell me about your book, your characters and your listeners. I read the sample and send a short audition so you can hear the fit.',
+    title: 'Send your book',
+    copy: 'Share the manuscript, word count and deal type through the quote form. You get a quote and next steps within two business days.',
   },
   {
-    title: 'Preparing the script',
-    short:
-      'Before I record a word, I read the whole manuscript, map every character, and confirm pronunciations, names and accents with you so nothing is guessed at.',
+    title: 'Manuscript review',
+    copy: 'I read the entire manuscript over one to two weeks, prepping plot lines, character arcs and pronunciations. Your pronunciation list and character notes help here.',
   },
   {
-    title: 'The first fifteen',
-    short:
-      'I record and master the first fifteen minutes and send them for your approval. Voices, pacing and tone are agreed here, before full production begins.',
+    title: 'First fifteen',
+    copy: 'I record the first 15 minutes to set pacing, tone and voices. Once approved, creative direction is entrusted to me. Per-finished-hour projects: a 25% deposit is due.',
   },
   {
-    title: 'In the booth',
-    short:
-      'I narrate the full book in my treated studio, punch-and-roll, chapter by chapter, keeping each character consistent from the opening line to the very end.',
+    title: 'Punch and roll',
+    copy: 'Over four to six weeks I record, edit and master the rest of the book in my studio, then upload every finished file for your review.',
   },
   {
-    title: 'Editing and mastering',
-    short:
-      'Every chapter is edited, proofed against the text and mastered in-house to ACX standards, so the files you receive are clean, consistent and ready to submit.',
+    title: 'Your review',
+    copy: 'You note any pickups: technical flubs, mispronunciations or missing words. Two rounds of pickups are included. Additional rounds are subject to extra fees.',
   },
   {
-    title: 'Delivery and release',
-    short:
-      'You review the finished chapters and request any pickups. I make the corrections, deliver the final files, and help see your audiobook through to release.',
+    title: 'Payment and release',
+    copy: 'Once every file is approved, final payment is made before the finished audio goes to the publishing platform for quality assurance and release.',
   },
 ];
+
+/** Card decoration shared by both renderings: chapter label and progress. */
+export const processChapters = processSteps.map((step, i, all) => ({
+  ...step,
+  n: i + 1,
+  last: i === all.length - 1,
+  progress: Math.round(((i + 1) / all.length) * 100),
+}));

@@ -33,15 +33,20 @@ scale in a component.
 **Surfaces alternate.** Three background values (`base`, `deep`, `panel`) run
 down every page and no two consecutive sections may share one. The footer is
 `deep`, so the last band before it must not be. Changing one section's surface
-usually means changing its neighbour's. On v2 pages (Home so far) sections
-also fade in from the previous surface with `.join .join--from-*`, so a
-surface change means updating the next section's `join--from-*` too. The Home
-stats strip is the one deliberate exception: a thin band, deep like section 01
-below it.
+usually means changing its neighbour's. Sections also fade in from the
+previous surface with `.join .join--from-*`, so a surface change means
+updating the next section's `join--from-*` too. Every hero (Home's video,
+`PageHero` elsewhere) fades into deep at its foot, so section 01 is deep with
+no join. The Home stats strip is the one deliberate exception: a thin band,
+deep like section 01 below it.
 
-**v2 pages opt out of the v1 scroll reveal** with `legacyReveal={false}` on
-BaseLayout and use the load-time `.reveal` class. Remove the prop and
-`LegacyReveal.astro` once About, Works and Contact are rebuilt.
+**Sections fade up on load with `.reveal`** (time-based, global.css). The v1
+scroll reveal (`data-reveal`) is gone; don't reintroduce an observer.
+
+**Every hero's LCP image is the library poster.** `PageHero` and Home's `Hero`
+render it from `utils/heroPoster.ts`, and each page puts
+`<PosterPreload slot="head" />` in BaseLayout's head slot. Keep the `<img>` and
+the preload on that one helper or the poster downloads twice.
 
 ---
 
@@ -49,9 +54,9 @@ BaseLayout and use the load-time `.reveal` class. Remove the prop and
 
 | Collection | Shape | Rendered by |
 |---|---|---|
-| `titles` | one YAML per audiobook, covers in `covers/` | TitleCard, WaveformPlayer, Proof, TitleSchema |
-| `gallery` | one YAML per photo, `image` relative to `../../assets` | Gallery |
-| `testimonials` | one YAML per quote; empty by design | Proof |
+| `titles` | one YAML per audiobook, covers in `covers/` | BookCard, WaveformPlayer, StatsStrip, Hero, TitleSchema |
+| `gallery` | one YAML per photo, `image` relative to `../../assets` | About 04, first three |
+| `testimonials` | one YAML per quote | home/Testimonials |
 | `settings` | single `delivery.yaml` | DeliverySpec |
 
 **Always load through `src/utils/content.ts`**, never `getCollection` directly.

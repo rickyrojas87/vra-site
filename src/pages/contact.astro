@@ -1,7 +1,18 @@
 ---
-/** Contact — spec section 6. */
+/**
+ * Contact — spec v2 §5.
+ *
+ * Surfaces: hero (poster, fades to deep) → 01 deep → 02 panel → 03 base
+ * (fades out) → footer deep.
+ *
+ * The intake form's markup is unchanged from v1; only its wrapper and styles
+ * moved to v2. Its identity and field names are checked against the generated
+ * /__forms.html on every build (scripts/check-forms.mjs).
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHeader from '../components/PageHeader.astro';
+import PageHero from '../components/PageHero.astro';
+import PosterPreload from '../components/PosterPreload.astro';
+import SectionHead from '../components/SectionHead.astro';
 import QuoteCalculator from '../components/QuoteCalculator.astro';
 import { site, professionalLinks } from '../data/site';
 import { genreOptions, dealTypes } from '../data/taxonomy';
@@ -9,190 +20,218 @@ import { genreOptions, dealTypes } from '../data/taxonomy';
    cannot disagree about the form's identity. `npm run build` asserts the field
    names match as well — see scripts/check-forms.mjs. */
 import { FORM_NAME, HONEYPOT_FIELD } from '../data/intakeForm';
+
+/** Email first, then the two professional profiles (ACX, Audible). */
+const direct = [
+  { label: 'Email', value: site.email, note: site.responseTime, href: `mailto:${site.email}`, external: false },
+  ...professionalLinks.map((link) => ({
+    label: link.id === 'acx' ? 'ACX' : 'Audible',
+    value: link.label,
+    note: undefined,
+    href: link.href,
+    external: true,
+  })),
+];
 ---
 
 <BaseLayout
   title="Hire an Audiobook Narrator, Request a Quote"
   description="Tell me about your book and I'll come back within two business days with availability and a quote."
 >
-  {/* 1 — Title */}
-  <PageHeader
-    title="Request a quote"
-    subhead="Tell me about your book and I'll come back within two business days."
+  <PosterPreload slot="head" />
+
+  <PageHero
+    eyebrow="Request a quote"
+    title="Contact"
+    subline="Let's begin."
+    lede="Tell me about your book and I'll come back within two business days."
   />
 
-  {/* 2 — Calculator */}
-  <section class="section surface-deep" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Estimate</h2>
-      <QuoteCalculator formTarget="intake" />
+  {/* 01 — Starting estimate */}
+  <section class="section surface-deep" aria-labelledby="estimate-title">
+    <div class="container narrow reveal">
+      <SectionHead chapter={1} label="Starting estimate" id="estimate-title">
+        What would your book <em>cost?</em>
+      </SectionHead>
+      <QuoteCalculator formTarget="intake" showRates />
     </div>
   </section>
 
-  {/* 3 — Intake form. Fields 5, 6 and 8 are the qualifying ones — never cut them. */}
-  <section class="section surface-base" id="intake" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Project details</h2>
+  {/* 02 — Intake form. Fields 5, 6 and 8 are the qualifying ones — never cut them. */}
+  <section class="section surface-panel join join--from-deep" id="intake" aria-labelledby="intake-title">
+    <div class="container narrow reveal">
+      <SectionHead chapter={2} label="Tell me about your book" id="intake-title">
+        Project <em>details.</em>
+      </SectionHead>
 
       {/*
         `action` is where Netlify redirects after it accepts the POST.
-        Detection itself happens from public/__forms.html — Netlify's build
-        parser does not see forms rendered from .astro components, which is why
-        submissions used to 404. Field names here must stay in sync with that
-        file.
+        Detection itself happens from the generated /__forms.html — Netlify's
+        build parser does not see forms rendered from .astro components, which
+        is why submissions used to 404. Field names here must stay in sync with
+        src/data/intakeForm.ts.
       */}
-      <form
-        class="form"
-        name={FORM_NAME}
-        method="POST"
-        action="/thanks"
-        data-netlify="true"
-        netlify-honeypot={HONEYPOT_FIELD}
-      >
-        <input type="hidden" name="form-name" value={FORM_NAME} />
-        <p class="form__honeypot">
-          <label>Leave this field empty <input name={HONEYPOT_FIELD} tabindex="-1" /></label>
-        </p>
+      <div class="card form-card">
+        <form
+          class="form"
+          name={FORM_NAME}
+          method="POST"
+          action="/thanks"
+          data-netlify="true"
+          netlify-honeypot={HONEYPOT_FIELD}
+        >
+          <input type="hidden" name="form-name" value={FORM_NAME} />
+          <p class="form__honeypot">
+            <label>Leave this field empty <input name={HONEYPOT_FIELD} tabindex="-1" /></label>
+          </p>
 
-        <div class="form__row">
-          <div class="field">
-            <label class="field__label" for="name">Name <span class="field__req">*</span></label>
-            <input class="field__input" id="name" name="name" type="text" required />
+          <div class="form__row">
+            <div class="field">
+              <label class="field__label" for="name">Name <span class="field__req">*</span></label>
+              <input class="field__input" id="name" name="name" type="text" required />
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="email">Email <span class="field__req">*</span></label>
+              <input class="field__input" id="email" name="email" type="email" required />
+            </div>
           </div>
 
           <div class="field">
-            <label class="field__label" for="email">Email <span class="field__req">*</span></label>
-            <input class="field__input" id="email" name="email" type="email" required />
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="field__label" for="bookTitle">
-            Book title <span class="field__req">*</span>
-          </label>
-          <input class="field__input" id="bookTitle" name="bookTitle" type="text" required />
-        </div>
-
-        <div class="form__row">
-          <div class="field">
-            <label class="field__label" for="genre">Genre</label>
-            <select class="field__input" id="genre" name="genre">
-              <option value="">Select a genre</option>
-              {genreOptions.map((genre) => <option value={genre}>{genre}</option>)}
-            </select>
-          </div>
-
-          <div class="field">
-            <label class="field__label" for="wordCount">
-              Word count <span class="field__req">*</span>
+            <label class="field__label" for="bookTitle">
+              Book title <span class="field__req">*</span>
             </label>
+            <input class="field__input" id="bookTitle" name="bookTitle" type="text" required />
+          </div>
+
+          <div class="form__row">
+            <div class="field">
+              <label class="field__label" for="genre">Genre</label>
+              <select class="field__input" id="genre" name="genre">
+                <option value="">Select a genre</option>
+                {genreOptions.map((genre) => <option value={genre}>{genre}</option>)}
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="wordCount">
+                Word count <span class="field__req">*</span>
+              </label>
+              <input
+                class="field__input"
+                id="wordCount"
+                name="wordCount"
+                type="number"
+                min="0"
+                step="1000"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="field">
+              <label class="field__label" for="dealType">Deal type</label>
+              <select class="field__input" id="dealType" name="dealType">
+                <option value="">Select a deal type</option>
+                {dealTypes.map((deal) => <option value={deal}>{deal}</option>)}
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="deliveryDate">Target delivery date</label>
+              <input class="field__input" id="deliveryDate" name="deliveryDate" type="date" />
+            </div>
+          </div>
+
+          <fieldset class="field field--fieldset">
+            <legend class="field__label">
+              Is the manuscript final? <span class="field__req">*</span>
+            </legend>
+            <div class="field__choices">
+              <label class="choice">
+                <input type="radio" name="manuscriptFinal" value="Yes" required /> Yes
+              </label>
+              <label class="choice">
+                <input type="radio" name="manuscriptFinal" value="No" /> No
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label class="field__label" for="manuscriptUrl">Link to manuscript or sample</label>
             <input
               class="field__input"
-              id="wordCount"
-              name="wordCount"
-              type="number"
-              min="0"
-              step="1000"
-              required
+              id="manuscriptUrl"
+              name="manuscriptUrl"
+              type="url"
+              placeholder="https://"
             />
           </div>
-        </div>
-
-        <div class="form__row">
-          <div class="field">
-            <label class="field__label" for="dealType">Deal type</label>
-            <select class="field__input" id="dealType" name="dealType">
-              <option value="">Select a deal type</option>
-              {dealTypes.map((deal) => <option value={deal}>{deal}</option>)}
-            </select>
-          </div>
 
           <div class="field">
-            <label class="field__label" for="deliveryDate">Target delivery date</label>
-            <input class="field__input" id="deliveryDate" name="deliveryDate" type="date" />
+            <label class="field__label" for="notes">Anything else</label>
+            <textarea class="field__input" id="notes" name="notes" rows="5"></textarea>
           </div>
-        </div>
 
-        <fieldset class="field field--fieldset">
-          <legend class="field__label">
-            Is the manuscript final? <span class="field__req">*</span>
-          </legend>
-          <div class="field__choices">
-            <label class="choice">
-              <input type="radio" name="manuscriptFinal" value="Yes" required /> Yes
-            </label>
-            <label class="choice">
-              <input type="radio" name="manuscriptFinal" value="No" /> No
-            </label>
-          </div>
-        </fieldset>
-
-        <div class="field">
-          <label class="field__label" for="manuscriptUrl">Link to manuscript or sample</label>
-          <input
-            class="field__input"
-            id="manuscriptUrl"
-            name="manuscriptUrl"
-            type="url"
-            placeholder="https://"
-          />
-        </div>
-
-        <div class="field">
-          <label class="field__label" for="notes">Anything else</label>
-          <textarea class="field__input" id="notes" name="notes" rows="5"></textarea>
-        </div>
-
-        <button class="btn btn--primary form__submit" type="submit">Send request</button>
-      </form>
+          <button class="btn btn--primary form__submit" type="submit">Send request</button>
+        </form>
+      </div>
     </div>
   </section>
 
-  {/* 4 — Direct */}
-  <section class="section surface-panel" data-reveal>
-    <div class="container stack">
-      <h2 class="label">Direct</h2>
-      <div class="direct">
-        <div class="direct__block">
-          <a class="direct__email" href={`mailto:${site.email}`}>{site.email}</a>
-          <p class="muted">{site.responseTime}</p>
-        </div>
+  {/* 03 — Or reach me directly */}
+  <section
+    class="section surface-base join join--from-panel join--to-deep"
+    aria-labelledby="direct-title"
+  >
+    <div class="container reveal">
+      <SectionHead chapter={3} label="Or reach me directly" id="direct-title">
+        Write to me <em>directly.</em>
+      </SectionHead>
 
-        <ul class="direct__links">
-          {
-            professionalLinks.map((link) => (
-              <li>
-                {link.href ? (
-                  <a class="direct__link" href={link.href} target="_blank" rel="noopener noreferrer">
-                    {link.label}
-                  </a>
-                ) : (
-                  <span class="direct__link is-pending" title="URL still needed">
-                    {link.label}
-                  </span>
-                )}
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+      <ul class="direct">
+        {
+          direct.map((item) => (
+            <li>
+              {item.href ? (
+                <a
+                  class="card direct__card"
+                  href={item.href}
+                  {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  <span class="eyebrow">{item.label}</span>
+                  <span class="direct__value">{item.value}</span>
+                  {item.note && <span class="direct__note">{item.note}</span>}
+                </a>
+              ) : (
+                <div class="card direct__card is-pending" title="URL still needed">
+                  <span class="eyebrow">{item.label}</span>
+                  <span class="direct__value">{item.value}</span>
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+  .narrow {
+    max-width: 920px;
   }
 
-  /* 3 — Form */
+  /* 02 — Form */
+  .form-card {
+    padding: var(--space-3) var(--space-2);
+  }
+
   .form {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    max-width: 760px;
   }
 
   .form__honeypot {
@@ -224,24 +263,31 @@ import { FORM_NAME, HONEYPOT_FIELD } from '../data/intakeForm';
     font-weight: var(--fw-label);
     letter-spacing: var(--ls-label);
     text-transform: uppercase;
-    color: var(--c-muted);
+    color: var(--c-text-caption);
   }
 
   .field__req {
     color: var(--c-accent);
   }
 
+  /* `color-scheme: dark` draws the date picker's icon light on the dark field. */
   .field__input {
     width: 100%;
     min-height: 48px;
     padding: 12px 14px;
-    background: var(--c-panel);
-    border: 1px solid var(--c-rule);
-    border-radius: 2px;
-    color: var(--c-text);
+    background: var(--c-deep);
+    border: 1px solid var(--c-card-edge);
+    border-radius: var(--radius-btn);
+    color: var(--c-text-body);
+    color-scheme: dark;
     font-family: var(--font-body);
     font-size: var(--fs-body);
     line-height: 1.4;
+    transition: border-color 200ms ease;
+  }
+
+  .field__input:hover {
+    border-color: var(--c-emerald);
   }
 
   .field__input:focus-visible {
@@ -262,10 +308,12 @@ import { FORM_NAME, HONEYPOT_FIELD } from '../data/intakeForm';
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--c-text);
+    color: var(--c-text-body);
   }
 
   .choice input {
+    width: 18px;
+    height: 18px;
     accent-color: var(--c-accent);
   }
 
@@ -274,64 +322,58 @@ import { FORM_NAME, HONEYPOT_FIELD } from '../data/intakeForm';
     margin-top: var(--space-1);
   }
 
-  /* 4 — Direct */
+  /* 03 — Direct */
   .direct {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-3);
-  }
-
-  .direct__block {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .direct__email {
-    font-family: var(--font-display);
-    font-size: var(--fs-h3);
-    font-weight: var(--fw-h3);
-    letter-spacing: var(--ls-h3);
-    color: var(--c-text);
-  }
-
-  .direct__email:hover {
-    color: var(--c-accent);
-  }
-
-  .direct__links {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .direct__link {
-    font-size: var(--fs-label);
-    font-weight: var(--fw-label);
-    letter-spacing: var(--ls-label);
-    text-transform: uppercase;
-    color: var(--c-accent-2);
+  .direct__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    padding: var(--space-3) var(--space-2);
   }
 
-  a.direct__link:hover {
+  /* 20px, not h3: the email address has to fit a third of the container on
+     one line rather than breaking mid-word. */
+  .direct__value {
+    font-family: var(--font-display);
+    font-size: 20px;
+    line-height: 1.25;
+    color: var(--c-text-body);
+    overflow-wrap: anywhere;
+  }
+
+  a.direct__card:hover .direct__value {
     color: var(--c-accent);
   }
 
-  .direct__link.is-pending {
-    color: var(--c-muted);
+  .direct__note {
+    font-size: 14px;
+    color: var(--c-text-card);
+  }
+
+  .direct__card.is-pending {
     opacity: 0.5;
   }
 
   @media (min-width: 768px) {
+    .form-card {
+      padding: var(--space-4);
+    }
+
     .form__row {
       grid-template-columns: 1fr 1fr;
     }
 
     .direct {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>

@@ -7,8 +7,7 @@
  *   and out) → 04 base → 05 deep → 06 panel → 07 base (fades out) → footer deep
  *
  * Every section after the hero opens with the gold thread and a chapter
- * eyebrow, and its main block fades up on load (`.reveal`). This page does
- * not use the v1 scroll reveal at all (`legacyReveal={false}`).
+ * eyebrow, and its main block fades up on load (`.reveal`).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
@@ -18,33 +17,22 @@ import Shelf from '../components/home/Shelf.astro';
 import Testimonials from '../components/home/Testimonials.astro';
 import Meet from '../components/home/Meet.astro';
 import Process from '../components/home/Process.astro';
-import Studio from '../components/home/Studio.astro';
+import Studio from '../components/Studio.astro';
 import StartHere from '../components/home/StartHere.astro';
 import TitleSchema from '../components/TitleSchema.astro';
+import PosterPreload from '../components/PosterPreload.astro';
 import { loadShelf } from '../utils/catalog';
-import { getHeroPoster } from '../utils/heroPoster';
 
 const { items: shelf } = await loadShelf(4);
-const poster = await getHeroPoster();
 ---
 
 <BaseLayout
   title="Victoria Rojas, Audiobook Narrator, Central Texas"
   description="Audiobook narration from a treated, ACX-compliant studio in Central Texas. Hear demos and request a quote."
-  legacyReveal={false}
 >
   {/* The hero poster is the LCP element. Preloaded so the browser finds it
       before parsing the inlined stylesheet that fills the rest of <head>. */}
-  <Fragment slot="head">
-    <link
-      rel="preload"
-      as="image"
-      type="image/webp"
-      imagesrcset={poster.srcSet.attribute}
-      imagesizes={poster.attributes.sizes}
-      fetchpriority="high"
-    />
-  </Fragment>
+  <PosterPreload slot="head" />
 
   <Hero />
   <StatsStrip />

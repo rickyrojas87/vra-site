@@ -1,49 +1,60 @@
 ---
-/** CTA band — Home section 6, reused on About and Works. 240px tall. */
+/**
+ * CTA band — the last band on About and Works (spec v2 §5). Gold thread,
+ * one line and the gold-leaf button. It always sits directly above the deep
+ * footer, so it is never deep itself and fades out into it.
+ */
+import GoldThread from './GoldThread.astro';
+import Dust from './Dust.astro';
+
+type Surface = 'base' | 'panel';
+
 interface Props {
-  heading?: string;
   cta?: string;
   href?: string;
-  /** Must differ from the section above it and from the footer below. */
-  surface?: 'base' | 'deep' | 'panel';
+  surface?: Surface;
+  /** The previous section's surface, for the soft join. */
+  joinFrom: 'base' | 'deep' | 'panel';
 }
 
-const {
-  heading = "Let's talk about your book.",
-  cta = 'Request a quote',
-  href = '/contact',
-  surface = 'base',
-} = Astro.props;
+const { cta = 'Request a quote', href = '/contact', surface = 'panel', joinFrom } = Astro.props;
 ---
 
-<section class:list={['band', `surface-${surface}`]} data-reveal>
-  <div class="container band__inner">
-    <h2 class="band__heading">{heading}</h2>
-    <a class="btn btn--primary" href={href}>{cta}</a>
+<section
+  class:list={['section', `surface-${surface}`, 'join', `join--from-${joinFrom}`, 'join--to-deep', 'band']}
+>
+  <Dust seed={99} count={14} />
+  <div class="container band__inner reveal">
+    <GoldThread />
+    <h2 class="section-title band__heading">
+      <slot>Let's talk about <em>your book.</em></slot>
+    </h2>
+    <a class="btn btn--primary" href={href}>
+      {cta}
+      <svg class="btn__arrow" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+    </a>
   </div>
 </section>
 
 <style>
   .band {
-    border-top: 1px solid var(--c-rule);
-    border-bottom: 1px solid var(--c-rule);
+    position: relative;
+    overflow: hidden;
   }
 
   .band__inner {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: var(--space-3);
-    min-height: 240px;
-    padding-block: var(--space-4);
     text-align: center;
   }
 
-  .band__heading {
-    font-size: var(--fs-h2);
-    font-weight: var(--fw-h2);
-    letter-spacing: var(--ls-h2);
-    color: var(--c-text);
+  /* The thread's own bottom margin plus the gap would double up. */
+  .band__inner > :global(.thread) {
+    margin-bottom: 0;
   }
 </style>

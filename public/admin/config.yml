@@ -159,8 +159,8 @@ collections:
     label: Photos
     label_singular: Photo
     description: >-
-      The photo collage on the About page. It only appears once there are at
-      least four photos — with fewer, the whole section stays hidden.
+      The "In the booth" row on the About page. It shows the first three
+      photos by order; with fewer than three, the whole section stays hidden.
     folder: src/content/gallery
     extension: yaml
     format: yaml
@@ -183,7 +183,7 @@ collections:
           not "photo 3".
 
       - name: sortOrder
-        label: Order in the collage
+        label: Order on the page
         widget: number
         default: 0
         value_type: int

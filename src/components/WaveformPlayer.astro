@@ -18,12 +18,10 @@ import SectionHead from './SectionHead.astro';
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 interface Props {
-  /** v1 heading, used only when no `chapter` is given. */
-  heading?: string;
   surface?: 'base' | 'deep' | 'panel';
   id?: string;
-  /** v2 section head: chapter number, eyebrow label and title. */
-  chapter?: number;
+  /** Section head: chapter number, eyebrow label and title. */
+  chapter: number;
   eyebrow?: string;
   title?: string;
   /** Home only: the full-width ambient waveform rising from the floor. */
@@ -33,7 +31,6 @@ interface Props {
 }
 
 const {
-  heading = 'Demos',
   surface = 'deep',
   id = 'demos',
   chapter,
@@ -42,9 +39,6 @@ const {
   ambient = false,
   class: extraClass,
 } = Astro.props;
-
-/** v1 pages still use the scroll reveal; v2 pages fade in on load. */
-const isV2 = chapter !== undefined;
 
 /** Peak envelopes, keyed by MP3 basename. */
 const peakModules = import.meta.glob<{
@@ -112,18 +106,11 @@ const ambientSets = ambient
 <section
   class:list={['section', 'listening', `surface-${surface}`, extraClass, { 'listening--ambient': ambient }]}
   id={id}
-  data-reveal={isV2 ? undefined : true}
 >
-  <div class:list={['container', isV2 ? 'reveal' : 'stack']}>
-    {
-      isV2 ? (
-        <SectionHead chapter={chapter} label={eyebrow}>
-          <Fragment set:html={title ?? 'Press play on a <em>story.</em>'} />
-        </SectionHead>
-      ) : (
-        <h2 class="label">{heading}</h2>
-      )
-    }
+  <div class="container reveal">
+    <SectionHead chapter={chapter} label={eyebrow}>
+      <Fragment set:html={title ?? 'Press play on a <em>story.</em>'} />
+    </SectionHead>
 
     <div class="player" data-player>
       <div class="player__filters" role="group" aria-label="Filter demos by genre">
@@ -217,12 +204,6 @@ const ambientSets = ambient
 
 <style>
   /* v1 layout (Works, until it moves to v2). */
-  .stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
   .listening {
     position: relative;
     overflow: hidden;
