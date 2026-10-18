@@ -136,9 +136,10 @@ const items = [
     transform: rotate(45deg);
   }
 
+  /* Artboard .marquee-item: 26px, 22px at <=900. */
   .stats__value {
     font-family: var(--font-display);
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 400;
     line-height: 1;
     color: var(--c-accent);
@@ -150,6 +151,12 @@ const items = [
     letter-spacing: var(--ls-label);
     text-transform: uppercase;
     color: var(--c-text-caption);
+  }
+
+  @media (max-width: 900px) {
+    .stats__value {
+      font-size: 22px;
+    }
   }
 
   @keyframes stats-marquee {

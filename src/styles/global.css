@@ -639,7 +639,7 @@ p {
    keep the 52px height. 40px still clears the 24px target-size minimum. */
 .btn--small {
   gap: 8px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 16px;
   font-size: var(--fs-label);
 }
@@ -886,6 +886,13 @@ body::after {
     inset 0 -3px 0 var(--c-accent);
 }
 
+@media (max-width: 560px) {
+  .btn {
+    padding: 0 22px;
+    letter-spacing: 0.12em;
+  }
+}
+
 /* --------------------------------------------------------------------------
    Booking pill — "● Now booking MARCH productions" (artboard .pill).
    -------------------------------------------------------------------------- */
@@ -995,6 +1002,12 @@ body::after {
   text-shadow: 0 0 12px rgb(212 175 55 / 12%);
 }
 
+@media (max-width: 560px) {
+  .sig {
+    font-size: 36px;
+  }
+}
+
 .sig svg {
   width: 32px;
   height: 10px;
@@ -1037,6 +1050,16 @@ body::after {
 /* Directly under a label (artboard .accents). */
 .accents {
   margin-top: 28px;
+}
+
+@media (max-width: 560px) {
+  .star-list {
+    gap: 6px 20px;
+  }
+
+  .star-list > li {
+    font-size: 19px;
+  }
 }
 
 /* --------------------------------------------------------------------------

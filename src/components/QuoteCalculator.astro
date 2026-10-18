@@ -243,11 +243,13 @@ const defaultService = services.find((s) => s.id === defaultServiceId) ?? servic
   }
 
   /* Slider: emerald-to-gold fill up to the thumb, via --fill set from JS. */
+  /* 44px tall for the thumb's tap target; the track stays 4px. The negative
+     margins keep the field's spacing what it was at 24px. */
   .calc__range {
     --fill: 57%;
     width: 100%;
-    height: 24px;
-    margin: 0;
+    height: 44px;
+    margin: -10px 0;
     background: transparent;
     cursor: pointer;
     appearance: none;
