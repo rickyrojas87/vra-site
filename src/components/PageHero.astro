@@ -6,7 +6,7 @@
  *
  * The poster is the same responsive image as Home's (utils/heroPoster.ts), so
  * a visitor arriving from Home already has it cached. Pair it with
- * <PosterPreload slot="head" /> on the page; it is the LCP candidate.
+ * <HeroPreloads slot="head" /> on the page; it is the LCP candidate.
  *
  * Not revealed, for the same reason as the Home hero: it holds the LCP
  * element.
@@ -137,8 +137,9 @@ const poster = await getHeroPoster();
     color: var(--c-text-body);
   }
 
-  /* Fixed, full-width line box so the handwriting face's late swap can't
-     shift layout: as a centred inline-block its box narrowed on swap (CLS). */
+  /* Fixed, full-width line box. The face is `font-display: optional`, so it
+     never swaps in late; the fixed box keeps the fallback, if it is ever
+     used, from changing the hero's height. */
   .page-hero__subline {
     display: block;
     align-self: stretch;

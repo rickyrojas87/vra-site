@@ -1,0 +1,44 @@
+---
+/**
+ * <head> additions for every v2 hero. Use as <HeroPreloads slot="head" />.
+ *
+ * 1. Preload of the library poster, the LCP image. Same URLs as the <img>,
+ *    via utils/heroPoster.ts, so the file is never fetched twice.
+ *
+ * 2. The handwriting face, inlined. La Belle Aurore is `font-display:
+ *    optional` (a late swap moved the centred hero line: CLS), so it renders
+ *    only if it is ready at first paint. Preloading the hosted file wasn't
+ *    enough: on a cold visit over 4G the subpages painted first and kept the
+ *    fallback. So its Basic Latin subset (12.6 KB, every character of every
+ *    tagline, subline and the signature) ships inside the page and is always
+ *    ready. The hosted file in public/fonts covers the remaining latin range,
+ *    which never overlaps this one (see global.css).
+ *
+ *    Regenerate with fonttools if the source font changes:
+ *      pyftsubset public/fonts/la-belle-aurore-latin.woff2 \
+ *        --unicodes="U+0020-007E,U+2013-2014,U+2018-2019,U+201C-201D" \
+ *        --flavor=woff2 --layout-features='*' \
+ *        --output-file=src/assets/fonts/la-belle-aurore-basic.woff2
+ */
+import { getHeroPoster } from '../utils/heroPoster';
+import handFont from '../assets/fonts/la-belle-aurore-basic.woff2?inline';
+
+const poster = await getHeroPoster();
+
+const handFace = `@font-face{font-family:'La Belle Aurore';font-style:normal;font-weight:400;font-display:optional;src:url(${handFont}) format('woff2');unicode-range:U+0020-007E,U+2013-2014,U+2018-2019,U+201C-201D}`;
+---
+
+<link
+  rel="preload"
+  as="image"
+  type="image/webp"
+  imagesrcset={poster.srcSet.attribute}
+  imagesizes={poster.attributes.sizes}
+  fetchpriority="high"
+/>
+<style is:inline set:html={handFace} />
+{/* A declared face is only fetched when text first needs it, and Chrome gives
+    a non-preloaded `optional` face no block period at all, so on a slow
+    connection it decoded too late and the fallback stuck. Starting the load
+    here, while the body is still streaming in, has it ready for first paint. */}
+<script is:inline>document.fonts && document.fonts.load("1em 'La Belle Aurore'", 'Aa');</script>

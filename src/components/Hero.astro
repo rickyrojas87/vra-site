@@ -7,9 +7,8 @@
  *     responsive <img> beneath it (640px on phones), not the `poster`
  *     attribute, which can't vary by viewport. It is the LCP element, so it
  *     loads eagerly at high priority; the video fades in over it once playing.
- *     The tagline font is not preloaded for the same reason: it competed with
- *     the poster on slow connections, and the tagline's fixed box absorbs the
- *     swap.
+ *     The tagline font is preloaded beside it (HeroPreloads.astro) and is
+ *     `font-display: optional`, so it never swaps in after first paint.
  *   - Sources are attached after `window.load`, so the video never competes
  *     with first paint or LCP.
  *   - Under prefers-reduced-motion, or on a connection reporting `saveData`,
@@ -277,8 +276,9 @@ const toStyle = (o: Record<string, string>) =>
     color: var(--c-text-body);
   }
 
-  /* Fixed line box: the handwriting face isn't preloaded on every page and its
-     metrics differ from the fallback, so the box, not the font, sets height. */
+  /* Fixed line box: if the handwriting face misses first paint, the fallback
+     stays (font-display: optional), and its metrics differ, so the box, not
+     the font, sets height. */
   .hero__tagline {
     height: 1.3em;
     font-size: var(--fs-tagline);

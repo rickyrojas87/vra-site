@@ -30,14 +30,14 @@ If the popup gets blocked, allow popups for the site and click sign in again.
 | **Subtitle** | The rest of the Audible title, like "A Novel". Skip if there isn't one. |
 | **Author** | The author's name. |
 | **Genre** | One genre, like Thriller. This decides which filter the demo shows under. |
-| **Length in hours** | Decimal hours. 5 hours 48 minutes is **5.8**, not 5.48. |
-| **Year released** | Just the year. |
+| **Length in hours** | Decimal hours. 5 hours 48 minutes is **5.8**, not 5.48. Updated automatically from Audible once there's an Audible link. |
+| **Year released** | Just the year. Updated automatically from Audible once there's an Audible link. |
 | **Status** | Published, or In production if it isn't out yet. |
 | **Cover art** | Square image. Bigger is better. |
 | **Demo audio** | An MP3 of the sample. |
 | **Show sample publicly** | Only matters for In production books — turn it on to let people hear the demo before release. |
 | **Audible link** | Paste the whole web address of the book's Audible page. |
-| **Audible rating** / **Number of ratings** | Fill both in once it has ratings. Leave both empty until then. |
+| **Audible rating** / **Number of ratings** | You don't need to keep these up to date: once the book has an Audible link, the site copies the rating, number of ratings, length and release date from Audible every Monday. What you type here is only used if Audible can't be reached. |
 | **Order on the page** | Lower numbers come first. |
 
 4. Click **Save**
@@ -107,6 +107,20 @@ Click **Studio & delivery**. You can edit:
 - **Studio equipment** — one line per item, drag to reorder
 - **Delivery specifications** — only change these if your actual delivery
   standards change
+
+---
+
+## Changing "How we work together"
+
+Click **How we work together**, then **Process steps**. Each step has:
+
+- **Title** — two or three words, like "Manuscript review"
+- **Short copy (Home page)** — the card on the Home page, about 25 words
+- **Long copy (About page)** — the fuller version on the About page
+
+Leave either copy box empty and the other is used in its place. Drag steps to
+reorder them; six reads best, because each card's progress bar fills to match
+its place in the list.
 
 ---
 

@@ -1,0 +1,66 @@
+{
+  "B0GD312G2F": {
+    "rating": 4.75,
+    "ratingCount": 4,
+    "runtimeMinutes": 174,
+    "releaseDate": "2025-12-29",
+    "series": null,
+    "seriesNumber": null
+  },
+  "B0GLRCZ5GR": {
+    "rating": 4.7,
+    "ratingCount": 10,
+    "runtimeMinutes": 348,
+    "releaseDate": "2026-02-05",
+    "series": null,
+    "seriesNumber": null
+  },
+  "B0GS6XJP7S": {
+    "rating": 4.5,
+    "ratingCount": 2,
+    "runtimeMinutes": 193,
+    "releaseDate": "2026-03-12",
+    "series": null,
+    "seriesNumber": null
+  },
+  "B0GV5G3LRP": {
+    "rating": null,
+    "ratingCount": 0,
+    "runtimeMinutes": 105,
+    "releaseDate": "2026-03-30",
+    "series": "Of Blood and Dragon",
+    "seriesNumber": "3"
+  },
+  "B0GYT75CT5": {
+    "rating": 4.75,
+    "ratingCount": 12,
+    "runtimeMinutes": 594,
+    "releaseDate": "2026-05-04",
+    "series": null,
+    "seriesNumber": null
+  },
+  "B0H6H7LV44": {
+    "rating": 5,
+    "ratingCount": 2,
+    "runtimeMinutes": 260,
+    "releaseDate": "2026-06-24",
+    "series": null,
+    "seriesNumber": null
+  },
+  "B0HGTB2MQN": {
+    "rating": 5,
+    "ratingCount": 2,
+    "runtimeMinutes": 599,
+    "releaseDate": "2026-08-28",
+    "series": null,
+    "seriesNumber": null
+  },
+  "B0HM6VRJH5": {
+    "rating": 4.25,
+    "ratingCount": 4,
+    "runtimeMinutes": 656,
+    "releaseDate": "2026-10-07",
+    "series": null,
+    "seriesNumber": null
+  }
+}

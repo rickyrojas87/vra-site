@@ -8,7 +8,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
-import PosterPreload from '../components/PosterPreload.astro';
+import HeroPreloads from '../components/HeroPreloads.astro';
 import SectionHead from '../components/SectionHead.astro';
 import WaveformPlayer from '../components/WaveformPlayer.astro';
 import BookCard from '../components/BookCard.astro';
@@ -27,7 +27,7 @@ const newestId = published[0]?.id;
   title="Audiobook Narration Demos and Published Titles"
   description="Narration demos across genres and character types, plus published audiobook titles and works currently in production."
 >
-  <PosterPreload slot="head" />
+  <HeroPreloads slot="head" />
 
   <PageHero eyebrow="Demos and catalog" title="Works" subline="Pull up a chair." />
 

@@ -20,10 +20,13 @@ import Process from '../components/home/Process.astro';
 import Studio from '../components/Studio.astro';
 import StartHere from '../components/home/StartHere.astro';
 import TitleSchema from '../components/TitleSchema.astro';
-import PosterPreload from '../components/PosterPreload.astro';
+import HeroPreloads from '../components/HeroPreloads.astro';
 import { loadShelf } from '../utils/catalog';
+import { loadProcessSteps } from '../utils/content';
 
 const { items: shelf } = await loadShelf(4);
+/** Process hides when the CMS list is empty; Studio then joins from Meet. */
+const hasProcess = (await loadProcessSteps()).length > 0;
 ---
 
 <BaseLayout
@@ -32,7 +35,7 @@ const { items: shelf } = await loadShelf(4);
 >
   {/* The hero poster is the LCP element. Preloaded so the browser finds it
       before parsing the inlined stylesheet that fills the rest of <head>. */}
-  <PosterPreload slot="head" />
+  <HeroPreloads slot="head" />
 
   <Hero />
   <StatsStrip />
@@ -41,7 +44,7 @@ const { items: shelf } = await loadShelf(4);
   <Testimonials />
   <Meet />
   <Process />
-  <Studio />
+  <Studio joinFrom={hasProcess ? 'deep' : 'base'} />
   <StartHere />
 
   {/* Structured data for the titles this page actually renders. */}

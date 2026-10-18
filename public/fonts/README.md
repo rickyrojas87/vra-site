@@ -30,6 +30,10 @@ if a glyph outside the latin range is actually rendered.
 The `@font-face` declarations live in `src/styles/global.css`. The Cormorant
 and Raleway `latin` files are preloaded in `src/layouts/BaseLayout.astro`.
 The italic is not preloaded either: it first appears below the fold.
-La Belle Aurore is **not** preloaded: it appears only in the hero tagline and
-the About signature, and an unpreloaded `@font-face` is fetched only on pages
-that actually render it.
+La Belle Aurore is `font-display: optional`: used if it is ready by first
+paint, never swapped in afterwards (swapping it in moved the centred hero line
+and cost CLS). To make sure it is ready, its Basic Latin subset lives in
+`src/assets/fonts/la-belle-aurore-basic.woff2` and is inlined into the head of
+every page with a hero by `src/components/HeroPreloads.astro`, which also has
+the command that regenerates it. The two files here cover the remaining
+characters; their `unicode-range` excludes the subset's.

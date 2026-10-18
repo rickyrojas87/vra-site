@@ -140,9 +140,12 @@ const testimonials = defineCollection({
   }),
 });
 
-/** Editable copy that isn't a page and isn't a title. */
+/**
+ * Editable copy that isn't a page and isn't a title: settings/delivery.yaml.
+ * Each settings file gets its own collection so their schemas stay separate.
+ */
 const settings = defineCollection({
-  loader: glob({ pattern: '*.{yaml,yml,json}', base: './src/content/settings' }),
+  loader: glob({ pattern: 'delivery.{yaml,yml,json}', base: './src/content/settings' }),
   schema: z.object({
     turnaround: optional(z.string()),
     /** Months ahead the Home booking badge names. Spec v2 §4; default 2. */
@@ -152,4 +155,31 @@ const settings = defineCollection({
   }),
 });
 
-export const collections = { titles, gallery, testimonials, settings };
+/**
+ * How we work together — settings/process.yaml (spec v2 §6). One list; each
+ * step has a title, short copy for the Home cards and long copy for About.
+ *
+ * Every layer survives a blank: a non-list becomes [], a blank row is dropped,
+ * a row that isn't an object becomes {}, and each field is wrapped. Rows left
+ * with no title or no copy are skipped by loadProcessSteps(), not thrown.
+ */
+const processStep = z.preprocess(
+  (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {}),
+  z.object({
+    title: requiredString,
+    short: optional(z.string()),
+    long: optional(z.string()),
+  }),
+);
+
+const process = defineCollection({
+  loader: glob({ pattern: 'process.{yaml,yml,json}', base: './src/content/settings' }),
+  schema: z.object({
+    steps: z.preprocess(
+      (v) => (Array.isArray(v) ? v.filter((item) => !isBlank(item)) : []),
+      z.array(processStep).catch([]),
+    ),
+  }),
+});
+
+export const collections = { titles, gallery, testimonials, settings, process };

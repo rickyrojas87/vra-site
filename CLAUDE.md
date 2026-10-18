@@ -14,12 +14,14 @@ hosting and billing facts. This file holds the things that will bite you.
 src/
   components/   Astro components. Interactive ones inline their own vanilla JS.
   content/      titles, gallery, testimonials, settings — all CMS-editable
-  data/         site.ts, taxonomy.ts, pricing.ts, intakeForm.ts (code-only)
+  data/         site.ts, taxonomy.ts, pricing.ts, intakeForm.ts (code-only);
+                audible.json (written by the sync, committed)
   layouts/      BaseLayout — head, SEO, schema, chrome
   pages/        index, about, works, contact, thanks, robots.txt.ts
   styles/       global.css — every design token, defined once
-  utils/        content.ts (guarded loaders), format.ts
-scripts/        generate-peaks, generate-forms-file, check-forms
+  utils/        content.ts (guarded loaders, Audible merge), catalog.ts, format.ts
+scripts/        sync-audible, generate-peaks, generate-forms-file, check-forms
+.github/        weekly-rebuild workflow (Mondays and the 1st)
 public/         audio, fonts, admin, icons, og image
 ```
 
@@ -45,7 +47,7 @@ scroll reveal (`data-reveal`) is gone; don't reintroduce an observer.
 
 **Every hero's LCP image is the library poster.** `PageHero` and Home's `Hero`
 render it from `utils/heroPoster.ts`, and each page puts
-`<PosterPreload slot="head" />` in BaseLayout's head slot. Keep the `<img>` and
+`<HeroPreloads slot="head" />` in BaseLayout's head slot. Keep the `<img>` and
 the preload on that one helper or the poster downloads twice.
 
 ---
@@ -57,11 +59,17 @@ the preload on that one helper or the poster downloads twice.
 | `titles` | one YAML per audiobook, covers in `covers/` | BookCard, WaveformPlayer, StatsStrip, Hero, TitleSchema |
 | `gallery` | one YAML per photo, `image` relative to `../../assets` | About 04, first three |
 | `testimonials` | one YAML per quote | home/Testimonials |
-| `settings` | single `delivery.yaml` | DeliverySpec |
+| `settings` | `settings/delivery.yaml` only | DeliverySpec, booking badge |
+| `process` | `settings/process.yaml`, one `steps` list | home/Process (short), About 02 (long) |
 
 **Always load through `src/utils/content.ts`**, never `getCollection` directly.
 Those helpers drop entries that can't render (a title with no title, a photo
 with no image) and log `[content] skipped …` instead of failing the build.
+`loadTitles()` is also where Audible data is merged in (constraint 6), so a
+title read any other way would show stale YAML numbers.
+
+Each settings file has its own collection, matched by filename, so adding a
+file to `src/content/settings/` means adding a collection for it too.
 
 ---
 
@@ -131,6 +139,27 @@ build stops otherwise, which is the point.
 Don't try to produce this file from `src/pages/__forms.html.ts` — Astro excludes
 underscore-prefixed files from routing, so it silently emits nothing.
 
+### 6. Audible data overrides the YAML, and the sync must never fail a build
+
+`scripts/sync-audible.mjs` runs first in `npm run build`. It reads each
+title's `audibleUrl`, takes the ASIN, calls Audible's public catalog API and
+writes `src/data/audible.json` (rating, rating count, runtime minutes, release
+date, series). `loadTitles()` merges it over the YAML field by field: Audible
+first, YAML where Audible has nothing. Cover, sample audio, genre and status
+always come from the YAML.
+
+A failed fetch keeps that title's previous entry and warns; the script always
+exits 0, and writes `{}` if there is no file at all, because content.ts
+imports it. Commit `audible.json` whenever it changes so a build without
+network still has data. `SKIP_AUDIBLE_SYNC=1` skips the network for offline
+builds. The ASIN regex exists in both the script and content.ts; change both.
+
+Shelf order, "Latest release" and "Just published" sort by Audible's release
+date, falling back to the YAML year. `.github/workflows/weekly-rebuild.yml`
+POSTs to the Netlify build hook in the `NETLIFY_BUILD_HOOK` secret every
+Monday and on the 1st (booking badge); scheduled workflows only run from the
+default branch.
+
 ---
 
 ## Gotchas
@@ -155,5 +184,13 @@ underscore-prefixed files from routing, so it silently emits nothing.
   `src/assets/logos/` ship `fill="#D4AF37"` on the root `<svg>`; the header and
   footer override it to `var(--c-text)`. The `-ivory` and `-dark` variants are
   for print and other non-CSS uses — don't wire them into a component.
+- **The handwriting face is `font-display: optional`, inlined, and loaded by
+  script.** A swap moved the centred hero line (CLS), so it must be ready at
+  first paint or not used at all. Its Basic Latin subset is inlined by
+  `HeroPreloads.astro`, which also calls `document.fonts.load()`: a declared
+  face, even a `data:` one, isn't fetched until text needs it, and Chrome
+  gives a non-preloaded optional face no block period, so without that call
+  slow connections kept the fallback. Verify font changes on a throttled cold
+  load, not just in Lighthouse, which reported CLS 0 either way.
 - **`--c-quiet` (`#9A9BA4`) is contrast-critical.** It must clear 4.5:1 against
   `--c-panel`. The previous value failed AA at 4.21:1.

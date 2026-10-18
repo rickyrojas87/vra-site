@@ -1,0 +1,43 @@
+# Scheduled rebuild — spec v2 §7.
+#
+# Triggers a fresh Netlify production build so the Audible sync refreshes
+# ratings and runtimes (weekly) and the booking badge rolls to the next month
+# (on the 1st). It POSTs to a Netlify build hook ("weekly-refresh") whose URL
+# is the repo secret NETLIFY_BUILD_HOOK.
+#
+# GitHub runs scheduled workflows only from the default branch, so this
+# starts once it is merged to main.
+
+name: Weekly rebuild
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays 09:00 UTC (4am Central)
+    - cron: '0 9 1 * *' # 1st of each month 09:00 UTC, for the booking badge
+  workflow_dispatch: # manual run from the Actions tab
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger Netlify build hook
+        env:
+          HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          # When the 1st is a Monday both schedules fire; the weekly run
+          # already covers it, so the monthly one stands down (each deploy
+          # costs Netlify credits).
+          if [ "$SCHEDULE" = '0 9 1 * *' ] && [ "$(date -u +%u)" = 1 ]; then
+            echo "1st of the month is a Monday: the weekly run covers it."
+            exit 0
+          fi
+          if [ -z "$HOOK" ]; then
+            echo "::error::The NETLIFY_BUILD_HOOK secret is not set."
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 30 -X POST -d '{}' "$HOOK"
+          echo "Netlify build triggered."

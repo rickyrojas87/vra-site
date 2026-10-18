@@ -9,15 +9,14 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
-import PosterPreload from '../components/PosterPreload.astro';
+import HeroPreloads from '../components/HeroPreloads.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Studio from '../components/Studio.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Dust from '../components/Dust.astro';
-import { loadGallery, loadPublishedTitles } from '../utils/content';
+import { loadGallery, loadProcessSteps, loadPublishedTitles } from '../utils/content';
 import { genres, accents } from '../data/taxonomy';
 import { bio } from '../data/bio';
-import { processChapters } from '../data/process';
 import portrait from '../assets/portrait.jpg';
 /* Laughing mid-take: Home's studio section already uses the booth shot. */
 import studioPhoto from '../assets/main.jpg';
@@ -42,6 +41,9 @@ const narrated = allGenres.filter((g) => publishedGenres.has(g)).sort();
 /** Everything else, in taxonomy order. */
 const availableFor = allGenres.filter((g) => !publishedGenres.has(g));
 
+/** settings/process.yaml, long copy. Empty hides section 02. */
+const steps = await loadProcessSteps();
+
 /** "In the booth": the first three gallery photos, in CMS order. */
 const booth = (await loadGallery()).slice(0, 3);
 ---
@@ -50,7 +52,7 @@ const booth = (await loadGallery()).slice(0, 3);
   title="About Victoria Rojas, Female Audiobook Narrator"
   description="Audiobook narrator based in Central Texas, recording and mastering in a treated home studio to professional delivery standards."
 >
-  <PosterPreload slot="head" />
+  <HeroPreloads slot="head" />
 
   <PageHero eyebrow="Audiobook narrator" title="About" subline="Pleased to meet you." />
 
@@ -120,37 +122,41 @@ const booth = (await loadGallery()).slice(0, 3);
   </section>
 
   {/* 02 — How we work together, long form */}
-  <section class="section surface-panel join join--from-deep" aria-labelledby="process-title">
-    <div class="container reveal">
-      <SectionHead chapter={2} label="How we work together" id="process-title">
-        From manuscript to <em>finished audiobook.</em>
-      </SectionHead>
+  {
+    steps.length > 0 && (
+      <section class="section surface-panel join join--from-deep" aria-labelledby="process-title">
+        <div class="container reveal">
+          <SectionHead chapter={2} label="How we work together" id="process-title">
+            From manuscript to <em>finished audiobook.</em>
+          </SectionHead>
 
-      <ol class="steps">
-        {
-          processChapters.map((step) => (
-            <li class="card steps__card">
-              <span class="steps__numeral" aria-hidden="true">
-                {step.n}
-              </span>
-              <div class="steps__body">
-                <p class="steps__chapter">{step.last ? 'The end' : `Chapter ${step.n}`}</p>
-                <h3 class="steps__title">{step.title}</h3>
-                <p class="steps__copy">{step.copy}</p>
-                <span class="steps__bar" role="presentation" style={`--progress:${step.progress}%`} />
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+          <ol class="steps">
+            {
+              steps.map((step) => (
+                <li class="card steps__card">
+                  <span class="steps__numeral" aria-hidden="true">
+                    {step.n}
+                  </span>
+                  <div class="steps__body">
+                    <p class="steps__chapter">{step.last ? 'The end' : `Chapter ${step.n}`}</p>
+                    <h3 class="steps__title">{step.title}</h3>
+                    <p class="steps__copy">{step.long}</p>
+                    <span class="steps__bar" role="presentation" style={`--progress:${step.progress}%`} />
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+    )
+  }
 
   {/* 03 — The studio */}
   <Studio
     chapter={3}
     surface="base"
-    joinFrom="panel"
+    joinFrom={steps.length > 0 ? 'panel' : 'deep'}
     photo={studioPhoto}
     alt="Victoria Rojas laughing mid-take at the microphone, headphones on and a script tablet in her hand"
     position="50% 30%"

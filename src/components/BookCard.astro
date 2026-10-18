@@ -8,12 +8,12 @@
  * card top (styles in global.css).
  */
 import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
 import { formatRuntime } from '../utils/format';
 import type { ShelfItem } from '../utils/catalog';
+import type { Title } from '../utils/content';
 
 interface Props {
-  entry: CollectionEntry<'titles'>;
+  entry: Title;
   ribbon?: ShelfItem['ribbon'];
   /** Show a visible "Listen on Audible" line (Works) under the rating. */
   linkLabel?: boolean;

@@ -8,10 +8,10 @@
  * none. `narrator` points at the Person node BaseLayout already emits, so the
  * two graphs join rather than duplicating her.
  */
-import type { CollectionEntry } from 'astro:content';
+import type { Title } from '../utils/content';
 
 interface Props {
-  entries: CollectionEntry<'titles'>[];
+  entries: Title[];
 }
 
 const { entries } = Astro.props;
@@ -40,8 +40,13 @@ const books = entries
       narrator: { '@id': `${origin}/#victoria-rojas` },
       ...(d.genre ? { genre: d.genre } : {}),
       ...(d.runtimeHours ? { duration: isoDuration(d.runtimeHours) } : {}),
-      // Year-granular in the catalog; ISO 8601 permits a bare year.
-      ...(d.releaseYear ? { datePublished: String(d.releaseYear) } : {}),
+      // Audible's full date when synced; otherwise the YAML year, which
+      // ISO 8601 also permits.
+      ...(d.releaseDate
+        ? { datePublished: d.releaseDate }
+        : d.releaseYear
+          ? { datePublished: String(d.releaseYear) }
+          : {}),
       ...(d.audibleUrl ? { url: d.audibleUrl } : {}),
       ...(typeof d.audibleRating === 'number' && d.ratingCount
         ? {

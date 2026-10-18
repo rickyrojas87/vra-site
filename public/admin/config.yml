@@ -287,3 +287,44 @@ collections:
             hint: >-
               The technical standards you deliver to. Only change these if your
               actual delivery specs change.
+
+  # ── How we work together ──────────────────────────────────────────────────
+  - name: process
+    label: How we work together
+    description: >-
+      The steps of working with you, shown as cards on the Home page and in
+      full on the About page.
+    files:
+      - name: process
+        label: Process steps
+        file: src/content/settings/process.yaml
+        fields:
+          - name: steps
+            label: Steps
+            label_singular: Step
+            widget: list
+            summary: '{{fields.title}}'
+            hint: >-
+              One entry per step, in order. Drag to reorder. Six reads best:
+              each card's progress bar fills to match its place in the list.
+            fields:
+              - name: title
+                label: Title
+                widget: string
+                hint: Short, two or three words. "Manuscript review".
+
+              - name: short
+                label: Short copy (Home page)
+                widget: text
+                required: false
+                hint: >-
+                  One or two sentences for the Home page card, about 25 words.
+                  Leave empty to use the long copy.
+
+              - name: long
+                label: Long copy (About page)
+                widget: text
+                required: false
+                hint: >-
+                  The full description for the About page. Leave empty to use
+                  the short copy.

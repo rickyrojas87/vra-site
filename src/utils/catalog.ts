@@ -1,5 +1,5 @@
-import { getEntry, type CollectionEntry } from 'astro:content';
-import { loadTitles, loadPublishedTitles, loadInProductionTitles } from './content';
+import { getEntry } from 'astro:content';
+import { loadTitles, loadPublishedTitles, loadInProductionTitles, type Title } from './content';
 import { accents } from '../data/taxonomy';
 
 /**
@@ -8,16 +8,17 @@ import { accents } from '../data/taxonomy';
  * booking month. Nothing here is a field anyone maintains.
  */
 
-type Title = CollectionEntry<'titles'>;
-
 /**
- * Newest first. The YAML only carries a release YEAR, so within a year the
- * catalog's own sortOrder breaks the tie — higher means added later. When the
- * Audible sync (spec v2 §7) lands it supplies a real release date; switch the
- * comparator to that and this tie-break goes away.
+ * Newest first, by Audible's release date (src/data/audible.json). A title
+ * without one (no Audible link yet, or never synced) falls back to its YAML
+ * release YEAR, read as 1 January, so it sorts after any dated title from the
+ * same year. Ties go to the catalog's sortOrder: higher means added later.
  */
+const releaseKey = (t: Title) =>
+  t.data.releaseDate ?? (t.data.releaseYear ? `${t.data.releaseYear}-01-01` : '');
+
 const newestFirst = (a: Title, b: Title) =>
-  (b.data.releaseYear ?? 0) - (a.data.releaseYear ?? 0) || b.data.sortOrder - a.data.sortOrder;
+  releaseKey(b).localeCompare(releaseKey(a)) || b.data.sortOrder - a.data.sortOrder;
 
 /** Published titles, newest first. */
 export async function loadPublishedNewestFirst(): Promise<Title[]> {

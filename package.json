@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "astro dev --host",
     "start": "astro dev --host",
-    "build": "node scripts/generate-peaks.mjs --missing-only && astro build && node scripts/generate-forms-file.mjs && node scripts/check-forms.mjs",
+    "build": "node scripts/sync-audible.mjs && node scripts/generate-peaks.mjs --missing-only && astro build && node scripts/generate-forms-file.mjs && node scripts/check-forms.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "peaks": "node scripts/generate-peaks.mjs",
-    "peaks:missing": "node scripts/generate-peaks.mjs --missing-only"
+    "peaks:missing": "node scripts/generate-peaks.mjs --missing-only",
+    "sync:audible": "node scripts/sync-audible.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
