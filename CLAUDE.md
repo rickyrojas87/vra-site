@@ -5,7 +5,7 @@ content edited by a non-technical user through Sveltia CMS at `/admin`.
 
 `docs/design/` holds the approved artboards (read its README first): their
 markup, CSS values, spacing and copy are what the pages match, one to one.
-`vra-build-spec.md` and `vra-build-spec-v2.md` describe intent where the
+`build-spec-v1.md` and `build-spec-v2.md` describe intent where the
 artboards are silent. `docs/operations.md` holds domain, hosting and billing
 facts. This file holds the things that will bite you.
 

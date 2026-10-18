@@ -3,7 +3,7 @@
 Marketing site for **Victoria Rojas**, audiobook narrator — Central Texas.
 Static Astro site on Netlify, with content edited through Sveltia CMS.
 
-`vra-build-spec.md` is the design spec. `CLAUDE.md` holds the non-obvious
+`build-spec-v1.md` is the design spec. `CLAUDE.md` holds the non-obvious
 constraints. `docs/operations.md` holds the domain, hosting and billing facts.
 
 ---
@@ -130,4 +130,4 @@ Commit the JSON. Re-run the full `npm run peaks` only if the sampling changes.
 - **Accent recordings** for the voice range matrix (About §3, phase 2)
 - **IndexNow integration**
 
-See `vra-build-spec.md` §10 for the full list including technical items.
+See `build-spec-v1.md` §10 for the full list including technical items.

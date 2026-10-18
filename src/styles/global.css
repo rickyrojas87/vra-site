@@ -1,6 +1,6 @@
 /* ==========================================================================
    VRA 2026 — global tokens and base styles
-   Section 1 of vra-build-spec.md is the single source of truth for every
+   Section 1 of build-spec-v1.md is the single source of truth for every
    value in this file. Do not hard-code these anywhere else.
    ========================================================================== */
 
@@ -678,7 +678,7 @@ p {
 }
 
 /* ==========================================================================
-   Design system v2 — vra-build-spec-v2.md §2
+   Design system v2 — build-spec-v2.md §2
    Everything below is opt-in by class except the grain, which is sitewide.
    ========================================================================== */
 

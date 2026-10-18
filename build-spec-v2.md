@@ -2,7 +2,7 @@
 
 Approved rendering: Claude Design canvas "Victoria Rojas Audio Redesign", boards Home, About, Works, Contact, exported to `docs/design/` in the repo (Main.html, About.html, Works.html, Contact.html, shared-style.css, README.md with the blob-to-asset map). The exported HTML and CSS are the source of truth for layout, spacing, colour, copy and animation values; this document records the decisions behind them. Where the two disagree on a value, the design files win; where this document states a rule the design cannot show (data sources, automation, CMS), this document wins.
 
-Decisions here are locked. Anything not listed is unchanged from v1 (`vra-build-spec.md`).
+Decisions here are locked. Anything not listed is unchanged from v1 (`build-spec-v1.md`).
 
 ---
 
